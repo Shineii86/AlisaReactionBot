@@ -1,8 +1,17 @@
-/**
+/*
+ * ======= • ======= • ======= • ======= • =======• =======
+ * Alisa Reaction Bot
+ * Repository: https://github.com/Shineii86/AlisaReactionBot
+ *
  * Telegram API for:
  *      - sendMessage
  *      - setMessageReaction
- * Repository: https://github.com/Malith-Rukshan/Auto-Reaction-Bot
+ *
+ * Copyright (c) 2026 Shinei Nouzen
+ *
+ * Released under the MIT License.
+ * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * ======= • ======= • ======= • ======= • =======• =======
  */
 
 export default class TelegramBotAPI {
