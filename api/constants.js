@@ -5,9 +5,9 @@ So you started me. Not that I was waiting or anything.
 Welcome to *Alisa Emoji Reaction Bot ✨*
 I’ll make your chats more fun… if you behave.
 
-💬 What I do:
+💬 Here's how I spice up your chats:
 
-✨ *Private*: I react to your messages with the perfect emoji.
+✨ *Private Chat*: I react to your messages with the perfect emoji.
 🌸 *Groups & Channels*: Add me and I’ll drop fitting reactions when the mood feels right.
 
 Curious about my emojis? Use /reactions.
@@ -17,12 +17,12 @@ I’m only helping because I want to… okay?`
 
 export const donateMessage = `Oh… you’re still here?
 
-If you like using Alisa Reaction Bot, maybe consider supporting it. Not that I’m insisting or anything… but keeping the bot online and improving it does take effort.
+If you enjoy using Alisa Reaction Bot, you can support it.
+Even one ⭐ helps keep it online and improving.
 
-Even a small contribution helps. Truly.
+Спасибо for your support.
 
-Спасибо for the support.
-And don’t get the wrong idea. I’m only saying this because I appreciate you.`
+I’m only saying this because I appreciate you.`
 
 export const htmlContent = `
 <!DOCTYPE html>
