@@ -29,6 +29,8 @@ export const htmlContent = `
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>ALISA REACTION BOT · Next-Gen Telegram Automation</title>
+ <meta name="description" content="Alisa Reaction Bot a graceful little Telegram bot that automatically reacts to messages in channels, groups, and private chats. Serverless. Efficient. Quietly expressive. It responds when the moment feels right… not that it’s trying to impress you or anything.">
+ <link rel="icon" href="https://github.com/Shineii86/AlisaReactionBot/raw/refs/heads/main/assets/icon.png" type="image/png">
  
  <!-- Modern Typography: Space Grotesk for headings, Inter for body -->
  <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -221,6 +223,51 @@ export const htmlContent = `
      pointer-events: none;
      z-index: 1;
    }
+
+    /* Terminal */
+   .terminal {
+     background: var(--bg-secondary);
+     border: 1px solid var(--border-color);
+     border-radius: 16px;
+     max-width: 800px;
+     margin: 3rem auto;
+     overflow: hidden;
+     text-align: left;
+   }
+
+   .terminal-header {
+     background: var(--bg-tertiary);
+     padding: 1rem 1.5rem;
+     display: flex;
+     gap: 0.5rem;
+     align-items: center;
+     border-bottom: 1px solid var(--border-color);
+   }
+
+   .terminal-dot {
+     width: 12px;
+     height: 12px;
+     border-radius: 50%;
+   }
+
+   .terminal-dot.red { background: #ef4444; }
+   .terminal-dot.yellow { background: #eab308; }
+   .terminal-dot.green { background: #22c55e; }
+
+   .terminal-body {
+     padding: 1.5rem;
+     font-family: 'JetBrains Mono', monospace;
+     font-size: 0.9rem;
+     line-height: 1.8;
+   }
+
+   .terminal-line {
+     color: var(--text-secondary);
+   }
+
+   .terminal-line .comment { color: #64748b; }
+   .terminal-line .command { color: var(--accent-primary); }
+   .terminal-line .output { color: var(--text-primary); }
  </style>
 </head>
 <body class="bg-slate-900 text-white overflow-x-hidden selection:bg-purple-500 selection:text-white">
@@ -337,7 +384,7 @@ export const htmlContent = `
                  <i data-lucide="bot" class="w-6 h-6"></i>
                </div>
                <div>
-                 <h3 class="font-semibold">Alisa Bot</h3>
+                 <h3 class="font-semibold">Alisa Reaction Bot</h3>
                  <p class="text-xs text-green-400 flex items-center gap-1">
                    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
                    Online
@@ -591,6 +638,47 @@ export const htmlContent = `
            Deploy Now <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
          </div>
        </a>
+     </div>
+
+          <div class="terminal fade-in">
+       <div class="terminal-header">
+         <div class="terminal-dot red"></div>
+         <div class="terminal-dot yellow"></div>
+         <div class="terminal-dot green"></div>
+         <span style="margin-left: 1rem; color: var(--text-muted); font-size: 0.85rem;">bash — 80x24</span>
+       </div>
+       <div class="terminal-body">
+         <div class="terminal-line">
+           <span class="comment"># Clone the repository</span>
+         </div>
+         <div class="terminal-line">
+           <span class="command">git clone</span> <span class="output">https://github.com/Shineii86/AlisaReactionBot.git </span>
+         </div>
+         <div class="terminal-line">
+           <span class="command">cd</span> <span class="output">AlisaReactionBot</span>
+         </div>
+         <div class="terminal-line" style="margin-top: 1rem;">
+           <span class="comment"># Install dependencies</span>
+         </div>
+         <div class="terminal-line">
+           <span class="command">npm install</span>
+         </div>
+         <div class="terminal-line" style="margin-top: 1rem;">
+           <span class="comment"># Configure environment</span>
+         </div>
+         <div class="terminal-line">
+           <span class="command">cp</span> <span class="output">.env.example .env</span>
+         </div>
+         <div class="terminal-line" style="margin-top: 1rem;">
+           <span class="comment"># Deploy to Cloudflare</span>
+         </div>
+         <div class="terminal-line">
+           <span class="command">npm run deploy</span>
+         </div>
+         <div class="terminal-line" style="margin-top: 1rem; color: #22c55e;">
+           ✓ Successfully deployed to https://alisa-bot.your-subdomain.workers.dev 
+         </div>
+       </div>
      </div>
 
      <!-- Prerequisites -->
