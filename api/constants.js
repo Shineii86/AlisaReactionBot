@@ -1,4 +1,4 @@
-export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, *userName*.
+export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, *UserName*.
 
 Sᴏ Yᴏᴜ Sᴛᴀʀᴛᴇᴅ Mᴇ. Nᴏᴛ Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Oʀ Aɴʏᴛʜɪɴɢ.
 
@@ -10,18 +10,16 @@ I’ʟʟ Mᴀᴋᴇ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Fᴜɴ… Iғ Yᴏᴜ Bᴇʜ�
 ✨ *Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ*: I ʀᴇᴀᴄᴛ ᴛᴏ ʏᴏᴜʀ ᴍᴇssᴀɢᴇs ᴡɪᴛʜ ᴛʜᴇ ᴘᴇʀғᴇᴄᴛ ᴇᴍᴏᴊɪ.
 🌸 *Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs*: Aᴅᴅ ᴍᴇ ᴀɴᴅ I’ʟʟ ᴅʀᴏᴘ ғɪᴛᴛɪɴɢ ʀᴇᴀᴄᴛɪᴏɴs ᴡʜᴇɴ ᴛʜᴇ ᴍᴏᴏᴅ ғᴇᴇʟs ʀɪɢʜᴛ.
 
-Cᴜʀɪᴏᴜs Aʙᴏᴜᴛ Mʏ Eᴍᴏᴊɪs? Usᴇ /ʀᴇᴀᴄᴛɪᴏɴs.
+Cᴜʀɪᴏᴜs Aʙᴏᴜᴛ Mʏ Eᴍᴏᴊɪs? Usᴇ /reactions.
 
 Lᴇᴛ’s Bʀɪɢʜᴛᴇɴ Yᴏᴜʀ Cʜᴀᴛs A Lɪᴛᴛʟᴇ.
 I’ᴍ Oɴʟʏ Hᴇʟᴘɪɴɢ Bᴇᴄᴀᴜsᴇ I Wᴀɴᴛ Tᴏ… Oᴋᴀʏ?`
 
-export const donateMessage = `🫣 Oʜ… Yᴏᴜ’ʀᴇ Sᴛɪʟʟ Hᴇʀᴇ?
+export const donateMessage = `🫣 Oʜ... Yᴏᴜ’ʀᴇ Sᴛɪʟʟ Hᴇʀᴇ?
 
-Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ, Yᴏᴜ Cᴀɴ Sᴜᴘᴘᴏʀᴛ ɪᴛ.
-Eᴠᴇɴ Oɴᴇ ⭐ Hᴇʟᴘs Kᴇᴇᴘ Iᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
+Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ, Yᴏᴜ Cᴀɴ Sᴜᴘᴘᴏʀᴛ ɪᴛ. Eᴠᴇɴ Oɴᴇ ⭐ Hᴇʟᴘs Kᴇᴇᴘ Iᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
 
 Спасибо Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ.
-
 I’ᴍ Oɴʟʏ Sᴀʏɪɴɢ Tʜɪs Bᴇᴄᴀᴜsᴇ I Aᴘᴘʀᴇᴄɪᴀᴛᴇ Yᴏᴜ.`
 
 export const htmlContent = `
@@ -654,6 +652,9 @@ export const htmlContent = `
            </a>
            <a href="mailto:ikx7a@hotmail.com" class="w-10 h-10 rounded-full glass flex items-center justify-center text-slate-400 hover:text-white hover:border-red-500/50 transition-all">
              <i data-lucide="mail" class="w-5 h-5"></i>
+           </a>
+           <a href="https://instagram.com/ikx7.a" class="w-10 h-10 rounded-full glass flex items-center justify-center text-slate-400 hover:text-white hover:border-red-500/50 transition-all">
+             <i data-lucide="instagram" class="w-5 h-5"></i>
            </a>
          </div>
        </div>
