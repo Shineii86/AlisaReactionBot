@@ -1,28 +1,28 @@
-export const startMessage = `👋 Oh? Hello, *UserName*.
+export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, *userName*.
 
-So you started me. Not that I was waiting or anything.
+Sᴏ Yᴏᴜ Sᴛᴀʀᴛᴇᴅ Mᴇ. Nᴏᴛ Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Oʀ Aɴʏᴛʜɪɴɢ.
 
-Welcome to *Alisa Emoji Reaction Bot ✨*
-I’ll make your chats more fun… if you behave.
+🎊 Wᴇʟᴄᴏᴍᴇ Tᴏ *Aʟɪsᴀ Eᴍᴏᴊɪ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ* ✨
+I’ʟʟ Mᴀᴋᴇ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Fᴜɴ… Iғ Yᴏᴜ Bᴇʜᴀᴠᴇ.
 
-💬 Here's how I spice up your chats:
+💬 *Hᴇʀᴇ's Hᴏᴡ I Sᴘɪᴄᴇ Uᴘ Yᴏᴜʀ Cʜᴀᴛs:*
 
-✨ *Private Chat*: I react to your messages with the perfect emoji.
-🌸 *Groups & Channels*: Add me and I’ll drop fitting reactions when the mood feels right.
+✨ *Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ*: I ʀᴇᴀᴄᴛ ᴛᴏ ʏᴏᴜʀ ᴍᴇssᴀɢᴇs ᴡɪᴛʜ ᴛʜᴇ ᴘᴇʀғᴇᴄᴛ ᴇᴍᴏᴊɪ.
+🌸 *Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs*: Aᴅᴅ ᴍᴇ ᴀɴᴅ I’ʟʟ ᴅʀᴏᴘ ғɪᴛᴛɪɴɢ ʀᴇᴀᴄᴛɪᴏɴs ᴡʜᴇɴ ᴛʜᴇ ᴍᴏᴏᴅ ғᴇᴇʟs ʀɪɢʜᴛ.
 
-Curious about my emojis? Use /reactions.
+Cᴜʀɪᴏᴜs Aʙᴏᴜᴛ Mʏ Eᴍᴏᴊɪs? Usᴇ /ʀᴇᴀᴄᴛɪᴏɴs.
 
-Let’s brighten your chats a little.
-I’m only helping because I want to… okay?`
+Lᴇᴛ’s Bʀɪɢʜᴛᴇɴ Yᴏᴜʀ Cʜᴀᴛs A Lɪᴛᴛʟᴇ.
+I’ᴍ Oɴʟʏ Hᴇʟᴘɪɴɢ Bᴇᴄᴀᴜsᴇ I Wᴀɴᴛ Tᴏ… Oᴋᴀʏ?`
 
-export const donateMessage = `Oh… you’re still here?
+export const donateMessage = `🫣 Oʜ… Yᴏᴜ’ʀᴇ Sᴛɪʟʟ Hᴇʀᴇ?
 
-If you enjoy using Alisa Reaction Bot, you can support it.
-Even one ⭐ helps keep it online and improving.
+Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ, Yᴏᴜ Cᴀɴ Sᴜᴘᴘᴏʀᴛ ɪᴛ.
+Eᴠᴇɴ Oɴᴇ ⭐ Hᴇʟᴘs Kᴇᴇᴘ Iᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
 
-Спасибо for your support.
+Спасибо Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ.
 
-I’m only saying this because I appreciate you.`
+I’ᴍ Oɴʟʏ Sᴀʏɪɴɢ Tʜɪs Bᴇᴄᴀᴜsᴇ I Aᴘᴘʀᴇᴄɪᴀᴛᴇ Yᴏᴜ.`
 
 export const htmlContent = `
 <!DOCTYPE html>
