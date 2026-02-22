@@ -1,6 +1,13 @@
-/*!
- * © [2026] Malith-Rukshan. All rights reserved.
- * Repository: https://github.com/Malith-Rukshan/Auto-Reaction-Bot
+/*
+ * ======= • ======= • ======= • ======= • =======• =======
+ * Alisa Reaction Bot
+ * Repository: https://github.com/Shineii86/AlisaReactionBot
+ *
+ * Copyright (c) 2026 Shinei Nouzen
+ *
+ * Released under the MIT License.
+ * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * ======= • ======= • ======= • ======= • =======• =======
  */
 
 import express from 'express';
