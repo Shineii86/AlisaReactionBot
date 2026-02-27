@@ -28,7 +28,7 @@ export const htmlContent = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALISA · TERMINAL CORE</title>
+  <title>Alisa Reaction Bot</title>
   <meta name="description" content="Neural-linked Telegram automation – main modules & edge deployment.">
   <link rel="icon" href="https://github.com/Shineii86/AlisaReactionBot/raw/refs/heads/main/assets/icon.png" type="image/png">
 
