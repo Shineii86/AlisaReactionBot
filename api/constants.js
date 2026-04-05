@@ -26,311 +26,442 @@ export const htmlContent = `
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alisa Reaction Bot</title>
-  <meta name="description" content="Neural-linked Telegram automation – main modules & edge deployment.">
-  <link rel="icon" href="https://github.com/Shineii86/AlisaReactionBot/raw/refs/heads/main/assets/icon.png" type="image/png">
-
-  <!-- fonts: Orbitron (headers), Rajdhani (ui), Share Tech Mono (terminal) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-  <!-- Tailwind (lightweight) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Alisa · Neural Reaction Engine</title>
+  <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation, edge-deployed neural architecture.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f3ff' stroke-width='1.5'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
+  
+  <!-- Google Fonts: Modern anime/tech style -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- TailwindCSS + basic overrides -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide icons -->
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Orbitron', 'sans-serif'],
-            ui: ['Rajdhani', 'sans-serif'],
-            mono: ['Share Tech Mono', 'monospace'],
-          },
-          colors: {
-            cyber: {
-              black: '#050505',
-              dark: '#0a0a0f',
-              panel: '#111118',
-              neon: { cyan: '#00f3ff', pink: '#ff00ff', purple: '#b026ff', yellow: '#ffff00', green: '#00ff41' }
-            }
-          },
-          animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
-        }
-      }
-    }
-  </script>
-
+  
   <style>
-    :root {
-      --neon-cyan: #00f3ff; --neon-pink: #ff00ff; --neon-purple: #b026ff;
-      --neon-green: #00ff41; --cyber-black: #050505; --cyber-dark: #0a0a0f; --cyber-panel: #111118;
+    /* ===== ROSHIDERE-INSPIRED DEEP AESTHETIC ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
     body {
-      background-color: var(--cyber-black);
-      color: #e0e0e0;
-      font-family: 'Rajdhani', sans-serif;
+      background-color: #02020c;
+      font-family: 'Inter', sans-serif;
+      color: #f0f0ff;
       overflow-x: hidden;
     }
-    /* scanlines + grid (ambient) */
-    .scanlines {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
-      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-      background-size: 100% 4px; opacity: 0.3;
-    }
-    .scanlines::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 10px;
-      background: rgba(0, 243, 255, 0.1); animation: scan 6s linear infinite;
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
-    }
-    .cyber-grid {
-      background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-      background-size: 50px 50px; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
-    }
-    .hex-bg {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%2300f3ff' fill-opacity='0.03' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none; z-index: 1;
-    }
-    @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
-    /* cyber card (reduced) */
-    .cyber-card {
-      background: rgba(17, 17, 24, 0.8); border: 1px solid rgba(0, 243, 255, 0.2); position: relative; overflow: hidden;
+    /* animated gradient bg + noise texture */
+    .cyber-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: radial-gradient(circle at 30% 10%, rgba(15, 25, 55, 0.9), #02020c 80%);
     }
-    .cyber-card::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent); animation: scan 3s linear infinite;
+    .cyber-bg::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.045'/%3E%3C/svg%3E");
+      opacity: 0.3;
+      pointer-events: none;
     }
-    .cyber-card::after {
-      content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px;
-      border-bottom: 2px solid var(--neon-cyan); border-right: 2px solid var(--neon-cyan);
+
+    /* animated grid (glow lines) */
+    .grid-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(to right, rgba(0, 243, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 243, 255, 0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: -1;
     }
-    /* terminal */
-    .cyber-terminal {
-      background: rgba(5, 5, 5, 0.95); border: 1px solid var(--neon-green); box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
-      font-family: 'Share Tech Mono', monospace;
+
+    /* glass card (roshidere signature) */
+    .glass-panel {
+      background: rgba(12, 15, 35, 0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      border-radius: 2rem;
+      box-shadow: 0 25px 40px -12px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
     }
-    .terminal-header { background: rgba(0, 255, 65, 0.1); border-bottom: 1px solid var(--neon-green); }
-    .glow-text-cyan { text-shadow: 0 0 10px rgba(0, 243, 255, 0.8); }
-    .glow-text-pink { text-shadow: 0 0 10px rgba(255, 0, 255, 0.8); }
-    .glow-text-purple { text-shadow: 0 0 10px rgba(176, 38, 255, 0.8); }
-    .cyber-btn {
-      background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); font-family: 'Orbitron', sans-serif;
-      text-transform: uppercase; letter-spacing: 2px; overflow: hidden; transition: all 0.3s;
-      clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+    .glass-panel:hover {
+      border-color: rgba(0, 243, 255, 0.5);
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
     }
-    .cyber-btn:hover { background: var(--neon-cyan); color: black; box-shadow: 0 0 30px rgba(0,243,255,0.6); }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #050505; } ::-webkit-scrollbar-thumb { background: #00f3ff; }
+
+    /* glowing text styles */
+    .glow-cyan {
+      text-shadow: 0 0 8px #00f3ff80, 0 0 2px #00f3ff;
+    }
+    .glow-pink {
+      text-shadow: 0 0 8px #ff44e6, 0 0 2px #ff44e6;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #E6E9FF 0%, #A0C4FF 40%, #6C8CFF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    /* button roshidere style */
+    .btn-primary {
+      background: linear-gradient(105deg, #00e0ff20, #7a2eff20);
+      border: 1px solid rgba(0, 240, 255, 0.6);
+      backdrop-filter: blur(4px);
+      transition: 0.25s;
+      border-radius: 2.5rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(105deg, #00e0ff40, #9d4eff40);
+      border-color: #00f3ff;
+      box-shadow: 0 0 18px rgba(0, 243, 255, 0.3);
+      transform: scale(1.02);
+    }
+
+    /* animated orb (character replacement) */
+    .orb-pulse {
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle at 30% 35%, rgba(0, 243, 255, 0.2), rgba(111, 0, 255, 0.15));
+      border-radius: 50%;
+      filter: blur(40px);
+      animation: orbFloat 6s infinite alternate;
+    }
+    @keyframes orbFloat {
+      0% { transform: translateY(0px) scale(1); opacity: 0.6; }
+      100% { transform: translateY(-25px) scale(1.05); opacity: 0.9; }
+    }
+
+    /* scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* custom scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #03030e; }
+    ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 10px; }
+
+    /* floating particles */
+    .particle {
+      position: fixed;
+      background: #00f3ff;
+      border-radius: 50%;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(2px);
+    }
   </style>
 </head>
-<body class="antialiased">
+<body>
 
-  <!-- persistent ambient layers -->
-  <div class="scanlines"></div>
-  <div class="cyber-grid"></div>
-  <div class="hex-bg"></div>
+  <div class="cyber-bg"></div>
+  <div class="grid-lines"></div>
 
-  <!-- ========== MINIMAL NAV ========== -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur border-b border-cyan-500/30 px-6 py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+  <!-- NAVIGATION (sleek & minimal) -->
+  <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/40 border-b border-white/10 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 border border-cyan-400 flex items-center justify-center">
-          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg">
+          <i data-lucide="bot" class="w-5 h-5 text-white"></i>
         </div>
-        <span class="font-display font-bold text-white tracking-widest text-lg">ALISA</span>
-        <span class="font-mono text-[0.6rem] text-cyan-400/70 ml-2">Reaction Bot</span>
+        <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">ALISA</span>
+        <span class="hidden md:block text-[11px] font-mono text-cyan-400/70 border-l border-cyan-500/30 pl-2 ml-1">reaction.engine</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+        <a href="#features" class="hover:text-cyan-400 transition-colors">Neural Cores</a>
+        <a href="#deploy" class="hover:text-cyan-400 transition-colors">Edge Deployment</a>
+        <a href="#protocol" class="hover:text-cyan-400 transition-colors">Protocol</a>
       </div>
       <div class="flex items-center gap-3">
-        <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="text-gray-400 hover:text-cyan-400 transition">
+        <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="text-gray-300 hover:text-cyan-400 transition">
           <i data-lucide="github" class="w-5 h-5"></i>
         </a>
-        <a href="https://t.me/AlisaReactionBot" target="_blank" class="cyber-btn px-4 py-1 text-xs flex items-center gap-1">
-          <i data-lucide="zap" class="w-3 h-3"></i> BOT
+        <a href="https://t.me/AlisaReactionBot" target="_blank" class="btn-primary px-4 py-1.5 text-xs md:text-sm flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> <span>LAUNCH BOT</span>
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- ========== MAIN (only features + deployment) ========== -->
-  <main class="relative z-10 max-w-6xl mx-auto px-4 pt-28 pb-16">
-
-    <!-- FEATURES SECTION (CORE MODULES) -->
-    <section id="features" class="mb-24">
-      <div class="text-center mb-12">
-        <div class="inline-block border border-cyan-500/30 px-4 py-1 mb-3">
-          <span class="text-xs font-mono text-cyan-400 tracking-widest">// CORE_MODULES //</span>
-        </div>
-        <h2 class="font-display text-4xl md:text-5xl font-black tracking-tight">
-          <span class="text-white">NEURAL</span>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">PRIMITIVES</span>
-        </h2>
-      </div>
-
-      <!-- compact feature grid (4 essential modules) -->
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- feature 1: speed -->
-        <div class="cyber-card p-5 group hover:border-cyan-400 transition-all">
-          <div class="flex justify-between items-start">
-            <i data-lucide="zap" class="w-6 h-6 text-cyan-400"></i>
-            <span class="text-2xl font-display font-black text-cyan-400/30 group-hover:text-cyan-400/50">01</span>
+  <main class="relative z-10">
+    <!-- HERO SECTION (inspired by roshidere's visual impact) -->
+    <section class="pt-32 md:pt-40 pb-20 px-6 max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="reveal">
+          <div class="inline-flex items-center gap-2 bg-white/5 rounded-full px-4 py-1.5 border border-cyan-500/30 mb-6 backdrop-blur-sm">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+            </span>
+            <span class="text-[11px] font-mono tracking-wider text-cyan-300">NEURAL LINK ACTIVE</span>
           </div>
-          <h3 class="font-display font-bold text-white mt-2 text-lg tracking-wide">QUANTUM SPEED</h3>
-          <p class="text-gray-400 text-xs font-ui leading-relaxed">sub-100ms edge latency · 300+ nodes · zero cold starts</p>
-          <div class="mt-3 h-1 bg-gray-800 w-full rounded"><div class="h-full w-[95%] bg-cyan-400 shadow-[0_0_6px_#00f3ff]"></div></div>
-        </div>
-        <!-- feature 2: shield -->
-        <div class="cyber-card p-5 group hover:border-pink-400 transition-all">
-          <div class="flex justify-between items-start">
-            <i data-lucide="shield" class="w-6 h-6 text-pink-400"></i>
-            <span class="text-2xl font-display font-black text-pink-400/30 group-hover:text-pink-400/50">02</span>
+          <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.2]">
+            <span class="gradient-text">Alisa</span><br>
+            <span class="text-white">Reaction <span class="text-cyan-400 glow-cyan">Matrix</span></span>
+          </h1>
+          <p class="text-gray-300 text-lg md:text-xl mt-6 max-w-lg leading-relaxed font-light">
+            Sub-100ms Telegram automation • serverless mesh • infinite scaling. Deploy at the edge with zero cold starts.
+          </p>
+          <div class="flex flex-wrap gap-4 mt-10">
+            <a href="#deploy" class="btn-primary px-8 py-3 text-base flex items-center gap-2">
+              <i data-lucide="cloud" class="w-5 h-5"></i> Edge Deploy
+            </a>
+            <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="border border-white/20 rounded-full px-7 py-3 text-base hover:bg-white/5 transition flex items-center gap-2">
+              <i data-lucide="code-2" class="w-5 h-5"></i> Source
+            </a>
           </div>
-          <h3 class="font-display font-bold text-white mt-2 text-lg tracking-wide">NEURAL SHIELD</h3>
-          <p class="text-gray-400 text-xs font-ui">military-grade encryption · no disk persistence</p>
-          <div class="mt-3 h-1 bg-gray-800 w-full rounded"><div class="h-full w-full bg-pink-400 shadow-[0_0_6px_#ff00ff]"></div></div>
-        </div>
-        <!-- feature 3: mesh -->
-        <div class="cyber-card p-5 group hover:border-purple-400 transition-all">
-          <div class="flex justify-between items-start">
-            <i data-lucide="network" class="w-6 h-6 text-purple-400"></i>
-            <span class="text-2xl font-display font-black text-purple-400/30 group-hover:text-purple-400/50">03</span>
+          <div class="flex items-center gap-5 mt-8 text-xs font-mono text-gray-400">
+            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Cloudflare Workers</span></div>
+            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Vercel Edge</span></div>
+            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Telegram API 6+</span></div>
           </div>
-          <h3 class="font-display font-bold text-white mt-2 text-lg tracking-wide">MESH NETWORK</h3>
-          <p class="text-gray-400 text-xs font-ui">global edge · auto-routing · anycast backbone</p>
-          <div class="mt-3 h-1 bg-gray-800 w-full rounded"><div class="h-full w-[88%] bg-purple-400 shadow-[0_0_6px_#b026ff]"></div></div>
         </div>
-        <!-- feature 4: infinite scale -->
-        <div class="cyber-card p-5 group hover:border-green-400 transition-all">
-          <div class="flex justify-between items-start">
-            <i data-lucide="infinity" class="w-6 h-6 text-green-400"></i>
-            <span class="text-2xl font-display font-black text-green-400/30 group-hover:text-green-400/50">04</span>
+        <div class="relative flex justify-center md:justify-end reveal" style="transition-delay: 0.1s;">
+          <div class="relative w-full max-w-md">
+            <div class="orb-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+            <div class="glass-panel p-6 relative z-10 backdrop-blur-xl bg-black/30 border border-cyan-400/40 rounded-3xl shadow-2xl">
+              <div class="flex flex-col items-center text-center">
+                <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center mb-4 border border-white/20">
+                  <i data-lucide="cpu" class="w-12 h-12 text-cyan-300"></i>
+                </div>
+                <h3 class="font-display text-xl font-semibold tracking-tight">reaction.core</h3>
+                <div class="flex items-center gap-2 mt-2 text-sm font-mono">
+                  <span class="text-green-400">●</span> <span class="text-gray-300">99.99% uptime</span>
+                </div>
+                <div class="w-full mt-5 bg-white/5 rounded-full h-1.5">
+                  <div class="bg-gradient-to-r from-cyan-400 to-purple-500 w-[92%] h-1.5 rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-3 font-mono">Edge latency: 47ms · 300+ global nodes</p>
+                <div class="grid grid-cols-2 gap-3 w-full mt-6 text-left">
+                  <div><span class="text-cyan-400 text-xs font-bold">⌁ 1.2M</span><p class="text-[10px] text-gray-400">requests/day</p></div>
+                  <div><span class="text-cyan-400 text-xs font-bold">⚡ &lt;90ms</span><p class="text-[10px] text-gray-400">p95 response</p></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 class="font-display font-bold text-white mt-2 text-lg tracking-wide">INFINITE SCALE</h3>
-          <p class="text-gray-400 text-xs font-ui">auto-scaling 0→∞ · pay-per-use · serverless</p>
-          <div class="mt-3 h-1 bg-gray-800 w-full rounded"><div class="h-full w-[99%] bg-green-400 shadow-[0_0_6px_#00ff41]"></div></div>
-        </div>
-      </div>
-      <!-- secondary features (condensed) -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-        <div class="border border-cyan-500/20 bg-cyber-panel/50 p-3 flex items-center gap-2">
-          <i data-lucide="bar-chart-2" class="w-4 h-4 text-cyan-400"></i>
-          <span class="font-mono text-xs text-gray-300">data stream</span>
-        </div>
-        <div class="border border-pink-500/20 bg-cyber-panel/50 p-3 flex items-center gap-2">
-          <i data-lucide="sliders" class="w-4 h-4 text-pink-400"></i>
-          <span class="font-mono text-xs text-gray-300">custom protocol</span>
-        </div>
-        <div class="border border-purple-500/20 bg-cyber-panel/50 p-3 flex items-center gap-2">
-          <i data-lucide="activity" class="w-4 h-4 text-purple-400"></i>
-          <span class="font-mono text-xs text-gray-300">live metrics</span>
-        </div>
-        <div class="border border-green-500/20 bg-cyber-panel/50 p-3 flex items-center gap-2">
-          <i data-lucide="bot" class="w-4 h-4 text-green-400"></i>
-          <span class="font-mono text-xs text-gray-300">reaction matrix</span>
         </div>
       </div>
     </section>
 
-    <!-- DEPLOYMENT SECTION (TERMINAL FOCUS) -->
-    <section id="deploy">
-      <div class="text-center mb-10">
-        <div class="inline-block border border-pink-500/30 px-4 py-1 mb-3">
-          <span class="text-xs font-mono text-pink-400 tracking-widest">// DEPLOY_PROTOCOL //</span>
-        </div>
-        <h2 class="font-display text-4xl md:text-5xl font-black tracking-tight">
-          <span class="text-white">EDGE</span>
-          <span class="text-pink-400 glow-text-pink">TERMINAL</span>
-        </h2>
+    <!-- FEATURES SECTION (roshidere-like card grid) -->
+    <section id="features" class="py-20 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <span class="text-cyan-400 font-mono text-sm tracking-widest bg-white/5 px-4 py-1 rounded-full">// CORE_MODULES //</span>
+        <h2 class="text-4xl md:text-5xl font-bold mt-4 tracking-tight">Neural <span class="gradient-text">Primitives</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto mt-3">Built for hyper-reactive Telegram bots — military-grade encryption, mesh routing, and sub‑linear scaling.</p>
       </div>
-
-      <!-- main terminal window -->
-      <div class="cyber-terminal rounded-lg overflow-hidden mb-6">
-        <div class="terminal-header px-4 py-2 flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-          <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-          <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-          <span class="ml-2 text-xs text-green-400/70 font-mono">alisa@edge:~$</span>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- card 1 -->
+        <div class="glass-panel p-6 group hover:border-cyan-400/60 transition-all duration-300 reveal">
+          <div class="flex justify-between items-start">
+            <i data-lucide="zap" class="w-7 h-7 text-cyan-400"></i>
+            <span class="text-4xl font-black text-cyan-400/20 group-hover:text-cyan-400/30">01</span>
+          </div>
+          <h3 class="font-bold text-xl mt-4">Quantum Speed</h3>
+          <p class="text-gray-300 text-sm mt-2">Edge-optimized workers · sub-100ms median latency · instant failover</p>
+          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[96%] bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div></div>
         </div>
-        <div class="p-5 font-mono text-sm space-y-2">
-          <div class="text-gray-500"># === DEPLOY TO CLOUDFLARE WORKERS (RECOMMENDED) ===</div>
-          <div><span class="text-cyan-400">$</span> <span class="text-white">git clone</span> <span class="text-green-400">https://github.com/Shineii86/AlisaReactionBot.git</span></div>
-          <div class="text-gray-500">→ Cloning neural pathways... <span class="text-green-400">OK</span></div>
-          <div class="mt-3"><span class="text-cyan-400">$</span> <span class="text-white">cd AlisaReactionBot && npm ci</span></div>
-          <div class="text-gray-500">→ Dependencies installed <span class="text-green-400">[esbuild+workers]</span></div>
-          <div class="mt-3"><span class="text-cyan-400">$</span> <span class="text-white">cp .env.example .env</span></div>
-          <div class="text-yellow-400">⚠️  edit .env: add BOT_TOKEN (from @BotFather) and SECRET</div>
-          <div class="mt-3"><span class="text-cyan-400">$</span> <span class="text-white">npm run deploy</span></div>
-          <div class="text-green-400 animate-pulse">› Deploying to Cloudflare Edge...</div>
-          <div class="text-cyan-400 mt-2">✓ Published: https://alisa-bot.your-subdomain.workers.dev</div>
-          <div class="border-t border-green-500/30 my-3 pt-2 text-gray-500"># alternative: vercel</div>
-          <div><span class="text-cyan-400">$</span> <span class="text-white">npx vercel --prod</span>  <span class="text-gray-500"># auto HTTPS</span></div>
+        <!-- card 2 -->
+        <div class="glass-panel p-6 group hover:border-pink-400/60 transition-all duration-300 reveal">
+          <div class="flex justify-between items-start">
+            <i data-lucide="shield" class="w-7 h-7 text-pink-400"></i>
+            <span class="text-4xl font-black text-pink-400/20 group-hover:text-pink-400/30">02</span>
+          </div>
+          <h3 class="font-bold text-xl mt-4">Neural Shield</h3>
+          <p class="text-gray-300 text-sm mt-2">End-to-end encryption · no persistent logs · zero-trust architecture</p>
+          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full"></div></div>
+        </div>
+        <!-- card 3 -->
+        <div class="glass-panel p-6 group hover:border-purple-400/60 transition-all duration-300 reveal">
+          <div class="flex justify-between items-start">
+            <i data-lucide="network" class="w-7 h-7 text-purple-400"></i>
+            <span class="text-4xl font-black text-purple-400/20 group-hover:text-purple-400/30">03</span>
+          </div>
+          <h3 class="font-bold text-xl mt-4">Mesh Edge</h3>
+          <p class="text-gray-300 text-sm mt-2">Global anycast routing · auto‑healing · regional replication</p>
+          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[90%] bg-gradient-to-r from-purple-400 to-fuchsia-500 rounded-full"></div></div>
+        </div>
+        <!-- card 4 -->
+        <div class="glass-panel p-6 group hover:border-green-400/60 transition-all duration-300 reveal">
+          <div class="flex justify-between items-start">
+            <i data-lucide="infinity" class="w-7 h-7 text-green-400"></i>
+            <span class="text-4xl font-black text-green-400/20 group-hover:text-green-400/30">04</span>
+          </div>
+          <h3 class="font-bold text-xl mt-4">Infinite Scale</h3>
+          <p class="text-gray-300 text-sm mt-2">Serverless scaling from 0 to ∞ · pay‑per‑request · no cold starts</p>
+          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[99%] bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div></div>
         </div>
       </div>
+      <!-- additional micro stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 reveal">
+        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i><span class="text-xs font-mono">real‑time analytics</span></div>
+        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="webhook" class="w-4 h-4 text-purple-400"></i><span class="text-xs font-mono">webhook multiplex</span></div>
+        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="gauge" class="w-4 h-4 text-pink-400"></i><span class="text-xs font-mono">rate limiting AI</span></div>
+        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="bot" class="w-4 h-4 text-green-400"></i><span class="text-xs font-mono">reaction trainer</span></div>
+      </div>
+    </section>
 
-      <!-- prerequisites + one-click cards -->
-      <div class="grid md:grid-cols-2 gap-5">
-        <!-- prerequisites box -->
-        <div class="cyber-card p-5 border-l-4 border-l-purple-500">
-          <h4 class="font-display text-white text-md mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-purple-400"></i> REQUIRED_MODULES</h4>
-          <ul class="font-mono text-xs space-y-2 text-gray-300">
-            <li class="flex items-center gap-2"><span class="text-purple-400">⟡</span> Telegram Bot Token (from @BotFather)</li>
-            <li class="flex items-center gap-2"><span class="text-purple-400">⟡</span> Cloudflare account (free) – or Vercel</li>
-            <li class="flex items-center gap-2"><span class="text-purple-400">⟡</span> Node.js 18+ / npm</li>
-            <li class="flex items-center gap-2"><span class="text-purple-400">⟡</span> Git (optional but recommended)</li>
-          </ul>
+    <!-- DEPLOYMENT + TERMINAL (roshidere's sleek technical block) -->
+    <section id="deploy" class="py-20 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-12 reveal">
+        <span class="text-pink-400 font-mono text-sm tracking-widest bg-white/5 px-4 py-1 rounded-full">// EDGE_DEPLOYMENT //</span>
+        <h2 class="text-4xl md:text-5xl font-bold mt-3">One‑click <span class="gradient-text">global launch</span></h2>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-8 items-start">
+        <!-- terminal card -->
+        <div class="glass-panel overflow-hidden border-cyan-500/30 reveal">
+          <div class="bg-black/40 px-5 py-3 border-b border-white/10 flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400/70"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-400/70"></div>
+              <div class="w-3 h-3 rounded-full bg-green-400/70"></div>
+            </div>
+            <span class="text-xs font-mono text-cyan-400/80 ml-3">alisa@edge:~/deploy</span>
+          </div>
+          <div class="p-6 font-mono text-sm space-y-2 bg-black/20">
+            <div class="text-gray-400">$ git clone https://github.com/Shineii86/AlisaReactionBot.git</div>
+            <div class="text-green-400">✓ Cloning neural layers... done</div>
+            <div class="text-gray-400">$ cd AlisaReactionBot && npm ci</div>
+            <div class="text-green-400">✓ dependencies installed (workers runtime)</div>
+            <div class="text-gray-400">$ cp .env.example .env</div>
+            <div class="text-yellow-300">⚠️  set BOT_TOKEN + WEBHOOK_SECRET</div>
+            <div class="text-gray-400">$ npm run deploy:cloudflare</div>
+            <div class="text-cyan-400 animate-pulse">› Deploying to Cloudflare Workers edge network...</div>
+            <div class="text-green-400">✔ Published: https://alisa-bot.edge.workers.dev</div>
+            <div class="border-t border-gray-700 my-2 pt-2 text-gray-500"># alternative: Vercel</div>
+            <div class="text-gray-400">$ npx vercel --prod</div>
+          </div>
         </div>
 
-        <!-- quick deploy links (terminal style) -->
-        <div class="grid grid-cols-2 gap-3">
-          <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="cyber-card p-4 flex flex-col items-start hover:border-orange-400 transition group">
-            <i data-lucide="cloud" class="w-6 h-6 text-orange-400 mb-2"></i>
-            <span class="font-display text-sm font-bold text-white">CF WORKERS</span>
-            <span class="text-[0.65rem] font-mono text-orange-400/80 group-hover:text-orange-300">1-CLICK DEPLOY</span>
+        <!-- deploy cards (quick actions) -->
+        <div class="space-y-5 reveal">
+          <div class="glass-panel p-5 flex justify-between items-center hover:border-cyan-400/50 transition">
+            <div><i data-lucide="cloud-lightning" class="w-7 h-7 text-orange-400"></i></div>
+            <div class="flex-1 ml-4"><h4 class="font-bold">Cloudflare Workers</h4><p class="text-xs text-gray-400">Global edge · free tier available</p></div>
+            <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary text-xs px-4 py-2">Deploy →</a>
+          </div>
+          <div class="glass-panel p-5 flex justify-between items-center hover:border-purple-400/50 transition">
+            <div><i data-lucide="triangle" class="w-7 h-7 text-white"></i></div>
+            <div class="flex-1 ml-4"><h4 class="font-bold">Vercel Edge</h4><p class="text-xs text-gray-400">Serverless functions + instant cache</p></div>
+            <a href="https://vercel.com/new/clone?repository-url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary text-xs px-4 py-2">Deploy →</a>
+          </div>
+          <div class="bg-cyan-950/20 rounded-2xl p-4 border border-cyan-500/20 flex items-start gap-3">
+            <i data-lucide="terminal" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
+            <div><p class="text-sm font-mono text-gray-300"><span class="text-cyan-400">⤷</span> Local dev: <code class="bg-black/50 px-2 py-0.5 rounded text-xs">npm run dev</code> — requires Wrangler CLI</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROTOCOL / CTA (inspired by roshidere's final engage) -->
+    <section id="protocol" class="py-24 px-6 max-w-7xl mx-auto text-center">
+      <div class="glass-panel p-8 md:p-12 max-w-4xl mx-auto reveal border-gradient">
+        <i data-lucide="sparkles" class="w-10 h-10 text-cyan-400 mx-auto mb-4"></i>
+        <h3 class="text-3xl md:text-4xl font-bold">Ready to integrate <span class="gradient-text">Alisa</span>?</h3>
+        <p class="text-gray-300 max-w-xl mx-auto mt-3">Deploy your own neural reaction bot in minutes — full Telegram API compatibility, built-in analytics, and zero maintenance overhead.</p>
+        <div class="flex flex-wrap gap-4 justify-center mt-8">
+          <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary px-6 py-3 flex items-center gap-2">
+            <i data-lucide="github"></i> GitHub
           </a>
-          <a href="https://vercel.com/new/clone?repository-url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="cyber-card p-4 flex flex-col items-start hover:border-white transition group">
-            <i data-lucide="triangle" class="w-6 h-6 text-white mb-2"></i>
-            <span class="font-display text-sm font-bold text-white">VERCEL</span>
-            <span class="text-[0.65rem] font-mono text-gray-400 group-hover:text-white">SERVERLESS</span>
+          <a href="https://t.me/AlisaReactionBot" target="_blank" class="bg-white/5 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition flex items-center gap-2">
+            <i data-lucide="message-circle"></i> Try on Telegram
           </a>
         </div>
-      </div>
-
-      <!-- additional tip: local dev -->
-      <div class="mt-5 text-xs font-mono text-gray-500 border border-cyan-500/20 p-3 bg-cyber-panel/30 flex items-center gap-2">
-        <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
-        <span>local dev: <span class="text-cyan-400">npm run dev</span> · requires wrangler for workers</span>
+        <div class="text-[11px] font-mono text-gray-500 mt-8 flex justify-center gap-4">
+          <span>⚡ edge-native</span> <span>🔒 zero-log</span> <span>🌍 28+ regions</span>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- ========== MINIMAL FOOTER ========== -->
-  <footer class="relative z-10 border-t border-cyan-500/20 bg-cyber-black/80 py-6 mt-10">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-[0.65rem] font-mono text-gray-600">
-      <span>Copyright © 2026 Alisa Reaction Bot</span>
-      <span class="flex items-center gap-2 mt-2 md:mt-0">
-        Made With <i data-lucide="heart" class="w-3 h-3 text-pink-500"></i> By Shinei Nouzen
-        <span class="w-1 h-1 bg-cyan-400 rounded-full mx-2"></span>
-        <span class="text-cyan-400">v1.0.1</span>
-      </span>
+  <!-- FOOTER (clean minimal) -->
+  <footer class="border-t border-white/10 py-8 mt-10 bg-black/30 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 font-mono">
+      <div class="flex items-center gap-2">
+        <i data-lucide="copyright" class="w-3 h-3"></i> 2026 Alisa Reaction Bot — neural-linked automation
+      </div>
+      <div class="flex items-center gap-5 mt-3 md:mt-0">
+        <span>Built with <i data-lucide="heart" class="w-3 h-3 text-pink-400 inline"></i> by Shinei Nouzen</span>
+        <span class="text-cyan-400">v2.0.0</span>
+      </div>
     </div>
   </footer>
 
-  <!-- lucide init -->
+  <!-- dynamic particles -->
   <script>
-    lucide.createIcons();
+    (function(){
+      // init lucide icons
+      lucide.createIcons();
 
-    // tiny interactive: make the terminal feel a bit more dynamic (blinking cursor, but static)
-    // we can also add a hover effect on the terminal lines (just for fun)
-    document.querySelectorAll('.cyber-terminal .text-cyan-400').forEach(el => {
-      el.addEventListener('mouseenter', () => el.classList.add('glow-text-cyan'));
-      el.addEventListener('mouseleave', () => el.classList.remove('glow-text-cyan'));
-    });
+      // scroll reveal observer
+      const reveals = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+      reveals.forEach(el => observer.observe(el));
+
+      // floating particles effect (small tech vibe)
+      const particleCount = 45;
+      for(let i=0; i<particleCount; i++) {
+        let particle = document.createElement('div');
+        particle.classList.add('particle');
+        let size = Math.random() * 3 + 1;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animation = `floatParticle ${Math.random() * 20 + 15}s infinite linear`;
+        particle.style.opacity = Math.random() * 0.2 + 0.05;
+        particle.style.background = `radial-gradient(circle, #00f3ff, #a855f7)`;
+        document.body.appendChild(particle);
+      }
+      const styleAnim = document.createElement('style');
+      styleAnim.textContent = `
+        @keyframes floatParticle {
+          0% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-30px) translateX(15px); }
+          100% { transform: translateY(0px) translateX(0px); }
+        }
+        .particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; }
+      `;
+      document.head.appendChild(styleAnim);
+
+      // small interactive hover for terminal command lines (just for style)
+      const terminalLines = document.querySelectorAll('.font-mono .text-gray-400, .font-mono .text-green-400');
+      terminalLines.forEach(line => {
+        line.addEventListener('mouseenter', () => { line.classList.add('text-cyan-300'); });
+        line.addEventListener('mouseleave', () => { line.classList.remove('text-cyan-300'); });
+      });
+    })();
   </script>
 </body>
-</html>
+</html> 
 `;
