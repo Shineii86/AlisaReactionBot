@@ -30,439 +30,535 @@ export const htmlContent = `
   <title>Alisa · Neural Reaction Engine</title>
   <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation, edge-deployed neural architecture.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f3ff' stroke-width='1.5'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
-  
-  <!-- Google Fonts: Modern anime/tech style -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- TailwindCSS + basic overrides -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* ===== ROSHIDERE-INSPIRED DEEP AESTHETIC ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg: #06060e;
+      --bg-elevated: #0c0c1a;
+      --bg-card: rgba(14, 14, 32, 0.65);
+      --border: rgba(0, 243, 255, 0.12);
+      --border-hover: rgba(0, 243, 255, 0.35);
+      --text: #e8e8f0;
+      --text-dim: #7a7a9e;
+      --text-bright: #ffffff;
+      --cyan: #00f3ff;
+      --cyan-dim: rgba(0, 243, 255, 0.15);
+      --purple: #a855f7;
+      --pink: #f472b6;
+      --green: #34d399;
+      --gradient-main: linear-gradient(135deg, #00f3ff, #a855f7);
+      --gradient-subtle: linear-gradient(135deg, rgba(0,243,255,0.08), rgba(168,85,247,0.08));
+      --radius: 20px;
+      --radius-sm: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', 'SF Mono', monospace;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --shadow-glow: 0 0 40px rgba(0,243,255,0.08);
     }
 
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      background-color: #02020c;
-      font-family: 'Inter', sans-serif;
-      color: #f0f0ff;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
+    a { color: var(--cyan); text-decoration: none; transition: opacity 0.2s; }
+    a:hover { opacity: 0.85; }
+    ::selection { background: rgba(0,243,255,0.25); color: #fff; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
 
-    /* animated gradient bg + noise texture */
-    .cyber-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -2;
-      background: radial-gradient(circle at 30% 10%, rgba(15, 25, 55, 0.9), #02020c 80%);
-    }
-    .cyber-bg::before {
-      content: "";
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.045'/%3E%3C/svg%3E");
-      opacity: 0.3;
-      pointer-events: none;
-    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 100px 0; }
 
-    /* animated grid (glow lines) */
-    .grid-lines {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(to right, rgba(0, 243, 255, 0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 243, 255, 0.08) 1px, transparent 1px);
+    .bg-grid {
+      position: fixed; inset: 0; z-index: -2;
+      background-image:
+        linear-gradient(rgba(0,243,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,243,255,0.04) 1px, transparent 1px);
       background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 70%);
+    }
+    .bg-glow {
+      position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px; z-index: -1;
+      background: radial-gradient(circle, rgba(0,243,255,0.06) 0%, rgba(168,85,247,0.04) 40%, transparent 70%);
       pointer-events: none;
-      z-index: -1;
     }
 
-    /* glass card (roshidere signature) */
-    .glass-panel {
-      background: rgba(12, 15, 35, 0.55);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 243, 255, 0.2);
-      border-radius: 2rem;
-      box-shadow: 0 25px 40px -12px rgba(0,0,0,0.4);
-      transition: all 0.3s ease;
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 0;
+      background: rgba(6,6,14,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s;
     }
-    .glass-panel:hover {
-      border-color: rgba(0, 243, 255, 0.5);
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { display: flex; align-items: center; gap: 12px; }
+    .nav-logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--gradient-main);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: var(--bg);
     }
+    .nav-title { font-size: 18px; font-weight: 700; color: var(--text-bright); letter-spacing: -0.02em; }
+    .nav-tag {
+      font-family: var(--mono); font-size: 11px; color: var(--cyan);
+      opacity: 0.7; padding-left: 12px; border-left: 1px solid var(--border);
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-dim); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--cyan); opacity: 1; }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 100px;
+      background: var(--gradient-main); color: var(--bg);
+      font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,243,255,0.3); opacity: 1; }
+    @media (max-width: 768px) { .nav-links, .nav-tag { display: none; } }
 
-    /* glowing text styles */
-    .glow-cyan {
-      text-shadow: 0 0 8px #00f3ff80, 0 0 2px #00f3ff;
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding-top: 80px; position: relative;
     }
-    .glow-pink {
-      text-shadow: 0 0 8px #ff44e6, 0 0 2px #ff44e6;
+    .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    @media (max-width: 900px) { .hero .container { grid-template-columns: 1fr; text-align: center; } }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 18px; border-radius: 100px;
+      background: var(--cyan-dim); border: 1px solid var(--border);
+      font-family: var(--mono); font-size: 12px; color: var(--cyan);
+      margin-bottom: 28px;
     }
-    .gradient-text {
-      background: linear-gradient(135deg, #E6E9FF 0%, #A0C4FF 40%, #6C8CFF 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
+    .hero-badge .pulse {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--cyan);
+      position: relative;
+    }
+    .hero-badge .pulse::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      background: var(--cyan); opacity: 0; animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 0; transform: scale(2.5); } }
+
+    .hero h1 {
+      font-size: clamp(42px, 6vw, 72px); font-weight: 900;
+      line-height: 1.05; letter-spacing: -0.03em;
+      color: var(--text-bright); margin-bottom: 24px;
+    }
+    .hero h1 .gradient {
+      background: var(--gradient-main);
+      -webkit-background-clip: text; background-clip: text;
       color: transparent;
     }
+    .hero p {
+      font-size: 18px; color: var(--text-dim); max-width: 480px;
+      line-height: 1.7; margin-bottom: 36px;
+    }
+    @media (max-width: 900px) { .hero p { margin: 0 auto 36px; } }
 
-    /* button roshidere style */
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    @media (max-width: 900px) { .hero-actions { justify-content: center; } }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 28px; border-radius: 100px; font-size: 15px;
+      font-weight: 600; border: none; cursor: pointer;
+      transition: all 0.25s; font-family: var(--font);
+    }
     .btn-primary {
-      background: linear-gradient(105deg, #00e0ff20, #7a2eff20);
-      border: 1px solid rgba(0, 240, 255, 0.6);
-      backdrop-filter: blur(4px);
-      transition: 0.25s;
-      border-radius: 2.5rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
+      background: var(--gradient-main); color: var(--bg);
+      box-shadow: 0 4px 24px rgba(0,243,255,0.2);
     }
-    .btn-primary:hover {
-      background: linear-gradient(105deg, #00e0ff40, #9d4eff40);
-      border-color: #00f3ff;
-      box-shadow: 0 0 18px rgba(0, 243, 255, 0.3);
-      transform: scale(1.02);
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,243,255,0.35); }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--border-hover); background: var(--cyan-dim); }
+
+    .hero-stats {
+      display: flex; gap: 32px; margin-top: 48px;
+      padding-top: 32px; border-top: 1px solid var(--border);
+    }
+    @media (max-width: 900px) { .hero-stats { justify-content: center; } }
+    .hero-stat .num { font-size: 28px; font-weight: 800; color: var(--cyan); font-family: var(--mono); }
+    .hero-stat .label { font-size: 12px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .hero-visual { position: relative; }
+    @media (max-width: 900px) { .hero-visual { display: none; } }
+
+    .terminal {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow), var(--shadow-glow);
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 18px; background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot.r { background: #ff5f57; }
+    .terminal-dot.y { background: #febc2e; }
+    .terminal-dot.g { background: #28c840; }
+    .terminal-title { font-family: var(--mono); font-size: 12px; color: var(--text-dim); margin-left: 8px; }
+    .terminal-body { padding: 20px; font-family: var(--mono); font-size: 13px; line-height: 2; }
+    .terminal-line { display: flex; gap: 8px; }
+    .terminal-prompt { color: var(--cyan); }
+    .terminal-cmd { color: var(--text); }
+    .terminal-output { color: var(--green); }
+    .terminal-dim { color: var(--text-dim); }
+
+    .orb {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 320px; height: 320px; border-radius: 50%; z-index: -1;
+      background: radial-gradient(circle at 35% 35%, rgba(0,243,255,0.12), rgba(168,85,247,0.08));
+      filter: blur(60px); animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+    @keyframes orbFloat { 0% { transform: translate(-50%,-50%) scale(1); } 100% { transform: translate(-50%,-50%) scale(1.15) translateY(-20px); } }
+
+    .section-label {
+      font-family: var(--mono); font-size: 13px; color: var(--cyan);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .section-label::before { content: '//'; opacity: 0.4; }
+    .section-title {
+      font-size: clamp(32px, 4vw, 48px); font-weight: 800;
+      color: var(--text-bright); letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .section-desc { font-size: 16px; color: var(--text-dim); max-width: 520px; line-height: 1.7; }
+    @media (max-width: 900px) { .section-desc { margin: 0 auto; } }
+
+    .features-header { text-align: center; margin-bottom: 60px; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;
+    }
+    .feature-card {
+      padding: 32px; border-radius: var(--radius);
+      background: var(--bg-card); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--gradient-main); opacity: 0; transition: opacity 0.3s;
+    }
+    .feature-card:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: var(--shadow-glow); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 20px;
+    }
+    .feature-icon.cyan { background: rgba(0,243,255,0.1); color: var(--cyan); }
+    .feature-icon.purple { background: rgba(168,85,247,0.1); color: var(--purple); }
+    .feature-icon.pink { background: rgba(244,114,182,0.1); color: var(--pink); }
+    .feature-icon.green { background: rgba(52,211,153,0.1); color: var(--green); }
+    .feature-card h3 { font-size: 18px; font-weight: 700; color: var(--text-bright); margin-bottom: 10px; }
+    .feature-card p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+    .feature-card .tag {
+      display: inline-block; margin-top: 16px; padding: 4px 12px;
+      border-radius: 100px; font-family: var(--mono); font-size: 11px;
+      background: var(--cyan-dim); color: var(--cyan);
     }
 
-    /* animated orb (character replacement) */
-    .orb-pulse {
-      width: 280px;
-      height: 280px;
-      background: radial-gradient(circle at 30% 35%, rgba(0, 243, 255, 0.2), rgba(111, 0, 255, 0.15));
-      border-radius: 50%;
-      filter: blur(40px);
-      animation: orbFloat 6s infinite alternate;
+    .deploy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    @media (max-width: 768px) { .deploy-grid { grid-template-columns: 1fr; } }
+    .deploy-card {
+      padding: 28px; border-radius: var(--radius);
+      background: var(--bg-card); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s; display: flex; align-items: flex-start; gap: 16px;
     }
-    @keyframes orbFloat {
-      0% { transform: translateY(0px) scale(1); opacity: 0.6; }
-      100% { transform: translateY(-25px) scale(1.05); opacity: 0.9; }
+    .deploy-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .deploy-icon {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      background: var(--cyan-dim); color: var(--cyan);
+    }
+    .deploy-card h4 { font-size: 16px; font-weight: 700; color: var(--text-bright); margin-bottom: 6px; }
+    .deploy-card p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .deploy-card code {
+      font-family: var(--mono); font-size: 12px; padding: 3px 8px;
+      background: rgba(0,0,0,0.3); border-radius: 6px; color: var(--cyan);
     }
 
-    /* scroll reveal */
+    .cta { text-align: center; padding: 120px 0; }
+    .cta-card {
+      max-width: 640px; margin: 0 auto; padding: 60px 40px;
+      border-radius: 28px; position: relative; overflow: hidden;
+      background: var(--bg-card); border: 1px solid var(--border);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .cta-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: 28px;
+      background: var(--gradient-subtle); z-index: -1;
+    }
+    .cta-card h3 {
+      font-size: clamp(28px, 3.5vw, 40px); font-weight: 800;
+      color: var(--text-bright); margin-bottom: 16px;
+    }
+    .cta-card p { font-size: 16px; color: var(--text-dim); max-width: 420px; margin: 0 auto 32px; line-height: 1.7; }
+    .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .cta-meta {
+      display: flex; gap: 24px; justify-content: center; margin-top: 32px;
+      font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+    }
+    .cta-meta span { display: flex; align-items: center; gap: 6px; }
+
+    footer {
+      padding: 32px 0; border-top: 1px solid var(--border);
+      text-align: center; font-size: 13px; color: var(--text-dim);
+    }
+    footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    footer a { color: var(--text-dim); }
+    footer a:hover { color: var(--cyan); }
+    .footer-right { display: flex; align-items: center; gap: 20px; }
+    .footer-ver { font-family: var(--mono); font-size: 11px; color: var(--cyan); opacity: 0.6; }
+
     .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s ease;
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* custom scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #03030e; }
-    ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 10px; }
-
-    /* floating particles */
     .particle {
-      position: fixed;
-      background: #00f3ff;
-      border-radius: 50%;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: -1;
-      filter: blur(2px);
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: -1;
+      background: radial-gradient(circle, rgba(0,243,255,0.4), rgba(168,85,247,0.2));
+      filter: blur(1px);
+    }
+    @keyframes floatParticle {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-20px) translateX(10px); }
+      50% { transform: translateY(-35px) translateX(-5px); }
+      75% { transform: translateY(-15px) translateX(15px); }
     }
   </style>
 </head>
 <body>
 
-  <div class="cyber-bg"></div>
-  <div class="grid-lines"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
 
-  <!-- NAVIGATION (sleek & minimal) -->
-  <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/40 border-b border-white/10 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg">
-          <i data-lucide="bot" class="w-5 h-5 text-white"></i>
-        </div>
-        <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">ALISA</span>
-        <span class="hidden md:block text-[11px] font-mono text-cyan-400/70 border-l border-cyan-500/30 pl-2 ml-1">reaction.engine</span>
+  <nav>
+    <div class="container">
+      <div class="nav-brand">
+        <div class="nav-logo">A</div>
+        <span class="nav-title">ALISA</span>
+        <span class="nav-tag">reaction.engine</span>
       </div>
-      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
-        <a href="#features" class="hover:text-cyan-400 transition-colors">Neural Cores</a>
-        <a href="#deploy" class="hover:text-cyan-400 transition-colors">Edge Deployment</a>
-        <a href="#protocol" class="hover:text-cyan-400 transition-colors">Protocol</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#deploy">Deploy</a>
+        <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank">GitHub</a>
       </div>
-      <div class="flex items-center gap-3">
-        <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="text-gray-300 hover:text-cyan-400 transition">
-          <i data-lucide="github" class="w-5 h-5"></i>
-        </a>
-        <a href="https://t.me/AlisaReactionBot" target="_blank" class="btn-primary px-4 py-1.5 text-xs md:text-sm flex items-center gap-1.5">
-          <i data-lucide="zap" class="w-3.5 h-3.5"></i> <span>LAUNCH BOT</span>
-        </a>
-      </div>
+      <a href="https://t.me/AlisaReactionBot" target="_blank" class="nav-cta">⚡ Launch Bot</a>
     </div>
   </nav>
 
-  <main class="relative z-10">
-    <!-- HERO SECTION (inspired by roshidere's visual impact) -->
-    <section class="pt-32 md:pt-40 pb-20 px-6 max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="reveal">
-          <div class="inline-flex items-center gap-2 bg-white/5 rounded-full px-4 py-1.5 border border-cyan-500/30 mb-6 backdrop-blur-sm">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-            </span>
-            <span class="text-[11px] font-mono tracking-wider text-cyan-300">NEURAL LINK ACTIVE</span>
-          </div>
-          <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.2]">
-            <span class="gradient-text">Alisa</span><br>
-            <span class="text-white">Reaction <span class="text-cyan-400 glow-cyan">Matrix</span></span>
-          </h1>
-          <p class="text-gray-300 text-lg md:text-xl mt-6 max-w-lg leading-relaxed font-light">
-            Sub-100ms Telegram automation • serverless mesh • infinite scaling. Deploy at the edge with zero cold starts.
-          </p>
-          <div class="flex flex-wrap gap-4 mt-10">
-            <a href="#deploy" class="btn-primary px-8 py-3 text-base flex items-center gap-2">
-              <i data-lucide="cloud" class="w-5 h-5"></i> Edge Deploy
-            </a>
-            <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="border border-white/20 rounded-full px-7 py-3 text-base hover:bg-white/5 transition flex items-center gap-2">
-              <i data-lucide="code-2" class="w-5 h-5"></i> Source
-            </a>
-          </div>
-          <div class="flex items-center gap-5 mt-8 text-xs font-mono text-gray-400">
-            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Cloudflare Workers</span></div>
-            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Vercel Edge</span></div>
-            <div class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-400"></i> <span>Telegram API 6+</span></div>
-          </div>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          NEURAL LINK ACTIVE
         </div>
-        <div class="relative flex justify-center md:justify-end reveal" style="transition-delay: 0.1s;">
-          <div class="relative w-full max-w-md">
-            <div class="orb-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="glass-panel p-6 relative z-10 backdrop-blur-xl bg-black/30 border border-cyan-400/40 rounded-3xl shadow-2xl">
-              <div class="flex flex-col items-center text-center">
-                <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center mb-4 border border-white/20">
-                  <i data-lucide="cpu" class="w-12 h-12 text-cyan-300"></i>
-                </div>
-                <h3 class="font-display text-xl font-semibold tracking-tight">reaction.core</h3>
-                <div class="flex items-center gap-2 mt-2 text-sm font-mono">
-                  <span class="text-green-400">●</span> <span class="text-gray-300">99.99% uptime</span>
-                </div>
-                <div class="w-full mt-5 bg-white/5 rounded-full h-1.5">
-                  <div class="bg-gradient-to-r from-cyan-400 to-purple-500 w-[92%] h-1.5 rounded-full"></div>
-                </div>
-                <p class="text-xs text-gray-400 mt-3 font-mono">Edge latency: 47ms · 300+ global nodes</p>
-                <div class="grid grid-cols-2 gap-3 w-full mt-6 text-left">
-                  <div><span class="text-cyan-400 text-xs font-bold">⌁ 1.2M</span><p class="text-[10px] text-gray-400">requests/day</p></div>
-                  <div><span class="text-cyan-400 text-xs font-bold">⚡ &lt;90ms</span><p class="text-[10px] text-gray-400">p95 response</p></div>
-                </div>
-              </div>
-            </div>
+        <h1><span class="gradient">Alisa</span><br>Reaction Matrix</h1>
+        <p>Sub-100ms Telegram automation. Serverless mesh, infinite scaling. Deploy at the edge with zero cold starts.</p>
+        <div class="hero-actions">
+          <a href="#deploy" class="btn btn-primary">☁️ Edge Deploy</a>
+          <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn btn-ghost">&lt;/&gt; Source</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">&lt;90ms</div><div class="label">p95 latency</div></div>
+          <div class="hero-stat"><div class="num">99.9%</div><div class="label">uptime</div></div>
+          <div class="hero-stat"><div class="num">300+</div><div class="label">edge nodes</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="orb"></div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot r"></div>
+            <div class="terminal-dot y"></div>
+            <div class="terminal-dot g"></div>
+            <span class="terminal-title">~/alisareactionbot</span>
+          </div>
+          <div class="terminal-body">
+            <div class="terminal-line"><span class="terminal-prompt">$</span> <span class="terminal-cmd">npx wrangler deploy</span></div>
+            <div class="terminal-line"><span class="terminal-output">✓</span> <span class="terminal-dim">Deployed to Cloudflare Workers</span></div>
+            <div class="terminal-line"><span class="terminal-output">✓</span> <span class="terminal-dim">Webhook configured</span></div>
+            <div class="terminal-line"><span class="terminal-output">✓</span> <span class="terminal-dim">Bot online — reaction.core active</span></div>
+            <div class="terminal-line" style="margin-top:12px"><span class="terminal-prompt">$</span> <span class="terminal-cmd">curl /health</span></div>
+            <div class="terminal-line"><span class="terminal-dim">{ "status": "ok", "latency": "47ms" }</span></div>
+            <div class="terminal-line" style="margin-top:12px"><span class="terminal-prompt">$</span> <span class="terminal-cmd">_</span></div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- FEATURES SECTION (roshidere-like card grid) -->
-    <section id="features" class="py-20 px-6 max-w-7xl mx-auto">
-      <div class="text-center mb-14 reveal">
-        <span class="text-cyan-400 font-mono text-sm tracking-widest bg-white/5 px-4 py-1 rounded-full">// CORE_MODULES //</span>
-        <h2 class="text-4xl md:text-5xl font-bold mt-4 tracking-tight">Neural <span class="gradient-text">Primitives</span></h2>
-        <p class="text-gray-400 max-w-2xl mx-auto mt-3">Built for hyper-reactive Telegram bots — military-grade encryption, mesh routing, and sub‑linear scaling.</p>
+  <section id="features">
+    <div class="container">
+      <div class="features-header reveal">
+        <div class="section-label" style="justify-content:center">core_modules</div>
+        <h2 class="section-title">Neural Primitives</h2>
+        <p class="section-desc" style="margin:0 auto">Built for hyper-reactive Telegram bots — edge-optimized, zero-trust, sub-linear scaling.</p>
       </div>
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- card 1 -->
-        <div class="glass-panel p-6 group hover:border-cyan-400/60 transition-all duration-300 reveal">
-          <div class="flex justify-between items-start">
-            <i data-lucide="zap" class="w-7 h-7 text-cyan-400"></i>
-            <span class="text-4xl font-black text-cyan-400/20 group-hover:text-cyan-400/30">01</span>
-          </div>
-          <h3 class="font-bold text-xl mt-4">Quantum Speed</h3>
-          <p class="text-gray-300 text-sm mt-2">Edge-optimized workers · sub-100ms median latency · instant failover</p>
-          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[96%] bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div></div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon cyan">⚡</div>
+          <h3>Quantum Speed</h3>
+          <p>Edge-optimized workers with sub-100ms median latency and instant failover across 300+ global nodes.</p>
+          <span class="tag">edge-native</span>
         </div>
-        <!-- card 2 -->
-        <div class="glass-panel p-6 group hover:border-pink-400/60 transition-all duration-300 reveal">
-          <div class="flex justify-between items-start">
-            <i data-lucide="shield" class="w-7 h-7 text-pink-400"></i>
-            <span class="text-4xl font-black text-pink-400/20 group-hover:text-pink-400/30">02</span>
-          </div>
-          <h3 class="font-bold text-xl mt-4">Neural Shield</h3>
-          <p class="text-gray-300 text-sm mt-2">End-to-end encryption · no persistent logs · zero-trust architecture</p>
-          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full"></div></div>
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">🛡️</div>
+          <h3>Neural Shield</h3>
+          <p>Zero-trust architecture with no persistent logs. Your data never touches a database.</p>
+          <span class="tag">zero-log</span>
         </div>
-        <!-- card 3 -->
-        <div class="glass-panel p-6 group hover:border-purple-400/60 transition-all duration-300 reveal">
-          <div class="flex justify-between items-start">
-            <i data-lucide="network" class="w-7 h-7 text-purple-400"></i>
-            <span class="text-4xl font-black text-purple-400/20 group-hover:text-purple-400/30">03</span>
-          </div>
-          <h3 class="font-bold text-xl mt-4">Mesh Edge</h3>
-          <p class="text-gray-300 text-sm mt-2">Global anycast routing · auto‑healing · regional replication</p>
-          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[90%] bg-gradient-to-r from-purple-400 to-fuchsia-500 rounded-full"></div></div>
+        <div class="feature-card reveal">
+          <div class="feature-icon pink">🎯</div>
+          <h3>Smart Reactions</h3>
+          <p>Context-aware emoji selection with configurable randomization. Reacts naturally, not robotically.</p>
+          <span class="tag">adaptive</span>
         </div>
-        <!-- card 4 -->
-        <div class="glass-panel p-6 group hover:border-green-400/60 transition-all duration-300 reveal">
-          <div class="flex justify-between items-start">
-            <i data-lucide="infinity" class="w-7 h-7 text-green-400"></i>
-            <span class="text-4xl font-black text-green-400/20 group-hover:text-green-400/30">04</span>
-          </div>
-          <h3 class="font-bold text-xl mt-4">Infinite Scale</h3>
-          <p class="text-gray-300 text-sm mt-2">Serverless scaling from 0 to ∞ · pay‑per‑request · no cold starts</p>
-          <div class="mt-5 h-1 bg-gray-800 rounded-full"><div class="h-full w-[99%] bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div></div>
+        <div class="feature-card reveal">
+          <div class="feature-icon green">🔄</div>
+          <h3>Serverless Mesh</h3>
+          <p>Deploy on Cloudflare Workers, Vercel, or Docker. Same codebase, zero cold starts everywhere.</p>
+          <span class="tag">multi-platform</span>
         </div>
       </div>
-      <!-- additional micro stats -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 reveal">
-        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i><span class="text-xs font-mono">real‑time analytics</span></div>
-        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="webhook" class="w-4 h-4 text-purple-400"></i><span class="text-xs font-mono">webhook multiplex</span></div>
-        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="gauge" class="w-4 h-4 text-pink-400"></i><span class="text-xs font-mono">rate limiting AI</span></div>
-        <div class="glass-panel p-3 flex items-center gap-3 border-white/5"><i data-lucide="bot" class="w-4 h-4 text-green-400"></i><span class="text-xs font-mono">reaction trainer</span></div>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- DEPLOYMENT + TERMINAL (roshidere's sleek technical block) -->
-    <section id="deploy" class="py-20 px-6 max-w-7xl mx-auto">
-      <div class="text-center mb-12 reveal">
-        <span class="text-pink-400 font-mono text-sm tracking-widest bg-white/5 px-4 py-1 rounded-full">// EDGE_DEPLOYMENT //</span>
-        <h2 class="text-4xl md:text-5xl font-bold mt-3">One‑click <span class="gradient-text">global launch</span></h2>
+  <section id="deploy">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">edge_deployment</div>
+        <h2 class="section-title">Deploy Anywhere</h2>
+        <p class="section-desc">One codebase, every platform. Pick your edge and ship in seconds.</p>
       </div>
-      <div class="grid lg:grid-cols-2 gap-8 items-start">
-        <!-- terminal card -->
-        <div class="glass-panel overflow-hidden border-cyan-500/30 reveal">
-          <div class="bg-black/40 px-5 py-3 border-b border-white/10 flex items-center gap-2">
-            <div class="flex gap-1.5">
-              <div class="w-3 h-3 rounded-full bg-red-400/70"></div>
-              <div class="w-3 h-3 rounded-full bg-yellow-400/70"></div>
-              <div class="w-3 h-3 rounded-full bg-green-400/70"></div>
-            </div>
-            <span class="text-xs font-mono text-cyan-400/80 ml-3">alisa@edge:~/deploy</span>
-          </div>
-          <div class="p-6 font-mono text-sm space-y-2 bg-black/20">
-            <div class="text-gray-400">$ git clone https://github.com/Shineii86/AlisaReactionBot.git</div>
-            <div class="text-green-400">✓ Cloning neural layers... done</div>
-            <div class="text-gray-400">$ cd AlisaReactionBot && npm ci</div>
-            <div class="text-green-400">✓ dependencies installed (workers runtime)</div>
-            <div class="text-gray-400">$ cp .env.example .env</div>
-            <div class="text-yellow-300">⚠️  set BOT_TOKEN + WEBHOOK_SECRET</div>
-            <div class="text-gray-400">$ npm run deploy:cloudflare</div>
-            <div class="text-cyan-400 animate-pulse">› Deploying to Cloudflare Workers edge network...</div>
-            <div class="text-green-400">✔ Published: https://alisa-bot.edge.workers.dev</div>
-            <div class="border-t border-gray-700 my-2 pt-2 text-gray-500"># alternative: Vercel</div>
-            <div class="text-gray-400">$ npx vercel --prod</div>
+      <div class="deploy-grid">
+        <div class="deploy-card reveal">
+          <div class="deploy-icon">☁️</div>
+          <div>
+            <h4>Cloudflare Workers</h4>
+            <p>Recommended. Zero cold starts, 300+ edge locations. Free tier available.</p>
+            <code>npx wrangler deploy</code>
           </div>
         </div>
+        <div class="deploy-card reveal">
+          <div class="deploy-icon">▲</div>
+          <div>
+            <h4>Vercel</h4>
+            <p>Serverless functions with automatic HTTPS. Git-push deploys.</p>
+            <code>vercel --prod</code>
+          </div>
+        </div>
+        <div class="deploy-card reveal">
+          <div class="deploy-icon">🐳</div>
+          <div>
+            <h4>Docker</h4>
+            <p>Self-hosted on any VPS. Full control, persistent server.</p>
+            <code>docker-compose up -d</code>
+          </div>
+        </div>
+        <div class="deploy-card reveal">
+          <div class="deploy-icon">🚂</div>
+          <div>
+            <h4>Railway / Render</h4>
+            <p>One-click deploy with automatic scaling and managed infrastructure.</p>
+            <code>git push railway main</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- deploy cards (quick actions) -->
-        <div class="space-y-5 reveal">
-          <div class="glass-panel p-5 flex justify-between items-center hover:border-cyan-400/50 transition">
-            <div><i data-lucide="cloud-lightning" class="w-7 h-7 text-orange-400"></i></div>
-            <div class="flex-1 ml-4"><h4 class="font-bold">Cloudflare Workers</h4><p class="text-xs text-gray-400">Global edge · free tier available</p></div>
-            <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary text-xs px-4 py-2">Deploy →</a>
-          </div>
-          <div class="glass-panel p-5 flex justify-between items-center hover:border-purple-400/50 transition">
-            <div><i data-lucide="triangle" class="w-7 h-7 text-white"></i></div>
-            <div class="flex-1 ml-4"><h4 class="font-bold">Vercel Edge</h4><p class="text-xs text-gray-400">Serverless functions + instant cache</p></div>
-            <a href="https://vercel.com/new/clone?repository-url=https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary text-xs px-4 py-2">Deploy →</a>
-          </div>
-          <div class="bg-cyan-950/20 rounded-2xl p-4 border border-cyan-500/20 flex items-start gap-3">
-            <i data-lucide="terminal" class="w-5 h-5 text-cyan-400 shrink-0 mt-0.5"></i>
-            <div><p class="text-sm font-mono text-gray-300"><span class="text-cyan-400">⤷</span> Local dev: <code class="bg-black/50 px-2 py-0.5 rounded text-xs">npm run dev</code> — requires Wrangler CLI</p></div>
-          </div>
+  <section class="cta">
+    <div class="container">
+      <div class="cta-card reveal">
+        <div class="section-label" style="justify-content:center">protocol</div>
+        <h3>Ready to integrate <span class="gradient" style="background:var(--gradient-main);-webkit-background-clip:text;background-clip:text;color:transparent">Alisa</span>?</h3>
+        <p>Deploy your own neural reaction bot in minutes. Full Telegram API compatibility, zero maintenance overhead.</p>
+        <div class="cta-actions">
+          <a href="https://t.me/AlisaReactionBot" target="_blank" class="btn btn-primary">💬 Try on Telegram</a>
+          <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn btn-ghost">&lt;/&gt; GitHub</a>
+        </div>
+        <div class="cta-meta">
+          <span>⚡ edge-native</span>
+          <span>🔒 zero-log</span>
+          <span>🌍 28+ regions</span>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- PROTOCOL / CTA (inspired by roshidere's final engage) -->
-    <section id="protocol" class="py-24 px-6 max-w-7xl mx-auto text-center">
-      <div class="glass-panel p-8 md:p-12 max-w-4xl mx-auto reveal border-gradient">
-        <i data-lucide="sparkles" class="w-10 h-10 text-cyan-400 mx-auto mb-4"></i>
-        <h3 class="text-3xl md:text-4xl font-bold">Ready to integrate <span class="gradient-text">Alisa</span>?</h3>
-        <p class="text-gray-300 max-w-xl mx-auto mt-3">Deploy your own neural reaction bot in minutes — full Telegram API compatibility, built-in analytics, and zero maintenance overhead.</p>
-        <div class="flex flex-wrap gap-4 justify-center mt-8">
-          <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn-primary px-6 py-3 flex items-center gap-2">
-            <i data-lucide="github"></i> GitHub
-          </a>
-          <a href="https://t.me/AlisaReactionBot" target="_blank" class="bg-white/5 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition flex items-center gap-2">
-            <i data-lucide="message-circle"></i> Try on Telegram
-          </a>
-        </div>
-        <div class="text-[11px] font-mono text-gray-500 mt-8 flex justify-center gap-4">
-          <span>⚡ edge-native</span> <span>🔒 zero-log</span> <span>🌍 28+ regions</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FOOTER (clean minimal) -->
-  <footer class="border-t border-white/10 py-8 mt-10 bg-black/30 backdrop-blur-sm">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 font-mono">
-      <div class="flex items-center gap-2">
-        <i data-lucide="copyright" class="w-3 h-3"></i> 2026 Alisa Reaction Bot — neural-linked automation
-      </div>
-      <div class="flex items-center gap-5 mt-3 md:mt-0">
-        <span>Built with <i data-lucide="heart" class="w-3 h-3 text-pink-400 inline"></i> by Shinei Nouzen</span>
-        <span class="text-cyan-400">v2.0.0</span>
+  <footer>
+    <div class="container">
+      <span>© 2026 Alisa Reaction Bot — neural-linked automation</span>
+      <div class="footer-right">
+        <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
+        <span class="footer-ver">v2.0.0</span>
       </div>
     </div>
   </footer>
 
-  <!-- dynamic particles -->
   <script>
-    (function(){
-      // init lucide icons
-      lucide.createIcons();
-
-      // scroll reveal observer
-      const reveals = document.querySelectorAll('.reveal');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if(entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
-      reveals.forEach(el => observer.observe(el));
-
-      // floating particles effect (small tech vibe)
-      // 1. Inject keyframes + base class FIRST so animations resolve immediately
-      const styleAnim = document.createElement('style');
-      styleAnim.textContent = `
-        @keyframes floatParticle {
-          0% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-30px) translateX(15px); }
-          100% { transform: translateY(0px) translateX(0px); }
-        }
-      `;
-      document.head.appendChild(styleAnim);
-
-      // 2. Then create particles — keyframes already in DOM, animation starts on paint
-      const particleCount = 45;
-      for(let i=0; i<particleCount; i++) {
-        let particle = document.createElement('div');
-        particle.classList.add('particle');
-        let size = Math.random() * 3 + 1;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animation = `floatParticle ${Math.random() * 20 + 15}s infinite linear`;
-        particle.style.opacity = Math.random() * 0.2 + 0.05;
-        particle.style.background = `radial-gradient(circle, #00f3ff, #a855f7)`;
-        document.body.appendChild(particle);
+    // Particles — keyframes in CSS, no race condition
+    (function() {
+      var count = 40;
+      for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        var size = Math.random() * 3 + 1;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.opacity = Math.random() * 0.15 + 0.05;
+        p.style.animation = 'floatParticle ' + (Math.random() * 20 + 15) + 's ease-in-out infinite';
+        p.style.animationDelay = -(Math.random() * 20) + 's';
+        document.body.appendChild(p);
       }
-
-      // small interactive hover for terminal command lines (just for style)
-      const terminalLines = document.querySelectorAll('.font-mono .text-gray-400, .font-mono .text-green-400');
-      terminalLines.forEach(line => {
-        line.addEventListener('mouseenter', () => { line.classList.add('text-cyan-300'); });
-        line.addEventListener('mouseleave', () => { line.classList.remove('text-cyan-300'); });
-      });
     })();
+
+    // Scroll reveal
+    (function() {
+      var reveals = document.querySelectorAll('.reveal');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      reveals.forEach(function(el) { observer.observe(el); });
+    })();
+
+    // Smooth anchor scroll
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   </script>
 </body>
 </html>
