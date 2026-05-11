@@ -34,7 +34,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         text = content.text;
 
         if (data.message && (text === '/start' || text === '/start@' + botUsername)) {
-            await botApi.sendMessage(chatId, startMessage.replace('UserName', content.chat.type === "private" ? content.from.first_name : content.chat.title), [
+            const displayName = content.chat.type === "private"
+                ? (content.from?.first_name || content.chat.title)
+                : content.chat.title;
+            await botApi.sendMessage(chatId, startMessage.replace('UserName', displayName), [
                 [
                     { "text": "✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ ✚", "url": `https://t.me/${botUsername}?startchannel=botstart` },
                     { "text": "✚ Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚", "url": `https://t.me/${botUsername}?startgroup=botstart` },
@@ -64,16 +67,17 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         } else {
             // Calculate the threshold: higher RandomLevel, lower threshold
             let threshold = 1 - (RandomLevel / 10);
-            if (!RestrictedChats.includes(chatId)) {
+            const reaction = getRandomPositiveReaction(Reactions);
+            if (reaction && !RestrictedChats.includes(chatId)) {
                 // Check if chat is a group or supergroup to determine if reactions should be random
                 if (["group", "supergroup"].includes(content.chat.type)) {
                     // Run Function Randomly - According to the RANDOM_LEVEL
                     if (Math.random() <= threshold) {
-                        await botApi.setMessageReaction(chatId, message_id, getRandomPositiveReaction(Reactions));
+                        await botApi.setMessageReaction(chatId, message_id, reaction);
                     }
                 } else {
                     // For non-group chats, set the reaction directly
-                    await botApi.setMessageReaction(chatId, message_id, getRandomPositiveReaction(Reactions));
+                    await botApi.setMessageReaction(chatId, message_id, reaction);
                 }
             }
         }

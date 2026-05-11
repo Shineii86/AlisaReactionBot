@@ -17,10 +17,10 @@ import { htmlContent } from './constants.js';
 import { splitEmojis, getChatIds } from './helper.js';
 import { onUpdate } from './bot-handler.js';
 
-dotenv.config();
-
-const app = express();
-app.use(express.json());
+// dotenv only needed for local/Docker — Vercel/Render inject env vars natively
+if (!process.env.VERCEL) {
+    dotenv.config();
+}
 
 const botToken = process.env.BOT_TOKEN;
 const botUsername = process.env.BOT_USERNAME;
@@ -29,6 +29,9 @@ const RestrictedChats = getChatIds(process.env.RESTRICTED_CHATS);
 const RandomLevel = parseInt(process.env.RANDOM_LEVEL || '0', 10);
 
 const botApi = new TelegramBotAPI(botToken);
+
+const app = express();
+app.use(express.json());
 
 app.post('/', async (req, res) => {
     const data = req.body;
@@ -55,7 +58,13 @@ app.get('/health', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Vercel: export the app — @vercel/node wraps it as a serverless handler
+// Docker/Render/Local: start a persistent server
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+export default app;

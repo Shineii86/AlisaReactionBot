@@ -429,6 +429,18 @@ export const htmlContent = `
       reveals.forEach(el => observer.observe(el));
 
       // floating particles effect (small tech vibe)
+      // 1. Inject keyframes + base class FIRST so animations resolve immediately
+      const styleAnim = document.createElement('style');
+      styleAnim.textContent = `
+        @keyframes floatParticle {
+          0% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-30px) translateX(15px); }
+          100% { transform: translateY(0px) translateX(0px); }
+        }
+      `;
+      document.head.appendChild(styleAnim);
+
+      // 2. Then create particles — keyframes already in DOM, animation starts on paint
       const particleCount = 45;
       for(let i=0; i<particleCount; i++) {
         let particle = document.createElement('div');
@@ -443,16 +455,6 @@ export const htmlContent = `
         particle.style.background = `radial-gradient(circle, #00f3ff, #a855f7)`;
         document.body.appendChild(particle);
       }
-      const styleAnim = document.createElement('style');
-      styleAnim.textContent = `
-        @keyframes floatParticle {
-          0% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-30px) translateX(15px); }
-          100% { transform: translateY(0px) translateX(0px); }
-        }
-        .particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; }
-      `;
-      document.head.appendChild(styleAnim);
 
       // small interactive hover for terminal command lines (just for style)
       const terminalLines = document.querySelectorAll('.font-mono .text-gray-400, .font-mono .text-green-400');
