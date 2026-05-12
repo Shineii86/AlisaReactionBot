@@ -295,7 +295,7 @@ export const htmlContent = `
     .metric-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
 
     .hero-visual { position: relative; }
-    @media (max-width: 960px) { .hero-visual { display: none; } }
+    @media (max-width: 960px) { .hero-visual { display: block; margin-top: 16px; } }
 
     .glow-blob {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -493,6 +493,9 @@ export const htmlContent = `
     @media (max-width: 960px) {
       section { padding: 72px 0; }
       .hero { padding-top: 64px; }
+      .code-body { padding: 16px; font-size: 11px; line-height: 1.9; }
+      .code-window { margin: 0 auto; max-width: 100%; }
+      .glow-blob { display: none; }
     }
 
     /* Stats counter animation */
@@ -543,7 +546,7 @@ export const htmlContent = `
       <div class="hero-visual">
         <div class="glow-blob"></div>
         <div style="text-align:center;margin-bottom:24px;">
-          <img src="https://telegramcard.vercel.app/?username=AlisaReactionBot&theme=dark" alt="Alisa Telegram Card" style="max-width:420px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.12);" loading="eager" />
+          <img src="https://telegramcard.vercel.app/?username=AlisaReactionBot&theme=dark" alt="Alisa Telegram Card" style="max-width:420px;width:100%;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.12);" loading="eager" />
         </div>
         <div class="code-window">
           <div class="code-header">
