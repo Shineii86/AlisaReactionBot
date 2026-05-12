@@ -4,6 +4,29 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.2.1] — 2026-05-12
+
+### ✨ New Features
+
+- **`/leave <chat_id>`** — Owner-only command to remove the bot from any group or channel. No admin rights required in the target chat. Cleans up local state (per-chat reactions, paused status) on leave.
+
+### 🐛 Bug Fixes
+
+- **Fixed Cloudflare Workers crash** — `new returnHTML(htmlContent)` in `api/worker.js` incorrectly used `new` on a regular function, causing a `TypeError` on every GET request. Changed to `returnHTML(htmlContent)`.
+- **Fixed donate message formatting** — Removed backticks around TON/USDT address (underscores inside backticks can break Telegram Markdown parsing). Consolidated duplicate address lines into one.
+- **Updated landing page version** — Footer badge showed `v2.0.0` instead of current `v2.2.0`.
+
+### 🧹 Code Cleanup
+
+- **Removed dead code** — Deleted unused `sendInvoice()` and `answerPreCheckoutQuery()` methods from `TelegramBotAPI.js` (payment logic removed in v2.1.0 but methods were still present).
+- **Removed duplicate keyboard** — `getDonateKeyboard()` in `bot-handler.js` was identical to `getBackKeyboard()`. Consolidated to use `getBackKeyboard()` everywhere.
+
+### 🔒 Robustness
+
+- **Added startup env validation** — `api/index.js` now checks for required `BOT_TOKEN` and `BOT_USERNAME` environment variables at startup and exits with a clear error message if missing.
+
+---
+
 ## [v2.2.0] — 2025-05-12
 
 ### ✨ New Features

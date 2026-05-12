@@ -46,6 +46,7 @@ export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ
 
 👑 *Oᴡɴᴇʀ-Oɴʟʏ Cᴏᴍᴍᴀɴᴅs:*
 🔹 */broadcast <msg>* — Sᴇɴᴅ A Mᴇssᴀɢᴇ Tᴏ Aʟʟ Cʜᴀᴛs.
+🔹 */leave <chat_id>* — Rᴇᴍᴏᴠᴇ Bᴏᴛ Fʀᴏᴍ A Cʜᴀᴛ.
 🔹 */log* — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.
 
 💡 *Pʀᴏ Tɪᴘs:*
@@ -84,8 +85,8 @@ Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ, Cᴏɴsɪᴅᴇʀ Sᴜᴘᴘᴏʀᴛ
 💰 *Hᴏᴡ Tᴏ Dᴏɴᴀᴛᴇ:*
 
 ∇ *Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ*   
-- *Tᴏɴ Aᴅᴅʀᴇss:* `UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX`  
-- *Usᴅᴛ Aᴅᴅʀᴇss:* `UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX`
+- *Aᴅᴅʀᴇss:* UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX
+_(Accepts both TON and USDT on TON network)_
 
 🇮🇳 **Iɴʀ PʜᴏɴᴇPᴇ**
 - *Uᴘɪ Iᴅ:* Dᴍ Aᴛ [Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ](https://t.me/Shineii86)
@@ -732,7 +733,7 @@ export const htmlContent = `
       <span>© 2026 Alisa Reaction Bot</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.0.0</span>
+        <span class="ft-ver">v2.2.0</span>
       </div>
     </div>
   </footer>

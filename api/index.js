@@ -24,6 +24,12 @@ if (!process.env.VERCEL) {
 
 const botToken = process.env.BOT_TOKEN;
 const botUsername = process.env.BOT_USERNAME;
+
+if (!botToken || !botUsername) {
+    console.error('[Startup] Missing required environment variables: BOT_TOKEN and/or BOT_USERNAME');
+    process.exit(1);
+}
+
 const Reactions = splitEmojis(process.env.EMOJI_LIST);
 const RestrictedChats = getChatIds(process.env.RESTRICTED_CHATS);
 const RandomLevel = parseInt(process.env.RANDOM_LEVEL || '0', 10);

@@ -95,17 +95,7 @@ export default class TelegramBotAPI {
         });
     }
 
-    async sendInvoice(chatId, title, description, payload, providerToken, startParameter, currency, prices) {
-        return this.callApi('sendInvoice', {
-            chat_id: chatId, title, description, payload,
-            provider_token: providerToken, start_parameter: startParameter,
-            currency, prices
-        });
-    }
-
-    async answerPreCheckoutQuery(preCheckoutQueryId, ok) {
-        return this.callApi('answerPreCheckoutQuery', {
-            pre_checkout_query_id: preCheckoutQueryId, ok
-        });
+    async leaveChat(chatId) {
+        return this.callApi('leaveChat', { chat_id: chatId });
     }
 }

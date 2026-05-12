@@ -174,18 +174,6 @@ function getBackKeyboard() {
     ];
 }
 
-function getDonateKeyboard() {
-    return [
-        [
-            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
-            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
-        ],        
-        [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }
-        ],
-    ];
-}
-
 // ─── Main Handler ───
 
 /**
@@ -219,7 +207,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await botApi.editMessageText(chatId, messageId, getStatsMessage(), getBackKeyboard());
                     break;
                 case 'cb_donate':
-                    await botApi.editMessageText(chatId, messageId, donateMessage, getDonateKeyboard());
+                    await botApi.editMessageText(chatId, messageId, donateMessage, getBackKeyboard());
                     break;
                 case 'cb_menu': {
                     const name = cq.message?.chat?.type === 'private'
@@ -390,7 +378,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             // /donate
             if (cmd === '/donate') {
                 trackCommand('donate');
-                await botApi.sendMessage(chatId, donateMessage, getDonateKeyboard());
+                await botApi.sendMessage(chatId, donateMessage, getBackKeyboard());
                 return;
             }
 
@@ -439,6 +427,30 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return `${i + 1}. ${e.emoji} → ${name} (${time})`;
                 }).join('\n');
                 await botApi.sendMessage(chatId, `📋 *Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:*\n\n${lines}`);
+                return;
+            }
+
+            // /leave <chatId> (owner only)
+            if (cmd === '/leave') {
+                trackCommand('leave');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/leave <chat_id>`');
+                    return;
+                }
+                const targetChatId = args.trim();
+                try {
+                    await botApi.leaveChat(targetChatId);
+                    stats.uniqueChats.delete(Number(targetChatId));
+                    delete perChatReactions[targetChatId];
+                    pausedChats.delete(Number(targetChatId));
+                    await botApi.sendMessage(chatId, `✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ \`${targetChatId}\`.`);
+                } catch (error) {
+                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ \`${targetChatId}\`:\n${error.message}`);
+                }
                 return;
             }
         }

@@ -86,6 +86,6 @@ export default {
         }
 
         // GET → Landing page
-        return new returnHTML(htmlContent);
+        return returnHTML(htmlContent);
     }
 };
