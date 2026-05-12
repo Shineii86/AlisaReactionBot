@@ -237,6 +237,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             return;
                         }
 
+                        let cardUrl;
+                        let themeKey = value;
+
                         // ─── Custom Photo Flow ───
                         if (type === 'photo') {
                             // Store state — next message from this user will be treated as photo URL
@@ -256,13 +259,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                         // ─── Verified Badge ───
                         if (type === 'vrf') {
-                            // value = 'auto' | 'true' | 'false'
                             const verifiedValue = value;
-                            // Rebuild card with current theme/palette + verified override
-                            const opts = CARD_PALETTES[parts[4]] || { theme: parts[4] || 'light' };
+                            const currentTheme = parts[4] || 'light';
+                            const opts = CARD_PALETTES[currentTheme] || { theme: currentTheme };
                             opts.verified = verifiedValue;
                             cardUrl = getTelegramCardUrl(username, opts);
-                            const keyboard = getCardMainKeyboard(username, parts[4] || 'light', verifiedValue, false);
+                            const keyboard = getCardMainKeyboard(username, currentTheme, verifiedValue, false);
                             try {
                                 await botApi.editMessageMedia(chatId, messageId, cardUrl, `🃏 *${username}*`, keyboard);
                             } catch {
@@ -272,9 +274,6 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             await botApi.answerCallbackQuery(cq.id);
                             return;
                         }
-
-                        let cardUrl;
-                        let themeKey = value;
 
                         if (type === 'theme') {
                             cardUrl = getTelegramCardUrl(username, { theme: value });
