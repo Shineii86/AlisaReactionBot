@@ -74,8 +74,6 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 - **Intelligent Randomization** — Configurable randomness level (0-10) for natural behavior
 - **Per-Chat Random Level** — Group admins can override random level per chat via `/randomlevel`
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
-- **Telegram Card Generator** — Generate live profile cards for any Telegram username via `/card`
-- **Inline Mode** — Type `@AlisaReactionBot <username>` in any chat to generate cards instantly
 
 </td>
 <td width="50%">
@@ -126,17 +124,9 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/help` | Full command reference with access levels |
 | `/about` | Bot features, tech stack, and links |
 | `/ping` | Check bot latency and response time |
-| `/card <username>` | Generate a live Telegram profile card (light theme) |
-| `/cardlight <username>` | Generate card with light theme |
-| `/carddark <username>` | Generate card with dark theme |
-| `/cardpal <palette> <username>` | Generate card with a color palette |
-| `/cardvrf <mode> <username>` | Verified badge control (auto/show/hide) |
-| `/cardphoto <url> <username>` | Generate card with custom avatar photo |
 | `/stats` | Live statistics — messages, reactions, uptime, top chats |
 | `/reactions` | List currently enabled reaction emojis |
 | `/donate` | Support the project |
-
-> 💡 **Inline Mode:** Type `@AlisaReactionBot <username>` in any chat to generate cards inline — no need to open a private chat.
 
 ### 👑 Group Admins
 
@@ -510,7 +500,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.5.0** — Inline mode (`@AlisaReactionBot <username>`), `/randomlevel` per-chat override, card commands.
+**Latest: v2.6.0** — Removed card feature entirely. Bot now focuses purely on auto-reactions.
 
 ---
 

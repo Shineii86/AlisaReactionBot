@@ -37,14 +37,6 @@ export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ
 
 ────────────────
 
-🃏 *Cᴀʀᴅ Gᴇɴᴇʀᴀᴛᴏʀ:*
-🔹 */card <username>* — Gᴇɴᴇʀᴀᴛᴇ A Pʀᴏғɪʟᴇ Cᴀʀᴅ.
-🔹 */cardlight <username>* — Lɪɢʜᴛ Tʜᴇᴍᴇ.
-🔹 */carddark <username>* — Dᴀʀᴋ Tʜᴇᴍᴇ.
-🔹 */cardpal <palette> <username>* — Cᴏʟᴏʀ Pᴀʟᴇᴛᴛᴇ.
-🔹 */cardvrf <mode> <username>* — Vᴇʀɪғɪᴇᴅ Bᴀᴅɢᴇ.
-🔹 */cardphoto <url> <username>* — Cᴜsᴛᴏᴍ Aᴠᴀᴛᴀʀ.
-
 ────────────────
 
 👑 *Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:*
@@ -83,8 +75,6 @@ Aʟɪsᴀ Is A Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ Tʜᴀᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀ
 • Pᴇʀ-Cʜᴀᴛ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇ
 • Cᴏɴғɪɢᴜʀᴀʙʟᴇ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Nᴀᴛᴜʀᴀʟ Gʀᴏᴜᴘ Bᴇʜᴀᴠɪᴏʀ
 • Rᴇsᴛʀɪᴄᴛ Sᴘᴇᴄɪғɪᴄ Cʜᴀᴛs Fʀᴏᴍ Rᴇᴄᴇɪᴠɪɴɢ Rᴇᴀᴄᴛɪᴏɴs
-• Tᴇʟᴇɢʀᴀᴍ Cᴀʀᴅ Gᴇɴᴇʀᴀᴛᴏʀ — Lɪᴠᴇ Pʀᴏғɪʟᴇ Cᴀʀᴅs Fᴏʀ Aɴʏ Usᴇʀɴᴀᴍᴇ
-• Iɴʟɪɴᴇ Mᴏᴅᴇ — Gᴇɴᴇʀᴀᴛᴇ Cᴀʀᴅs Aɴʏᴡʜᴇʀᴇ Wɪᴛʜ @AlisaReactionBot
 • Sᴇʀᴠᴇʀʟᴇss Aʀᴄʜɪᴛᴇᴄᴛᴜʀᴇ — Dᴇᴘʟᴏʏ Oɴ Cʟᴏᴜᴅғʟᴀʀᴇ, Vᴇʀᴄᴇʟ, Dᴏᴄᴋᴇʀ
 • Wᴇʙʜᴏᴏᴋ Sᴇᴄᴜʀɪᴛʏ — Sᴇᴄʀᴇᴛ Tᴏᴋᴇɴ Vᴀʟɪᴅᴀᴛɪᴏɴ
 • Rᴀᴛᴇ Lɪᴍɪᴛɪɴɢ — Pʀᴇᴠᴇɴᴛs Aᴘɪ Abuꜱᴇ
@@ -158,26 +148,5 @@ export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏ�
 
 // ─── Ping Messages ───────────────────────────────────────────
 export const pingMessage = (ms) => `🏓 *Pᴏɴɢ!*\n\n⏱️ Rᴇsᴘᴏɴsᴇ: \`${ms}ms\`\n🕐 ${new Date().toUTCString()}`
-
-// ─── Card Messages ───────────────────────────────────────────
-export const cardMessage = `🃏 *Tᴇʟᴇɢʀᴀᴍ Cᴀʀᴅ Gᴇɴᴇʀᴀᴛᴏʀ*
-
-Gᴇɴᴇʀᴀᴛᴇ A Lɪᴠᴇ Pʀᴏғɪʟᴇ Cᴀʀᴅ Fᴏʀ Aɴʏ Pᴜʙʟɪᴄ Tᴇʟᴇɢʀᴀᴍ Usᴇʀɴᴀᴍᴇ!
-
-🔹 \`/card <username>\` — Gᴇɴᴇʀᴀᴛᴇ Cᴀʀᴅ (Lɪɢʜᴛ Tʜᴇᴍᴇ).
-🔹 \`/card\` — Gᴇɴᴇʀᴀᴛᴇ Yᴏᴜʀ Oᴡɴ Cᴀʀᴅ.
-🔹 \`/cardlight <username>\` — Lɪɢʜᴛ Tʜᴇᴍᴇ.
-🔹 \`/carddark <username>\` — Dᴀʀᴋ Tʜᴇᴍᴇ.
-🔹 \`/cardpal <palette> <username>\` — Cᴏʟᴏʀ Pᴀʟᴇᴛᴛᴇ.
-🔹 \`/cardvrf <mode> <username>\` — Vᴇʀɪғɪᴇᴅ Bᴀᴅɢᴇ (auto/show/hide).
-🔹 \`/cardphoto <url> <username>\` — Cᴜsᴛᴏᴍ Aᴠᴀᴛᴀʀ Pʜᴏᴛᴏ.
-
-💡 *Tɪᴘ:* Usᴇ Wɪᴛʜᴏᴜᴛ @ — E.g: \`/card Shineii86\`
-🎨 Rᴜɴ \`/cardpal\` ᴡɪᴛʜᴏᴜᴛ ᴀʀɢs ᴛᴏ sᴇᴇ ᴀʟʟ ᴘᴀʟᴇᴛᴛᴇs.
-
-_Pᴏᴡᴇʀᴇᴅ Bʏ [Tᴇʟᴇɢʀᴀᴍ Cᴀʀᴅ](https://github.com/Shineii86/Telegram-Card) Aᴘɪ_`
-
-export const cardGenerating = `🃏 Gᴇɴᴇʀᴀᴛɪɴɢ Cᴀʀᴅ...`
-export const cardError = `❌ Cᴏᴜʟᴅ ɴᴏᴛ ɢᴇɴᴇʀᴀᴛᴇ ᴄᴀʀᴅ. Cʜᴇᴄᴋ ᴛʜᴇ ᴜsᴇʀɴᴀᴍᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.`
 
 // ─── Landing Page ─────────────────────────────────────────── 

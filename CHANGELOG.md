@@ -4,6 +4,36 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.6.0] — 2026-05-12
+
+### 🗑️ Removed
+
+- **Card Feature Completely Removed** — All `/card` related commands and functionality have been removed from the bot.
+  - Removed commands: `/card`, `/cardlight`, `/carddark`, `/cardpal`, `/cardvrf`, `/cardphoto`
+  - Removed inline query handler (card generation via `@AlisaReactionBot <username>`)
+  - Removed card-related constants: `cardMessage`, `cardGenerating`, `cardError`
+  - Removed card helper functions: `getTelegramCardUrl`, `getCardUrlByPalette`, `CARD_THEMES`, `CARD_PALETTES`
+  - Removed card cooldown system (`CARD_COOLDOWN`, `cardCooldownMap`)
+  - Removed `sendPhoto`, `editMessageMedia`, `answerInlineQuery` methods from `TelegramBotAPI.js`
+  - Removed `inline_query` from `allowed_updates` in webhook configuration
+  - Removed card preview from landing page
+  - Removed all card references from `helpMessage` and `aboutMessage`
+  - Removed card and inline mode documentation from `README.md` and `GUIDE.md`
+
+### 🔧 Changes
+
+- Bot now focuses purely on auto-reaction functionality
+- Updated version to v2.6.0 across `package.json`, landing page, and documentation
+- Cleaned up unused imports in `bot-handler.js`
+
+### 📝 Docs
+
+- **README.md** — Removed card commands table, inline mode tip, and card-related features
+- **GUIDE.md** — Removed Telegram Card Generator and Inline Mode sections entirely
+- **CHANGELOG.md** — v2.6.0 entry added
+
+---
+
 ## [v2.5.0] — 2026-05-12
 
 ### ✨ New Features

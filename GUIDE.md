@@ -16,10 +16,8 @@
 8. [Set Up the Webhook](#set-up-the-webhook)
 9. [Environment Variables Explained](#environment-variables-explained)
 10. [Using the Bot](#using-the-bot)
-11. [Telegram Card Generator](#telegram-card-generator)
-12. [Inline Mode — Cards Anywhere](#inline-mode--cards-anywhere)
-13. [Admin Commands (Group Owners)](#admin-commands-group-owners)
-14. [Owner Commands](#owner-commands)
+11. [Admin Commands (Group Owners)](#admin-commands-group-owners)
+12. [Owner Commands](#owner-commands)
 13. [How Reactions Work](#how-reactions-work)
 15. [How Stats Work](#how-stats-work)
 16. [How Broadcast Works](#how-broadcast-works)
@@ -501,118 +499,6 @@ Send `/ping` to see how fast the bot responds:
 ⏱️ Rᴇsᴘᴏɴsᴇ: 47ms
 🕐 Mon, 12 May 2026 12:45:00 GMT
 ```
-
-### /card — Telegram Profile Cards
-
-Generate a live, auto-updating profile card for any public Telegram username:
-
-```
-/card Shineii86
-```
-
-The bot sends a beautiful card image showing the user's avatar, name, type (User/Bot/Channel/Group), verified badge, and live subscriber count.
-
-**Your own card** — Send `/card` without any arguments to generate your own profile card:
-
-```
-/card
-```
-
-> **Note:** Your own card requires you to have a Telegram username set. If you don't have one, use `/card <username>` with any public username.
-
-> **⏱️ Cooldown:** Non-owner users have a 60-second cooldown between card generations. The bot owner (OWNER_ID) is exempt.
-
-#### Card Theme Commands
-
-Use these commands to generate cards with specific themes:
-
-```
-/cardlight Shineii86    ← ☀️ Light theme (white card)
-/carddark Shineii86     ← 🌙 Dark theme (dark card)
-```
-
-#### Color Palette Commands
-
-Use `/cardpal` with a palette name to generate cards with custom colors:
-
-```
-/cardpal midnight Shineii86
-/cardpal sunset Shineii86
-```
-
-Run `/cardpal` without arguments to see all 12 available palettes:
-- 🌙 `midnight` — Midnight Blue
-- 🌅 `sunset` — Warm Sunset
-- 🌲 `emerald` — Emerald Forest
-- 👑 `royal` — Royal Purple
-- 🌸 `cherry` — Cherry Blossom
-- ❄️ `arctic` — Arctic Frost
-- 🔥 `lava` — Lava Glow
-- 🌊 `ocean` — Ocean Deep
-- 🍃 `mint` — Mint Fresh
-- 🌑 `black` — Pure Black (OLED)
-- ☁️ `cloud` — Cloud White
-- 🌌 `cosmic` — Cosmic Indigo
-
-#### Verified Badge Command
-
-Control the verified badge (✓) on cards:
-
-```
-/cardvrf auto Shineii86     ← 🔖 Detect automatically (default)
-/cardvrf show Shineii86     ← ✅ Force show badge
-/cardvrf hide Shineii86     ← ❌ Force hide badge
-```
-
-#### Custom Photo Avatar
-
-Replace the card's avatar with any image URL:
-
-```
-/cardphoto https://example.com/avatar.png Shineii86
-```
-
-The URL must start with `http://` or `https://`.
-
-Cards are powered by the [Telegram Card API](https://github.com/Shineii86/Telegram-Card) — no API keys, no signup, instant generation.
-
----
-
-## Inline Mode — Cards Anywhere
-
-Type `@AlisaReactionBot <username>` in **any Telegram chat** to generate cards inline — no need to open a private chat with the bot.
-
-### How to Use
-
-1. Open any chat (group, channel, or private)
-2. Type `@AlisaReactionBot Shineii86` (replace with any username)
-3. Wait for results to load
-4. Tap a theme — the card is sent directly to the chat
-
-### Available Themes in Inline Mode
-
-| Option | Description |
-|:---|:---|
-| ☀️ Light | White card, dark text |
-| 🌙 Dark | Gray card, light text |
-| 🌙 Midnight | Midnight Blue palette |
-| 🌅 Sunset | Warm Sunset palette |
-| 👑 Royal | Royal Purple palette |
-| 🌊 Ocean | Ocean Deep palette |
-
-### Requirements
-
-- The bot must have **inline mode enabled** in BotFather (`/setinline`)
-- The username must be a valid public Telegram username (5-32 chars)
-- Results are cached for 5 minutes per user
-
-### Setting Up Inline Mode
-
-1. Open @BotFather in Telegram
-2. Send `/mybots` and select your bot
-3. Go to **Bot Settings** → **Inline Mode**
-4. Turn it **On**
-5. Optionally set a placeholder: `Enter a username...`
 
 ---
 
