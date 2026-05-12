@@ -4,6 +4,38 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.3.0] — 2026-05-12
+
+### ✨ New Features
+
+- **`/card <username>`** — Generate a live Telegram profile card image for any public username. Shows avatar, name, type (User/Bot/Channel/Group), verified badge, and live subscriber count. Powered by [Telegram Card API](https://github.com/Shineii86/Telegram-Card).
+- **`/card`** (no args) — Generate your own profile card using your Telegram username.
+- **Inline Button Themes** — After generating a card, choose between ☀️ Light and 🌙 Dark themes via inline buttons. Active theme is marked with ☑️.
+- **12 Color Palettes** — Choose from ready-made palettes: 🌙 Midnight Blue, 🌅 Warm Sunset, 🌲 Emerald Forest, 👑 Royal Purple, 🌸 Cherry Blossom, ❄️ Arctic Frost, 🔥 Lava Glow, 🌊 Ocean Deep, 🍃 Mint Fresh, 🌑 Pure Black, ☁️ Cloud White, 🌌 Cosmic Indigo.
+- **Verified Badge Toggle** — Inline buttons to control the verified badge: 🔖 Auto (detect), ✅ Force Show, ❌ Force Hide. Active option marked with ☑️.
+- **Custom Photo Avatar** — 🖼️ Custom Photo button lets users send any image URL (http/https) to use as the card avatar. Includes `/cancel` to abort the flow. Cards update in-place with custom photo.
+- **Card Cooldown (60s)** — Non-owner users have a 60-second cooldown between `/card` commands to prevent API abuse. Bot owner (OWNER_ID) is exempt.
+- **Card Refresh Button** — 🔄 Refresh button regenerates the card with current theme/palette.
+- **`editMessageMedia` API** — Added `editMessageMedia()` to `TelegramBotAPI` for updating card images in-place without sending new messages.
+- **Full API parameter support** — `getTelegramCardUrl()` now supports all Telegram Card API params: `theme`, `bgColor`, `textColor`, `subtleTextColor`, `extraColor`, `shadowColor`, `fontFamily`, `verified`, `photo`.
+- **Landing page card preview** — Hero section now showcases the bot's live Telegram Card.
+
+### 🔧 Changes
+
+- Card command now sends photo with inline keyboard (theme/palette/action buttons) instead of plain image.
+- Callback query handler now processes `card:*` callbacks for theme switching, palette selection, and refresh.
+- Updated `/help` message with `/card` command.
+- Updated `/about` feature list to include Telegram Card Generator.
+- Updated README.md features section and command table with `/card`.
+- Updated GUIDE.md with full `/card` documentation, table of contents entry, and usage examples.
+
+### 📝 Docs
+
+- **README.md** — Added `/card <username>` to command table and features list.
+- **GUIDE.md** — Added Telegram Card Generator section with usage examples and TOC entry.
+
+---
+
 ## [v2.2.1] — 2026-05-12
 
 ### ✨ New Features

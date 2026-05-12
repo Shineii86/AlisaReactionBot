@@ -87,6 +87,30 @@ export default class TelegramBotAPI {
         });
     }
 
+    async sendPhoto(chatId, photoUrl, caption = '', inlineKeyboard = null) {
+        return this.callApi('sendPhoto', {
+            chat_id: chatId,
+            photo: photoUrl,
+            caption: caption,
+            parse_mode: 'Markdown',
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
+    async editMessageMedia(chatId, messageId, photoUrl, caption = '', inlineKeyboard = null) {
+        return this.callApi('editMessageMedia', {
+            chat_id: chatId,
+            message_id: messageId,
+            media: {
+                type: 'photo',
+                media: photoUrl,
+                caption: caption,
+                parse_mode: 'Markdown',
+            },
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
     async answerCallbackQuery(callbackQueryId, text = '', showAlert = false) {
         return this.callApi('answerCallbackQuery', {
             callback_query_id: callbackQueryId,

@@ -74,6 +74,7 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 - **Runtime Restrictions** — Owner can restrict/unrestrict chats at runtime via commands
 - **Intelligent Randomization** — Configurable randomness level (0-10) for natural behavior
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
+- **Telegram Card Generator** — Generate live profile cards for any Telegram username via `/card`
 
 </td>
 <td width="50%">
@@ -124,6 +125,7 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/help` | Full command reference with access levels |
 | `/about` | Bot features, tech stack, and links |
 | `/ping` | Check bot latency and response time |
+| `/card <username>` | Generate a live Telegram profile card image |
 | `/stats` | Live statistics — messages, reactions, uptime, top chats |
 | `/reactions` | List currently enabled reaction emojis |
 | `/donate` | Support the project |

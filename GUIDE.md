@@ -16,7 +16,8 @@
 8. [Set Up the Webhook](#set-up-the-webhook)
 9. [Environment Variables Explained](#environment-variables-explained)
 10. [Using the Bot](#using-the-bot)
-11. [Admin Commands (Group Owners)](#admin-commands-group-owners)
+11. [Telegram Card Generator](#telegram-card-generator)
+12. [Admin Commands (Group Owners)](#admin-commands-group-owners)
 12. [Owner Commands](#owner-commands)
 13. [Inline Button Navigation](#inline-button-navigation)
 14. [How Reactions Work](#how-reactions-work)
@@ -500,6 +501,70 @@ Send `/ping` to see how fast the bot responds:
 ⏱️ Rᴇsᴘᴏɴsᴇ: 47ms
 🕐 Mon, 12 May 2026 12:45:00 GMT
 ```
+
+### /card — Telegram Profile Cards
+
+Generate a live, auto-updating profile card for any public Telegram username:
+
+```
+/card Shineii86
+```
+
+The bot sends a beautiful card image showing the user's avatar, name, type (User/Bot/Channel/Group), verified badge, and live subscriber count.
+
+**Your own card** — Send `/card` without any arguments to generate your own profile card:
+
+```
+/card
+```
+
+> **Note:** Your own card requires you to have a Telegram username set. If you don't have one, use `/card <username>` with any public username.
+
+> **⏱️ Cooldown:** Non-owner users have a 60-second cooldown between card generations. The bot owner (OWNER_ID) is exempt.
+
+#### Inline Button Customization
+
+After the card is generated, you get inline buttons to customize it instantly:
+
+**Themes:**
+- ☀️ Light — White card, dark text, blue accent (default)
+- 🌙 Dark — Gray card, light text, light blue accent
+
+**12 Color Palettes:**
+- 🌙 Midnight Blue · 🌅 Warm Sunset · 🌲 Emerald Forest
+- 👑 Royal Purple · 🌸 Cherry Blossom · ❄️ Arctic Frost
+- 🔥 Lava Glow · 🌊 Ocean Deep · 🍃 Mint Fresh
+- 🌑 Pure Black (OLED) · ☁️ Cloud White · 🌌 Cosmic Indigo
+
+**Actions:**
+- 🔄 Refresh — Regenerate the card with current theme
+- ⬅️ Back To Menu — Return to the main bot menu
+
+#### Verified Badge Control
+
+Below the palettes, you get three buttons to control the verified badge (✓):
+
+- 🔖 **Auto** — Detect automatically from Telegram (default)
+- ✅ **Show** — Force show the verified badge
+- ❌ **Hide** — Force hide the verified badge
+
+The currently active option is marked with ☑️.
+
+#### Custom Photo Avatar
+
+Click **🖼️ Custom Photo** to replace the card's avatar with any image:
+
+1. Tap the 🖼️ Custom Photo button
+2. The bot prompts you to send a photo URL
+3. Send any `http://` or `https://` image URL
+4. The card updates in-place with your custom avatar
+5. Type `/cancel` to abort without changes
+
+> **Tip:** Use this to preview how your card looks with different profile photos — great for testing branding!
+
+The currently active theme/palette is marked with ☑️. Cards update in-place — no extra messages.
+
+Cards are powered by the [Telegram Card API](https://github.com/Shineii86/Telegram-Card) — no API keys, no signup, instant generation.
 
 ---
 

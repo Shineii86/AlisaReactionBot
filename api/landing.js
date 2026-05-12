@@ -74,7 +74,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png",
-    "softwareVersion": "2.2.1",
+    "softwareVersion": "2.3.0",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -542,6 +542,9 @@ export const htmlContent = `
       </div>
       <div class="hero-visual">
         <div class="glow-blob"></div>
+        <div style="text-align:center;margin-bottom:24px;">
+          <img src="https://telegramcard.vercel.app/?username=AlisaReactionBot&theme=dark" alt="Alisa Telegram Card" style="max-width:420px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.12);" loading="eager" />
+        </div>
         <div class="code-window">
           <div class="code-header">
             <div class="code-dot r"></div>
@@ -667,7 +670,7 @@ export const htmlContent = `
       <span>© 2026 Alisa Reaction Bot</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.2.0</span>
+        <span class="ft-ver">v2.3.0</span>
       </div>
     </div>
   </footer>
