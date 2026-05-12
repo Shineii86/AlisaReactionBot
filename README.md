@@ -20,7 +20,7 @@
 
 <br/>
 
-[💬 Try Bot](https://t.me/AlisaReactionBot) · [🐛 Report Bug](https://github.com/Shineii86/AlisaReactionBot/issues/new) · [💡 Request Feature](https://github.com/Shineii86/AlisaReactionBot/discussions) · [📖 Wiki](https://github.com/Shineii86/AlisaReactionBot/wiki)
+[💬 Try Bot](https://t.me/AlisaReactionBot) · [📖 Complete Guide](GUIDE.md) · [🐛 Report Bug](https://github.com/Shineii86/AlisaReactionBot/issues/new) · [💡 Request Feature](https://github.com/Shineii86/AlisaReactionBot/discussions) · [📝 Changelog](CHANGELOG.md)
 
 </div>
 
@@ -371,6 +371,7 @@ AlisaReactionBot/
 ├── Procfile                  # Heroku config
 ├── app.json                  # Heroku app manifest
 ├── CHANGELOG.md              # Version history
+├── GUIDE.md                  # Complete setup & usage guide
 ├── LICENSE                   # MIT License
 └── README.md                 # This file
 ```
