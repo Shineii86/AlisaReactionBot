@@ -42,8 +42,7 @@ export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ
 💡 *Tɪᴘs:*
 • Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
 • Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
-• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ */pause* Aɴᴅ */setreactions*.
-• Pʀᴇss / Tᴏ Fᴏᴄᴜs Tʜᴇ Sᴇᴀʀᴄʜ Bᴀʀ.`
+• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ */pause* Aɴᴅ */setreactions*.`
 
 export const aboutMessage = `🤖 *Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ*
 

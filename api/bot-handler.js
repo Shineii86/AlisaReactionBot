@@ -218,6 +218,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 default:
                     await botApi.answerCallbackQuery(cq.id, '❓ Unknown action', true);
+                    return; // already answered, don't call again
             }
             await botApi.answerCallbackQuery(cq.id);
         } catch (error) {
@@ -276,11 +277,17 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/ping') {
                 trackCommand('ping');
                 const start = Date.now();
-                const sent = await botApi.sendMessage(chatId, '🏓 Pɪɴɢɪɴɢ...', null);
-                const latency = Date.now() - start;
                 try {
-                    await botApi.editMessageText(chatId, sent.result.message_id, pingMessage(latency));
+                    const sent = await botApi.sendMessage(chatId, '🏓 Pɪɴɢɪɴɢ...', null);
+                    const latency = Date.now() - start;
+                    const msgId = sent?.result?.message_id;
+                    if (msgId) {
+                        await botApi.editMessageText(chatId, msgId, pingMessage(latency));
+                    } else {
+                        await botApi.sendMessage(chatId, pingMessage(latency));
+                    }
                 } catch {
+                    const latency = Date.now() - start;
                     await botApi.sendMessage(chatId, pingMessage(latency));
                 }
                 return;
@@ -387,7 +394,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 await botApi.sendMessage(chatId, broadcastStarted);
-                const allChats = [...stats.uniqueChats];
+                const allChats = new Set(stats.uniqueChats);
+                // Ensure owner's chat is included (they may only use groups)
+                if (userId) allChats.add(userId);
                 let success = 0, failed = 0;
                 for (const cid of allChats) {
                     try {
