@@ -17,8 +17,9 @@
 9. [Environment Variables Explained](#environment-variables-explained)
 10. [Using the Bot](#using-the-bot)
 11. [Telegram Card Generator](#telegram-card-generator)
-12. [Admin Commands (Group Owners)](#admin-commands-group-owners)
-12. [Owner Commands](#owner-commands)
+12. [Inline Mode — Cards Anywhere](#inline-mode--cards-anywhere)
+13. [Admin Commands (Group Owners)](#admin-commands-group-owners)
+14. [Owner Commands](#owner-commands)
 13. [How Reactions Work](#how-reactions-work)
 15. [How Stats Work](#how-stats-work)
 16. [How Broadcast Works](#how-broadcast-works)
@@ -577,6 +578,44 @@ Cards are powered by the [Telegram Card API](https://github.com/Shineii86/Telegr
 
 ---
 
+## Inline Mode — Cards Anywhere
+
+Type `@AlisaReactionBot <username>` in **any Telegram chat** to generate cards inline — no need to open a private chat with the bot.
+
+### How to Use
+
+1. Open any chat (group, channel, or private)
+2. Type `@AlisaReactionBot Shineii86` (replace with any username)
+3. Wait for results to load
+4. Tap a theme — the card is sent directly to the chat
+
+### Available Themes in Inline Mode
+
+| Option | Description |
+|:---|:---|
+| ☀️ Light | White card, dark text |
+| 🌙 Dark | Gray card, light text |
+| 🌙 Midnight | Midnight Blue palette |
+| 🌅 Sunset | Warm Sunset palette |
+| 👑 Royal | Royal Purple palette |
+| 🌊 Ocean | Ocean Deep palette |
+
+### Requirements
+
+- The bot must have **inline mode enabled** in BotFather (`/setinline`)
+- The username must be a valid public Telegram username (5-32 chars)
+- Results are cached for 5 minutes per user
+
+### Setting Up Inline Mode
+
+1. Open @BotFather in Telegram
+2. Send `/mybots` and select your bot
+3. Go to **Bot Settings** → **Inline Mode**
+4. Turn it **On**
+5. Optionally set a placeholder: `Enter a username...`
+
+---
+
 ## Admin Commands (Group Owners)
 
 These commands only work in **groups** and only for **group admins** (creator or administrator).
@@ -643,6 +682,59 @@ If reactions weren't paused, it says:
 ```
 ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Nᴏᴛ Pᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.
 ```
+
+### /randomlevel — Control Reaction Randomness
+
+Set a custom random level for the current group, overriding the global setting:
+
+```
+/randomlevel 5
+```
+
+The bot confirms:
+
+```
+🎲 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ! 📊
+
+🎯 Lᴇᴠᴇʟ: 5 — Rᴇᴀᴄᴛ ~50% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ
+
+💡 0 = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | 10 = ᴠᴇʀʏ ʀᴀʀᴇ
+🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.
+```
+
+**Check current level:**
+
+```
+/randomlevel
+```
+
+Shows the current level and whether it's custom or global:
+
+```
+🎲 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:
+
+📊 Cᴜʀʀᴇɴᴛ: 5 (Cᴜsᴛᴏᴍ)
+📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: 0
+
+💡 Usᴇ /randomlevel <0-10> ᴛᴏ ᴄʜᴀɴɢᴇ.
+```
+
+**How it works:**
+
+| Level | Behavior | Reaction Chance |
+|:---:|:---|:---:|
+| `0` | React to every message | 100% |
+| `1` | Almost always | 90% |
+| `3` | Mostly | 70% |
+| `5` | Balanced | 50% |
+| `7` | Occasional | 30% |
+| `10` | Very rare | ~0% |
+
+**Requirements:**
+- Only works in **groups** (not private chats or channels)
+- Only **group admins** can use it
+- Resets when the bot restarts
+- Overrides the global `RANDOM_LEVEL` env var for this chat
 
 ---
 

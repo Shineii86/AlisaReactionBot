@@ -36,6 +36,7 @@ const perChatReactions = {};     // chatId → emoji string (custom per-chat)
 const restrictedChatsRuntime = new Set(); // Runtime-restricted chat IDs
 const rateLimitMap = {};         // chatId → { count, resetAt }
 const chatNames = {};            // chatId → chat title (cached)
+const perChatRandomLevel = {};   // chatId → random level override (0-10)
 
 const LOG_MAX = 50;
 const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
@@ -136,6 +137,7 @@ function getStatsMessage() {
 💬 *Uɴɪqᴜᴇ Cʜᴀᴛs:* ${stats.uniqueChats.size.toLocaleString()}
 ⏸️ *Pᴀᴜsᴇᴅ Cʜᴀᴛs:* ${pausedChats.size.toLocaleString()}
 🚫 *Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:* ${restrictedChatsRuntime.size.toLocaleString()}
+🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:* ${Object.keys(perChatRandomLevel).length.toLocaleString()}
 ⏱️ *Uᴘᴛɪᴍᴇ:* ${uptime}
 🕐 *Sᴛᴀʀᴛᴇᴅ:* ${new Date(stats.startTime).toUTCString()}
 
@@ -195,6 +197,75 @@ function getBackKeyboard() {
  * @param {string} webhookSecret - Webhook secret token
  */
 export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret) {
+
+    // ─── Inline Query ───
+    if (data.inline_query) {
+        const iq = data.inline_query;
+        const query = iq.query?.trim().replace(/^@/, '') || '';
+        const userId = iq.from?.id;
+
+        // If no query, show hint
+        if (!query) {
+            const results = [{
+                type: 'article',
+                id: 'hint',
+                title: '🃏 Enter a Telegram username',
+                description: 'Type a username after @AlisaReactionBot — e.g. @AlisaReactionBot Shineii86',
+                input_message_content: {
+                    message_text: '💡 Type a username after the bot mention — e.g: `@AlisaReactionBot Shineii86`',
+                    parse_mode: 'Markdown'
+                }
+            }];
+            await botApi.answerInlineQuery(iq.id, results, 60);
+            return;
+        }
+
+        // Validate username
+        if (!/^[a-zA-Z0-9_]{5,32}$/.test(query)) {
+            const results = [{
+                type: 'article',
+                id: 'invalid',
+                title: '❌ Invalid username',
+                description: `Username "${query}" is not valid. Must be 5-32 chars (a-Z, 0-9, _).`,
+                input_message_content: {
+                    message_text: `❌ \`${query}\` ɪs ɴᴏᴛ ᴀ ᴠᴀʟɪᴅ Tᴇʟᴇɢʀᴀᴍ ᴜsᴇʀɴᴀᴍᴇ.`,
+                    parse_mode: 'Markdown'
+                }
+            }];
+            await botApi.answerInlineQuery(iq.id, results, 60);
+            return;
+        }
+
+        // Build card results — light, dark, and 4 popular palettes
+        const themes = [
+            { id: 'light', label: '☀️ Light', opts: { theme: 'light' } },
+            { id: 'dark', label: '🌙 Dark', opts: { theme: 'dark' } },
+            { id: 'midnight', label: '🌙 Midnight', opts: CARD_PALETTES.midnight },
+            { id: 'sunset', label: '🌅 Sunset', opts: CARD_PALETTES.sunset },
+            { id: 'royal', label: '👑 Royal', opts: CARD_PALETTES.royal },
+            { id: 'ocean', label: '🌊 Ocean', opts: CARD_PALETTES.ocean },
+        ];
+
+        const results = themes.map(t => {
+            const cardUrl = getTelegramCardUrl(query, t.opts);
+            return {
+                type: 'photo',
+                id: t.id,
+                photo_url: cardUrl,
+                thumbnail_url: cardUrl,
+                title: `${t.label} — ${query}`,
+                description: `Generate ${t.label.toLowerCase()} card for @${query}`,
+                caption: `🃏 *${query}* — ${t.label}`
+            };
+        });
+
+        try {
+            await botApi.answerInlineQuery(iq.id, results, 300);
+        } catch (error) {
+            log.error('[InlineQuery]', error.message);
+        }
+        return;
+    }
 
     // ─── Callback Query ───
     if (data.callback_query) {
@@ -552,6 +623,37 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
+            // /randomlevel <0-10> (group admins only)
+            if (cmd === '/randomlevel') {
+                trackCommand('randomlevel');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    return;
+                }
+                const level = parseInt(args?.trim(), 10);
+                if (args?.trim() === '' || args === undefined) {
+                    // Show current level
+                    const current = perChatRandomLevel[chatId] !== undefined
+                        ? perChatRandomLevel[chatId]
+                        : RandomLevel;
+                    const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
+                    await botApi.sendMessage(chatId, `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:*\n\n📊 Cᴜʀʀᴇɴᴛ: \`${current}\` (${source})\n📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: \`${RandomLevel}\`\n\n💡 Usᴇ \`/randomlevel <0-10>\` ᴛᴏ ᴄʜᴀɴɢᴇ.`);
+                    return;
+                }
+                if (isNaN(level) || level < 0 || level > 10) {
+                    await botApi.sendMessage(chatId, '❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ Bᴇᴛᴡᴇᴇɴ `0` (ᴀʟᴡᴀʏs) ᴀɴᴅ `10` (ɴᴇᴠᴇʀ).\n\n📌 Usᴀɢᴇ: `/randomlevel <0-10>`');
+                    return;
+                }
+                perChatRandomLevel[chatId] = level;
+                const chance = (10 - level) * 10;
+                await botApi.sendMessage(chatId, `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!* 📊\n\n🎯 Lᴇᴠᴇʟ: \`${level}\` — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ᴠᴇʀʏ ʀᴀʀᴇ\n🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`);
+                return;
+            }
+
             // /donate
             if (cmd === '/donate') {
                 trackCommand('donate');
@@ -633,6 +735,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await botApi.leaveChat(targetChatId);
                     stats.uniqueChats.delete(Number(targetChatId));
                     delete perChatReactions[targetChatId];
+                    delete perChatRandomLevel[targetChatId];
                     pausedChats.delete(Number(targetChatId));
                     restrictedChatsRuntime.delete(Number(targetChatId));
                     await botApi.sendMessage(chatId, `✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ \`${targetChatId}\`.`);
@@ -757,7 +860,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
         const isGroup = isGroupChat(chatType);
         if (isGroup) {
-            const threshold = 1 - (RandomLevel / 10);
+            const chatRandomLevel = perChatRandomLevel[chatId] !== undefined
+                ? perChatRandomLevel[chatId]
+                : RandomLevel;
+            const threshold = 1 - (chatRandomLevel / 10);
             if (Math.random() <= threshold) {
                 try {
                     await botApi.setMessageReaction(chatId, message_id, reaction);

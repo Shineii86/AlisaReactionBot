@@ -74,7 +74,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png",
-    "softwareVersion": "2.4.0",
+    "softwareVersion": "2.5.0",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -673,7 +673,7 @@ export const htmlContent = `
       <span>© 2026 Alisa Reaction Bot</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.4.0</span>
+        <span class="ft-ver">v2.5.0</span>
       </div>
     </div>
   </footer>

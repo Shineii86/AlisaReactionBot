@@ -4,6 +4,33 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.5.0] — 2026-05-12
+
+### ✨ New Features
+
+- **Inline Mode** — Type `@AlisaReactionBot <username>` in any Telegram chat to generate profile cards inline. Shows 6 theme options (Light, Dark, Midnight, Sunset, Royal, Ocean) as photo results. No need to open a private chat. Requires inline mode enabled in BotFather.
+- **`/randomlevel <0-10>`** — Group admins can set a custom reaction randomness level per chat, overriding the global `RANDOM_LEVEL` env var. `/randomlevel` without args shows current level and source (custom vs global). Resets on restart.
+- **`answerInlineQuery` API** — Added `answerInlineQuery()` method to `TelegramBotAPI.js` for inline query responses.
+- **`inline_query` in allowed_updates** — Webhook now receives inline query updates from Telegram.
+
+### 🔧 Changes
+
+- Auto-reaction logic now checks per-chat random level before falling back to global `RANDOM_LEVEL`.
+- `/stats` now shows count of random level overrides.
+- `/leave` now cleans up per-chat random level state.
+- Updated `helpMessage` with `/randomlevel` command.
+- Updated `aboutMessage` with inline mode and per-chat random level features.
+- Updated README.md features list and commands table.
+- Updated GUIDE.md with Inline Mode setup guide and `/randomlevel` documentation.
+
+### 📝 Docs
+
+- **README.md** — Added inline mode tip, `/randomlevel` command, inline mode feature bullet.
+- **GUIDE.md** — Added "Inline Mode — Cards Anywhere" section with setup instructions. Added `/randomlevel` section with usage examples and level table.
+- **CHANGELOG.md** — v2.5.0 entry added.
+
+---
+
 ## [v2.4.0] — 2026-05-12
 
 ### 🔧 Changes

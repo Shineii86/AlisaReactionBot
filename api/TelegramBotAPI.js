@@ -119,6 +119,15 @@ export default class TelegramBotAPI {
         });
     }
 
+    async answerInlineQuery(inlineQueryId, results, cacheTime = 300) {
+        return this.callApi('answerInlineQuery', {
+            inline_query_id: inlineQueryId,
+            results: results,
+            cache_time: cacheTime,
+            is_personal: true
+        });
+    }
+
     async leaveChat(chatId) {
         return this.callApi('leaveChat', { chat_id: chatId });
     }
@@ -127,7 +136,7 @@ export default class TelegramBotAPI {
         return this.callApi('setWebhook', {
             url: url,
             secret_token: secretToken,
-            allowed_updates: ['message', 'channel_post', 'callback_query']
+            allowed_updates: ['message', 'channel_post', 'callback_query', 'inline_query']
         });
     }
 

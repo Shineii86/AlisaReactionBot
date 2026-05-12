@@ -72,8 +72,10 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 - **Pause / Resume** — Group admins can temporarily disable reactions
 - **Runtime Restrictions** — Owner can restrict/unrestrict chats at runtime via commands
 - **Intelligent Randomization** — Configurable randomness level (0-10) for natural behavior
+- **Per-Chat Random Level** — Group admins can override random level per chat via `/randomlevel`
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
 - **Telegram Card Generator** — Generate live profile cards for any Telegram username via `/card`
+- **Inline Mode** — Type `@AlisaReactionBot <username>` in any chat to generate cards instantly
 
 </td>
 <td width="50%">
@@ -134,6 +136,8 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/reactions` | List currently enabled reaction emojis |
 | `/donate` | Support the project |
 
+> 💡 **Inline Mode:** Type `@AlisaReactionBot <username>` in any chat to generate cards inline — no need to open a private chat.
+
 ### 👑 Group Admins
 
 | Command | Description |
@@ -142,6 +146,8 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/setreactions` | Reset to default global emoji set |
 | `/pause` | Pause auto-reactions in this chat |
 | `/resume` | Resume auto-reactions in this chat |
+| `/randomlevel <0-10>` | Set reaction randomness for this chat |
+| `/randomlevel` | View current random level |
 
 ### 🔒 Owner Only
 
@@ -504,7 +510,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.4.0** — Card inline buttons replaced with slash commands (`/cardlight`, `/carddark`, `/cardpal`, `/cardvrf`, `/cardphoto`). Simplified card generation workflow.
+**Latest: v2.5.0** — Inline mode (`@AlisaReactionBot <username>`), `/randomlevel` per-chat override, card commands.
 
 ---
 
