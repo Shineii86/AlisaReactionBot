@@ -71,6 +71,7 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 - **Auto-Reactions** — Smart emoji reactions for private, group, and channel messages
 - **Per-Chat Emoji Sets** — Each group can choose its own reaction emojis
 - **Pause / Resume** — Group admins can temporarily disable reactions
+- **Runtime Restrictions** — Owner can restrict/unrestrict chats at runtime via commands
 - **Intelligent Randomization** — Configurable randomness level (0-10) for natural behavior
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
 
@@ -78,11 +79,12 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 <td width="50%">
 
 ### 🛡️ Security & Privacy
-- **Webhook Secret Validation** — Rejects spoofed requests
-- **Owner-Only Commands** — `/broadcast` and `/log` restricted to bot owner
+- **Webhook Secret Validation** — Rejects spoofed requests (auto-generated if not set)
+- **Owner-Only Commands** — Broadcast, log, leave, chats, restrict, webhook restricted to owner
 - **Admin Permission Checks** — `/setreactions`, `/pause`, `/resume` require group admin rights
 - **Zero Persistent Data** — No database, no logs on disk, nothing to leak
 - **Request Size Limit** — Rejects payloads over 1MB
+- **Broadcast Cooldown** — 60-second cooldown between broadcasts
 
 </td>
 </tr>
@@ -90,11 +92,11 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 <td>
 
 ### 📊 Monitoring
-- **Live Stats** — Messages processed, reactions sent, unique chats, uptime
+- **Live Stats** — Messages processed, reactions sent, unique chats, paused, restricted, uptime
 - **Command Usage Tracking** — See which commands are used most
 - **Top Chats Leaderboard** — Which chats get the most reactions
 - **Reaction Log** — Last 50 reactions with chat, emoji, and timestamp
-- **Health Endpoint** — `/health` for uptime monitoring
+- **Health Endpoint** — `/health` for uptime monitoring with config status
 
 </td>
 <td>
@@ -102,9 +104,9 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 ### 🚀 Deployment
 - **Multi-Platform** — Cloudflare Workers, Vercel, Docker, Railway, Render
 - **Zero Cold Starts** — Edge-optimized for instant responses
-- **GitHub Actions CI/CD** — Auto-deploy on push
 - **One-Click Deploy** — Deploy buttons for every platform
 - **Free Tier Friendly** — Works on free tiers
+- **Webhook Setup** — Set webhook directly from Telegram via `/setwebhook`
 
 </td>
 </tr>
@@ -124,7 +126,7 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/ping` | Check bot latency and response time |
 | `/stats` | Live statistics — messages, reactions, uptime, top chats |
 | `/reactions` | List currently enabled reaction emojis |
-| `/donate` | Support the project via PayPal or Ko-fi |
+| `/donate` | Support the project |
 
 ### 👑 Group Admins
 
@@ -139,8 +141,15 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 
 | Command | Description |
 |:---|:---|
-| `/broadcast <message>` | Send a message to every chat the bot is in |
-| `/log` | View the last 10 reactions sent (chat, emoji, time) |
+| `/broadcast <message>` | Send a message to every chat (60s cooldown) |
+| `/leave <chat_id>` | Remove the bot from any chat |
+| `/remove <chat_id>` | Alias for `/leave` |
+| `/chats` | List all active chats with status indicators |
+| `/restrict <chat_id>` | Restrict a chat — bot stops reacting |
+| `/unrestrict <chat_id>` | Remove restriction from a chat |
+| `/setwebhook <url>` | Set webhook URL via Telegram |
+| `/setwebhook` | View current webhook status and errors |
+| `/log` | View the last 10 reactions sent |
 
 ---
 
@@ -155,7 +164,7 @@ The `/start` menu includes interactive inline buttons — no need to type comman
 | **📚 Help** | Shows command reference (edits message in-place) |
 | **🤖 About** | Shows bot info and tech stack |
 | **📊 Stats** | Shows live performance metrics |
-| **🎁 Donate** | Shows donation options with PayPal + Ko-fi buttons |
+| **🎁 Donate** | Shows donation options |
 | **🧑‍💻 Developer** | Opens developer's Telegram profile |
 | **☁️ Source Code** | Opens GitHub repository |
 
@@ -174,8 +183,9 @@ The `/stats` command shows:
 💫 Reactions Sent: 983
 💬 Unique Chats: 42
 ⏸️ Paused Chats: 2
+🚫 Restricted Chats: 1
 ⏱️ Uptime: 3ʜ 24ᴍ 17s
-🕐 Started: Mon, 12 May 2025 04:12:00 GMT
+🕐 Started: Mon, 12 May 2026 04:12:00 GMT
 
 📋 Command Usage:
 /start — 15
@@ -208,6 +218,7 @@ The `/broadcast <message>` command lets the bot owner send a message to every ch
 1. You send `/broadcast Hey everyone! New update! 🎉`
 2. Bot checks — are you the `OWNER_ID`?
    - ❌ No → *"This command is only available to the bot owner."*
+   - ⏳ Cooldown active → *"Wait Xs before next broadcast."*
    - ✅ Yes → Starts broadcasting
 3. Bot loops through **every unique chat ID** it has seen
 4. Sends your message to each one (Markdown supported)
@@ -221,8 +232,8 @@ The `/broadcast <message>` command lets the bot owner send a message to every ch
 ```
 
 **Notes:**
+- **60-second cooldown** between broadcasts to prevent spam
 - Failed sends (bot kicked, chat deleted) are counted but don't stop the broadcast
-- Uses the same Markdown parse mode as regular messages
 - Reaches every chat since last restart
 
 ---
@@ -266,21 +277,21 @@ docker-compose up -d
 
 ### 📡 Set Webhook After Deploy
 
-```bash
-# Set webhook (replace with your values)
-curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://your-worker.your-subdomain.workers.dev"}'
-
-# Verify webhook
-curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
+**Option A — Via Telegram (recommended):**
+```
+/setwebhook https://your-worker.your-subdomain.workers.dev
 ```
 
-**With webhook secret:**
+**Option B — Via curl:**
 ```bash
 curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://your-worker.url", "secret_token": "your_secret_here"}'
+  -d '{"url": "https://your-worker.your-subdomain.workers.dev", "secret_token": "your_secret"}'
+```
+
+**Verify:**
+```bash
+curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 ```
 
 ---
@@ -299,6 +310,8 @@ curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" \
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
+
+> **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
 
 ### 🎚️ Random Level Explained
 
@@ -319,9 +332,9 @@ curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" \
 
 ### Webhook Validation
 
-When `WEBHOOK_SECRET` is set, the bot validates every incoming request against the `x-telegram-bot-api-secret-token` header. Requests with an invalid or missing secret are rejected with `403 Forbidden`.
+When `WEBHOOK_SECRET` is set (or auto-generated), the bot validates every incoming request against the `x-telegram-bot-api-secret-token` header. Requests with an invalid or missing secret are rejected with `403 Forbidden`.
 
-Set the secret via BotFather or during `setWebhook`:
+Set the secret via `/setwebhook` or BotFather:
 ```json
 {
   "url": "https://your-worker.url",
@@ -333,6 +346,10 @@ Set the secret via BotFather or during `setWebhook`:
 
 Set `OWNER_ID` to your Telegram user ID (get it from @userinfobot). Only that user can use:
 - `/broadcast` — Send messages to all chats
+- `/leave` / `/remove` — Remove bot from any chat
+- `/chats` — List all active chats
+- `/restrict` / `/unrestrict` — Runtime chat restrictions
+- `/setwebhook` — Set or view webhook configuration
 - `/log` — View reaction history
 
 ### Rate Limiting
@@ -342,9 +359,22 @@ The bot enforces a **30 reactions per minute per chat** limit. This prevents:
 - Spam in active groups
 - Abuse in high-traffic channels
 
+### Broadcast Cooldown
+
+The `/broadcast` command has a **60-second cooldown** between uses to prevent accidental spam.
+
 ### Request Size
 
 Incoming webhook payloads larger than **1MB** are rejected with `413 Payload Too Large`.
+
+### Runtime Restrictions
+
+The owner can restrict chats at runtime using `/restrict <chat_id>`. These restrictions:
+- Work alongside env-based `RESTRICTED_CHATS`
+- Persist in memory until restart
+- Are shown in `/chats` and `/stats`
+- Can be removed with `/unrestrict <chat_id>`
+- Are cleaned up automatically when using `/leave`
 
 ---
 
@@ -357,8 +387,9 @@ AlisaReactionBot/
 │   ├── worker.js             # Cloudflare Worker entry point
 │   ├── bot-handler.js        # Core logic — commands, reactions, stats
 │   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
-│   ├── constants.js          # Messages, keyboards, HTML landing page
-│   └── helper.js             # Emoji parsing, chat ID parsing
+│   ├── constants.js          # Message templates and keyboard layouts
+│   ├── landing.js            # Landing page HTML (separated for clarity)
+│   └── helper.js             # Emoji parsing, chat ID parsing, logger
 ├── assets/                   # Logo and banner images
 ├── .env.example              # Environment variable template
 ├── .gitignore
@@ -384,10 +415,10 @@ AlisaReactionBot/
 
 1. User sends a message in Telegram
 2. Telegram forwards it to your webhook (POST `/`)
-3. Bot validates the webhook secret (if configured)
+3. Bot validates the webhook secret
 4. `bot-handler.js` processes the update:
    - Command? → Execute command, send response
-   - Regular message? → Check rate limit, pick emoji, react
+   - Regular message? → Check restrictions, rate limit, pick emoji, react
 5. Stats are updated in-memory
 6. `200 OK` returned to Telegram
 
@@ -402,8 +433,10 @@ AlisaReactionBot/
 | `reactionLog[]` | Array (last 50) | Recent reactions |
 | `pausedChats` | Set | Paused chat IDs |
 | `perChatReactions` | Object | Custom emoji per chat |
+| `restrictedChatsRuntime` | Set | Runtime-restricted chat IDs |
 | `rateLimitMap` | Object | Per-chat rate limit windows |
 | `chatNames` | Object | Chat ID → display name |
+| `lastBroadcastTime` | Timestamp | Cooldown tracking |
 
 > All state is in-memory. Resets on restart. No database, no disk, no leaks.
 
@@ -484,7 +517,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.2.0** — `/ping`, `/broadcast`, `/setreactions`, `/pause`/`/resume`, webhook security, rate limiting, owner commands, enhanced stats with top chats leaderboard.
+**Latest: v2.2.1** — `/leave`, `/remove`, `/chats`, `/setwebhook`, `/restrict`/`/unrestrict`, webhook auto-secret, broadcast cooldown, runtime restrictions, structured logger, landing page extraction, enhanced health endpoint.
 
 ---
 
