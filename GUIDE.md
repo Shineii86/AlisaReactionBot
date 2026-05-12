@@ -19,8 +19,7 @@
 11. [Telegram Card Generator](#telegram-card-generator)
 12. [Admin Commands (Group Owners)](#admin-commands-group-owners)
 12. [Owner Commands](#owner-commands)
-13. [Inline Button Navigation](#inline-button-navigation)
-14. [How Reactions Work](#how-reactions-work)
+13. [How Reactions Work](#how-reactions-work)
 15. [How Stats Work](#how-stats-work)
 16. [How Broadcast Works](#how-broadcast-works)
 17. [Security Features](#security-features)
@@ -522,47 +521,57 @@ The bot sends a beautiful card image showing the user's avatar, name, type (User
 
 > **⏱️ Cooldown:** Non-owner users have a 60-second cooldown between card generations. The bot owner (OWNER_ID) is exempt.
 
-#### Inline Button Customization
+#### Card Theme Commands
 
-After the card is generated, you get inline buttons to customize it instantly:
+Use these commands to generate cards with specific themes:
 
-**Themes:**
-- ☀️ Light — White card, dark text, blue accent (default)
-- 🌙 Dark — Gray card, light text, light blue accent
+```
+/cardlight Shineii86    ← ☀️ Light theme (white card)
+/carddark Shineii86     ← 🌙 Dark theme (dark card)
+```
 
-**12 Color Palettes:**
-- 🌙 Midnight Blue · 🌅 Warm Sunset · 🌲 Emerald Forest
-- 👑 Royal Purple · 🌸 Cherry Blossom · ❄️ Arctic Frost
-- 🔥 Lava Glow · 🌊 Ocean Deep · 🍃 Mint Fresh
-- 🌑 Pure Black (OLED) · ☁️ Cloud White · 🌌 Cosmic Indigo
+#### Color Palette Commands
 
-**Actions:**
-- 🔄 Refresh — Regenerate the card with current theme
-- ⬅️ Back To Menu — Return to the main bot menu
+Use `/cardpal` with a palette name to generate cards with custom colors:
 
-#### Verified Badge Control
+```
+/cardpal midnight Shineii86
+/cardpal sunset Shineii86
+```
 
-Below the palettes, you get three buttons to control the verified badge (✓):
+Run `/cardpal` without arguments to see all 12 available palettes:
+- 🌙 `midnight` — Midnight Blue
+- 🌅 `sunset` — Warm Sunset
+- 🌲 `emerald` — Emerald Forest
+- 👑 `royal` — Royal Purple
+- 🌸 `cherry` — Cherry Blossom
+- ❄️ `arctic` — Arctic Frost
+- 🔥 `lava` — Lava Glow
+- 🌊 `ocean` — Ocean Deep
+- 🍃 `mint` — Mint Fresh
+- 🌑 `black` — Pure Black (OLED)
+- ☁️ `cloud` — Cloud White
+- 🌌 `cosmic` — Cosmic Indigo
 
-- 🔖 **Auto** — Detect automatically from Telegram (default)
-- ✅ **Show** — Force show the verified badge
-- ❌ **Hide** — Force hide the verified badge
+#### Verified Badge Command
 
-The currently active option is marked with ☑️.
+Control the verified badge (✓) on cards:
+
+```
+/cardvrf auto Shineii86     ← 🔖 Detect automatically (default)
+/cardvrf show Shineii86     ← ✅ Force show badge
+/cardvrf hide Shineii86     ← ❌ Force hide badge
+```
 
 #### Custom Photo Avatar
 
-Click **🖼️ Custom Photo** to replace the card's avatar with any image:
+Replace the card's avatar with any image URL:
 
-1. Tap the 🖼️ Custom Photo button
-2. The bot prompts you to send a photo URL
-3. Send any `http://` or `https://` image URL
-4. The card updates in-place with your custom avatar
-5. Type `/cancel` to abort without changes
+```
+/cardphoto https://example.com/avatar.png Shineii86
+```
 
-> **Tip:** Use this to preview how your card looks with different profile photos — great for testing branding!
-
-The currently active theme/palette is marked with ☑️. Cards update in-place — no extra messages.
+The URL must start with `http://` or `https://`.
 
 Cards are powered by the [Telegram Card API](https://github.com/Shineii86/Telegram-Card) — no API keys, no signup, instant generation.
 

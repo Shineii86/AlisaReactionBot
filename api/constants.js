@@ -32,9 +32,18 @@ export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ
 🔹 */about* — Lᴇᴀʀɴ Mᴏʀᴇ Aʙᴏᴜᴛ Aʟɪsᴀ.
 🔹 */stats* — Vɪᴇᴡ Bᴏᴛ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Sᴛᴀᴛs.
 🔹 */ping* — Cʜᴇᴄᴋ Bᴏᴛ Lᴀᴛᴇɴᴄʏ Aɴᴅ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ.
-🔹 */card <username>* — Gᴇɴᴇʀᴀᴛᴇ A Lɪᴠᴇ Tᴇʟᴇɢʀᴀᴍ Pʀᴏғɪʟᴇ Cᴀʀᴅ.
 🔹 */donate* — Sᴜᴘᴘᴏʀᴛ Tʜᴇ Bᴏᴛ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ.
 🔹 */reactions* — Lɪsᴛ Cᴜʀʀᴇɴᴛ Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs.
+
+────────────────
+
+🃏 *Cᴀʀᴅ Gᴇɴᴇʀᴀᴛᴏʀ:*
+🔹 */card <username>* — Gᴇɴᴇʀᴀᴛᴇ A Pʀᴏғɪʟᴇ Cᴀʀᴅ.
+🔹 */cardlight <username>* — Lɪɢʜᴛ Tʜᴇᴍᴇ.
+🔹 */carddark <username>* — Dᴀʀᴋ Tʜᴇᴍᴇ.
+🔹 */cardpal <palette> <username>* — Cᴏʟᴏʀ Pᴀʟᴇᴛᴛᴇ.
+🔹 */cardvrf <mode> <username>* — Vᴇʀɪғɪᴇᴅ Bᴀᴅɢᴇ.
+🔹 */cardphoto <url> <username>* — Cᴜsᴛᴏᴍ Aᴠᴀᴛᴀʀ.
 
 ────────────────
 
@@ -152,14 +161,16 @@ export const cardMessage = `🃏 *Tᴇʟᴇɢʀᴀᴍ Cᴀʀᴅ Gᴇɴᴇʀᴀ�
 
 Gᴇɴᴇʀᴀᴛᴇ A Lɪᴠᴇ Pʀᴏғɪʟᴇ Cᴀʀᴅ Fᴏʀ Aɴʏ Pᴜʙʟɪᴄ Tᴇʟᴇɢʀᴀᴍ Usᴇʀɴᴀᴍᴇ!
 
-🔹 \`/card <username>\` — Gᴇɴᴇʀᴀᴛᴇ Cᴀʀᴅ Fᴏʀ A Usᴇʀɴᴀᴍᴇ.
+🔹 \`/card <username>\` — Gᴇɴᴇʀᴀᴛᴇ Cᴀʀᴅ (Lɪɢʜᴛ Tʜᴇᴍᴇ).
 🔹 \`/card\` — Gᴇɴᴇʀᴀᴛᴇ Yᴏᴜʀ Oᴡɴ Cᴀʀᴅ.
+🔹 \`/cardlight <username>\` — Lɪɢʜᴛ Tʜᴇᴍᴇ.
+🔹 \`/carddark <username>\` — Dᴀʀᴋ Tʜᴇᴍᴇ.
+🔹 \`/cardpal <palette> <username>\` — Cᴏʟᴏʀ Pᴀʟᴇᴛᴛᴇ.
+🔹 \`/cardvrf <mode> <username>\` — Vᴇʀɪғɪᴇᴅ Bᴀᴅɢᴇ (auto/show/hide).
+🔹 \`/cardphoto <url> <username>\` — Cᴜsᴛᴏᴍ Aᴠᴀᴛᴀʀ Pʜᴏᴛᴏ.
 
 💡 *Tɪᴘ:* Usᴇ Wɪᴛʜᴏᴜᴛ @ — E.g: \`/card Shineii86\`
-
-🎨 *Cᴜsᴛᴏᴍɪᴢᴇ Wɪᴛʜ Bᴜᴛᴛᴏɴs:*
-☀️ Lɪɢʜᴛ · 🌙 Dᴀʀᴋ · 12 Cᴏʟᴏʀ Pᴀʟᴇᴛᴛᴇs
-🔄 Rᴇғʀᴇsʜ · ⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ
+🎨 Rᴜɴ \`/cardpal\` ᴡɪᴛʜᴏᴜᴛ ᴀʀɢs ᴛᴏ sᴇᴇ ᴀʟʟ ᴘᴀʟᴇᴛᴛᴇs.
 
 _Pᴏᴡᴇʀᴇᴅ Bʏ [Tᴇʟᴇɢʀᴀᴍ Cᴀʀᴅ](https://github.com/Shineii86/Telegram-Card) Aᴘɪ_`
 

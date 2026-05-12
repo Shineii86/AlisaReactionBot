@@ -88,59 +88,6 @@ export function getCardUrlByPalette(username, paletteKey) {
     return getTelegramCardUrl(username, palette);
 }
 
-// ─── Card Keyboard Builders ─────────────────────────────────────
-
-/**
- * Build the main card options keyboard (themes + palettes + verified + photo + menu).
- * @param {string} username - Current card username
- * @param {string} [currentTheme] - Currently active theme/palette key
- * @param {string} [currentVerified] - Current verified state: 'auto'|'true'|'false'
- * @param {boolean} [hasCustomPhoto] - Whether a custom photo is active
- */
-export function getCardMainKeyboard(username, currentTheme = 'light', currentVerified = 'auto', hasCustomPhoto = false) {
-    const t = currentTheme;
-    const v = currentVerified;
-
-    // Theme row: Light / Dark
-    const themeRow = [
-        { text: t === 'light' ? '☑️ ☀️ Light' : '☀️ Light', callback_data: `card:theme:${username}:light` },
-        { text: t === 'dark' ? '☑️ 🌙 Dark' : '🌙 Dark', callback_data: `card:theme:${username}:dark` },
-    ];
-
-    // Palette row 1 (6 palettes)
-    const paletteKeys = Object.keys(CARD_PALETTES);
-    const row1 = paletteKeys.slice(0, 6).map(key => ({
-        text: t === key ? `☑️${CARD_PALETTES[key].label}` : CARD_PALETTES[key].label,
-        callback_data: `card:pal:${username}:${key}`,
-    }));
-
-    // Palette row 2 (6 palettes)
-    const row2 = paletteKeys.slice(6, 12).map(key => ({
-        text: t === key ? `☑️${CARD_PALETTES[key].label}` : CARD_PALETTES[key].label,
-        callback_data: `card:pal:${username}:${key}`,
-    }));
-
-    // Verified badge row
-    const verifiedRow = [
-        { text: v === 'auto' ? '☑️ 🔖 Auto' : '🔖 Auto', callback_data: `card:vrf:${username}:auto:${t}` },
-        { text: v === 'true' ? '☑️ ✅ Show' : '✅ Show', callback_data: `card:vrf:${username}:true:${t}` },
-        { text: v === 'false' ? '☑️ ❌ Hide' : '❌ Hide', callback_data: `card:vrf:${username}:false:${t}` },
-    ];
-
-    // Photo + Actions row
-    const actionRow = [
-        { text: hasCustomPhoto ? '🖼️ Change Photo' : '🖼️ Custom Photo', callback_data: `card:photo:${username}:${t}` },
-        { text: '🔄 Refresh', callback_data: `card:refresh:${username}:${t}` },
-    ];
-
-    // Back row
-    const backRow = [
-        { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
-    ];
-
-    return [themeRow, row1, row2, verifiedRow, actionRow, backRow];
-}
-
 // ─── Structured Logger ───────────────────────────────────────────
 export const log = {
     info: (...args) => console.log('[INFO]', new Date().toISOString(), ...args),

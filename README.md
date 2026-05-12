@@ -31,7 +31,6 @@
 - [What Is Alisa?](#-what-is-alisa)
 - [✨ Features](#-features)
 - [🎮 Commands](#-commands)
-- [🔘 Inline Buttons](#-inline-buttons)
 - [📊 How Stats Work](#-how-stats-work)
 - [📡 How Broadcast Works](#-how-broadcast-works)
 - [🚀 Quick Deploy](#-quick-deploy)
@@ -121,11 +120,16 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 
 | Command | Description |
 |:---|:---|
-| `/start` | Welcome menu with inline buttons |
+| `/start` | Welcome menu with quick links |
 | `/help` | Full command reference with access levels |
 | `/about` | Bot features, tech stack, and links |
 | `/ping` | Check bot latency and response time |
-| `/card <username>` | Generate a live Telegram profile card image |
+| `/card <username>` | Generate a live Telegram profile card (light theme) |
+| `/cardlight <username>` | Generate card with light theme |
+| `/carddark <username>` | Generate card with dark theme |
+| `/cardpal <palette> <username>` | Generate card with a color palette |
+| `/cardvrf <mode> <username>` | Verified badge control (auto/show/hide) |
+| `/cardphoto <url> <username>` | Generate card with custom avatar photo |
 | `/stats` | Live statistics — messages, reactions, uptime, top chats |
 | `/reactions` | List currently enabled reaction emojis |
 | `/donate` | Support the project |
@@ -152,25 +156,6 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/setwebhook <url>` | Set webhook URL via Telegram |
 | `/setwebhook` | View current webhook status and errors |
 | `/log` | View the last 10 reactions sent |
-
----
-
-## 🔘 Inline Buttons
-
-The `/start` menu includes interactive inline buttons — no need to type commands:
-
-| Button | Action |
-|:---|:---|
-| **✚ Add to Channel** | Quick link to install bot in a channel |
-| **✚ Add to Group** | Quick link to install bot in a group |
-| **📚 Help** | Shows command reference (edits message in-place) |
-| **🤖 About** | Shows bot info and tech stack |
-| **📊 Stats** | Shows live performance metrics |
-| **🎁 Donate** | Shows donation options |
-| **🧑‍💻 Developer** | Opens developer's Telegram profile |
-| **☁️ Source Code** | Opens GitHub repository |
-
-All sub-screens have a **⬅️ Back to Menu** button — navigating between screens edits the same message, no extra chat spam.
 
 ---
 
@@ -519,7 +504,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.2.1** — `/leave`, `/remove`, `/chats`, `/setwebhook`, `/restrict`/`/unrestrict`, webhook auto-secret, broadcast cooldown, runtime restrictions, structured logger, landing page extraction, enhanced health endpoint.
+**Latest: v2.4.0** — Card inline buttons replaced with slash commands (`/cardlight`, `/carddark`, `/cardpal`, `/cardvrf`, `/cardphoto`). Simplified card generation workflow.
 
 ---
 

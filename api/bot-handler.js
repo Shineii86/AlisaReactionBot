@@ -18,7 +18,7 @@ import {
     onlyAdminMessage, groupOnlyMessage, pingMessage,
     cardMessage, cardGenerating, cardError
 } from './constants.js';
-import { getRandomPositiveReaction, splitEmojis, getTelegramCardUrl, getCardUrlByPalette, getCardMainKeyboard, CARD_THEMES, CARD_PALETTES, log } from './helper.js';
+import { getRandomPositiveReaction, splitEmojis, getTelegramCardUrl, getCardUrlByPalette, CARD_THEMES, CARD_PALETTES, log } from './helper.js';
 
 // ─── In-Memory State (resets on restart — no persistent storage) ───
 
@@ -36,7 +36,6 @@ const perChatReactions = {};     // chatId → emoji string (custom per-chat)
 const restrictedChatsRuntime = new Set(); // Runtime-restricted chat IDs
 const rateLimitMap = {};         // chatId → { count, resetAt }
 const chatNames = {};            // chatId → chat title (cached)
-const pendingCardPhoto = {};     // userId → { username, themeKey, chatId, messageId } — waiting for photo URL input
 
 const LOG_MAX = 50;
 const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
@@ -224,91 +223,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', name), getStartKeyboard(botUsername));
                     break;
                 }
-                default: {
-                    // ─── Card Callbacks ───
-                    if (cq.data.startsWith('card:')) {
-                        const parts = cq.data.split(':');
-                        const type = parts[1];
-                        const username = parts[2];
-                        const value = parts[3];
-
-                        if (!username || !/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
-                            await botApi.answerCallbackQuery(cq.id, '❌ Invalid username', true);
-                            return;
-                        }
-
-                        let cardUrl;
-                        let themeKey = value;
-
-                        // ─── Custom Photo Flow ───
-                        if (type === 'photo') {
-                            // Store state — next message from this user will be treated as photo URL
-                            const userId = cq.from?.id;
-                            if (userId) {
-                                pendingCardPhoto[userId] = {
-                                    username,
-                                    themeKey: value || 'light',
-                                    chatId,
-                                    messageId,
-                                };
-                            }
-                            await botApi.answerCallbackQuery(cq.id, '📸 Send me a photo URL (http/https) to use as avatar!', false);
-                            await botApi.sendMessage(chatId, '📸 *Sᴇɴᴅ ᴍᴇ ᴀ ᴘʜᴏᴛᴏ Uʀʟ* (http/https) ᴛᴏ ᴜsᴇ ᴀs ᴄᴜsᴛᴏᴍ ᴀᴠᴀᴛᴀʀ.\n\nᴇxᴀᴍᴘʟᴇ: `https://example.com/avatar.png`\n\n_Tʏᴘᴇ /cancel ᴛᴏ sᴛᴏᴘ._');
-                            return;
-                        }
-
-                        // ─── Verified Badge ───
-                        if (type === 'vrf') {
-                            const verifiedValue = value;
-                            const currentTheme = parts[4] || 'light';
-                            const opts = CARD_PALETTES[currentTheme] || { theme: currentTheme };
-                            opts.verified = verifiedValue;
-                            cardUrl = getTelegramCardUrl(username, opts);
-                            const keyboard = getCardMainKeyboard(username, currentTheme, verifiedValue, false);
-                            try {
-                                await botApi.editMessageMedia(chatId, messageId, cardUrl, `🃏 *${username}*`, keyboard);
-                            } catch {
-                                await botApi.answerCallbackQuery(cq.id, '✅ Badge updated!');
-                                return;
-                            }
-                            await botApi.answerCallbackQuery(cq.id);
-                            return;
-                        }
-
-                        if (type === 'theme') {
-                            cardUrl = getTelegramCardUrl(username, { theme: value });
-                        } else if (type === 'pal') {
-                            const palette = CARD_PALETTES[value];
-                            if (!palette) {
-                                await botApi.answerCallbackQuery(cq.id, '❌ Unknown palette', true);
-                                return;
-                            }
-                            cardUrl = getTelegramCardUrl(username, palette);
-                        } else if (type === 'refresh') {
-                            if (CARD_PALETTES[value]) {
-                                cardUrl = getTelegramCardUrl(username, CARD_PALETTES[value]);
-                            } else {
-                                cardUrl = getTelegramCardUrl(username, { theme: value || 'light' });
-                            }
-                        } else {
-                            await botApi.answerCallbackQuery(cq.id, '❓ Unknown action', true);
-                            return;
-                        }
-
-                        const keyboard = getCardMainKeyboard(username, themeKey);
-                        try {
-                            await botApi.editMessageMedia(chatId, messageId, cardUrl, `🃏 *${username}*`, keyboard);
-                        } catch {
-                            await botApi.answerCallbackQuery(cq.id, '✅ Card refreshed!');
-                            return;
-                        }
-                        await botApi.answerCallbackQuery(cq.id);
-                        return;
-                    }
-
+                default:
                     await botApi.answerCallbackQuery(cq.id, '❓ Unknown action', true);
-                    return; // already answered, don't call again
-                }
+                    return;
             }
             await botApi.answerCallbackQuery(cq.id);
         } catch (error) {
@@ -333,40 +250,6 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         // Track stats
         stats.messagesProcessed++;
         stats.uniqueChats.add(chatId);
-
-        // ─── Card Photo URL Input (pending state) ───
-        if (data.message && text && userId && pendingCardPhoto[userId]) {
-            const pending = pendingCardPhoto[userId];
-            const photoUrl = text.trim();
-
-            // /cancel — abort photo flow
-            if (photoUrl === '/cancel') {
-                delete pendingCardPhoto[userId];
-                await botApi.sendMessage(chatId, '❌ Cᴀɴᴄᴇʟʟᴇᴅ.');
-                return;
-            }
-
-            // Validate URL
-            if (!/^https?:\/\/.+/i.test(photoUrl)) {
-                await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ URL. Mᴜsᴛ sᴛᴀʀᴛ ᴡɪᴛʜ `http://` ᴏʀ `https://`.\n\n_Tʏᴘᴇ /cancel ᴛᴏ sᴛᴏᴘ._');
-                return;
-            }
-
-            // Build card with custom photo + current theme
-            const opts = CARD_PALETTES[pending.themeKey] || { theme: pending.themeKey || 'light' };
-            opts.photo = photoUrl;
-            const cardUrl = getTelegramCardUrl(pending.username, opts);
-            const keyboard = getCardMainKeyboard(pending.username, pending.themeKey, 'auto', true);
-
-            try {
-                await botApi.editMessageMedia(pending.chatId, pending.messageId, cardUrl, `🃏 *${pending.username}*`, keyboard);
-                await botApi.sendMessage(chatId, '✅ Cᴜsᴛᴏᴍ ᴘʜᴏᴛᴏ ᴀᴘᴘʟɪᴇᴅ!');
-            } catch {
-                await botApi.sendMessage(chatId, '⚠️ Cᴏᴜʟᴅɴ\'ᴛ ᴜᴘᴅᴀᴛᴇ ᴄᴀʀᴅ. Tʀʏ ᴀɢᴀɪɴ.');
-            }
-            delete pendingCardPhoto[userId];
-            return;
-        }
 
         // ─── Commands (only from users, not channel posts) ───
         if (data.message && text) {
@@ -451,8 +334,139 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
 
                 const cardUrl = getTelegramCardUrl(username, { theme: 'light' });
-                const keyboard = getCardMainKeyboard(username, 'light');
-                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}*`, keyboard);
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}*`);
+                return;
+            }
+
+            // /cardlight <username>
+            if (cmd === '/cardlight') {
+                trackCommand('cardlight');
+                const rawInput = args?.trim().replace(/^@/, '');
+                let username = rawInput || content.from?.username;
+                if (!username) {
+                    await botApi.sendMessage(chatId, '⚠️ Usᴀɢᴇ: `/cardlight <username>`');
+                    return;
+                }
+                if (!/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ ᴜsᴇʀɴᴀᴍᴇ.');
+                    return;
+                }
+                const cardUrl = getTelegramCardUrl(username, { theme: 'light' });
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}* — ☀️ Lɪɢʜᴛ`);
+                return;
+            }
+
+            // /carddark <username>
+            if (cmd === '/carddark') {
+                trackCommand('carddark');
+                const rawInput = args?.trim().replace(/^@/, '');
+                let username = rawInput || content.from?.username;
+                if (!username) {
+                    await botApi.sendMessage(chatId, '⚠️ Usᴀɢᴇ: `/carddark <username>`');
+                    return;
+                }
+                if (!/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ ᴜsᴇʀɴᴀᴍᴇ.');
+                    return;
+                }
+                const cardUrl = getTelegramCardUrl(username, { theme: 'dark' });
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}* — 🌙 Dᴀʀᴋ`);
+                return;
+            }
+
+            // /cardpal <palette> <username>
+            if (cmd === '/cardpal') {
+                trackCommand('cardpal');
+                const parts = args?.trim().split(/\s+/) || [];
+                const paletteKey = parts[0];
+                const rawUsername = parts[1]?.replace(/^@/, '');
+                let username = rawUsername || content.from?.username;
+
+                if (!paletteKey) {
+                    const paletteList = Object.entries(CARD_PALETTES)
+                        .map(([key, val]) => `\`${key}\` — ${val.label}`)
+                        .join('\n');
+                    await botApi.sendMessage(chatId, `🎨 *Aᴠᴀɪʟᴀʙʟᴇ Pᴀʟᴇᴛᴛᴇs:*\n\n${paletteList}\n\n📌 Usᴀɢᴇ: \`/cardpal <palette> <username>\``);
+                    return;
+                }
+
+                if (!CARD_PALETTES[paletteKey]) {
+                    await botApi.sendMessage(chatId, `❌ Uɴᴋɴᴏᴡɴᴘᴀʟᴇᴛᴛᴇ \`${paletteKey}\`. Usᴇ \`/cardpal\` ᴛᴏ sᴇᴇ ᴀᴠᴀɪʟᴀʙʟᴇ ᴏᴘᴛɪᴏɴs.`);
+                    return;
+                }
+
+                if (!username) {
+                    await botApi.sendMessage(chatId, '⚠️ Usᴀɢᴇ: `/cardpal <palette> <username>`');
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ ᴜsᴇʀɴᴀᴍᴇ.');
+                    return;
+                }
+
+                const cardUrl = getTelegramCardUrl(username, CARD_PALETTES[paletteKey]);
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}* — ${CARD_PALETTES[paletteKey].label}`);
+                return;
+            }
+
+            // /cardvrf <mode> <username>  (mode: auto | show | hide)
+            if (cmd === '/cardvrf') {
+                trackCommand('cardvrf');
+                const parts = args?.trim().split(/\s+/) || [];
+                const mode = parts[0]?.toLowerCase();
+                const rawUsername = parts[1]?.replace(/^@/, '');
+                let username = rawUsername || content.from?.username;
+
+                if (!mode || !['auto', 'show', 'hide'].includes(mode)) {
+                    await botApi.sendMessage(chatId, '🔖 *Vᴇʀɪғɪᴇᴅ Bᴀᴅɢᴇ Mᴏᴅᴇs:*\n\n• `auto` — Dᴇᴛᴇᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ\n• `show` — Fᴏʀᴄᴇ Sʜᴏᴡ\n• `hide` — Fᴏʀᴄᴇ Hɪᴅᴇ\n\n📌 Usᴀɢᴇ: `/cardvrf <mode> <username>`');
+                    return;
+                }
+
+                if (!username) {
+                    await botApi.sendMessage(chatId, '⚠️ Usᴀɢᴇ: `/cardvrf <mode> <username>`');
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ ᴜsᴇʀɴᴀᴍᴇ.');
+                    return;
+                }
+
+                const verifiedValue = mode === 'show' ? 'true' : mode === 'hide' ? 'false' : 'auto';
+                const opts = { theme: 'light', verified: verifiedValue };
+                const cardUrl = getTelegramCardUrl(username, opts);
+                const modeLabel = mode === 'auto' ? '🔖 Aᴜᴛᴏ' : mode === 'show' ? '✅ Sʜᴏᴡ' : '❌ Hɪᴅᴇ';
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}* — ${modeLabel}`);
+                return;
+            }
+
+            // /cardphoto <url> <username>
+            if (cmd === '/cardphoto') {
+                trackCommand('cardphoto');
+                const parts = args?.trim().split(/\s+/) || [];
+                const photoUrl = parts[0];
+                const rawUsername = parts[1]?.replace(/^@/, '');
+                let username = rawUsername || content.from?.username;
+
+                if (!photoUrl || !/^https?:\/\/.+/i.test(photoUrl)) {
+                    await botApi.sendMessage(chatId, '🖼️ *Cᴜsᴛᴏᴍ Pʜᴏᴛᴏ Aᴠᴀᴛᴀʀ*\n\n📌 Usᴀɢᴇ: `/cardphoto <url> <username>`\n\nExᴀᴍᴘʟᴇ: `/cardphoto https://example.com/avatar.png Shineii86`\n\n_URL ᴍᴜsᴛ sᴛᴀʀᴛ ᴡɪᴛʜ http:// ᴏʀ https://_`');
+                    return;
+                }
+
+                if (!username) {
+                    await botApi.sendMessage(chatId, '⚠️ Usᴀɢᴇ: `/cardphoto <url> <username>`');
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9_]{5,32}$/.test(username)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ ᴜsᴇʀɴᴀᴍᴇ.');
+                    return;
+                }
+
+                const opts = { theme: 'light', photo: photoUrl };
+                const cardUrl = getTelegramCardUrl(username, opts);
+                await botApi.sendPhoto(chatId, cardUrl, `🃏 *${username}* — 🖼️ Cᴜsᴛᴏᴍ Pʜᴏᴛᴏ`);
                 return;
             }
 

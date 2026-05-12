@@ -4,6 +4,32 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.4.0] — 2026-05-12
+
+### 🔧 Changes
+
+- **Removed `/card` inline buttons** — Card customization no longer uses callback query inline buttons. All customization is now command-based for a simpler, faster workflow.
+- **Removed `getCardMainKeyboard()`** — Inline keyboard builder function removed from `helper.js`. No more callback data state management for card options.
+- **Removed `pendingCardPhoto` state** — Custom photo flow no longer requires multi-step conversation state. Single command replaces the button → prompt → URL flow.
+- **Removed card callback query handler** — `card:*` callback processing removed from `bot-handler.js`. Menu callbacks (`cb_help`, `cb_about`, `cb_stats`, `cb_donate`, `cb_menu`) remain unchanged.
+
+### ✨ New Commands
+
+- **`/cardlight <username>`** — Generate card with ☀️ Light theme.
+- **`/carddark <username>`** — Generate card with 🌙 Dark theme.
+- **`/cardpal <palette> <username>`** — Generate card with a color palette. Run without args to list all 12 palettes.
+- **`/cardvrf <mode> <username>`** — Control verified badge: `auto` (detect), `show` (force show), `hide` (force hide).
+- **`/cardphoto <url> <username>`** — Generate card with custom avatar photo URL. Single command, no multi-step flow.
+
+### 📝 Docs
+
+- **README.md** — Updated commands table with all new card commands. Removed "Inline Buttons" section from TOC and content.
+- **GUIDE.md** — Replaced "Inline Button Customization", "Verified Badge Control", and "Custom Photo Avatar" sections with command-based documentation.
+- **constants.js** — Updated `helpMessage` with new card command section. Updated `cardMessage` with all card commands.
+- **landing.js** — Version bumped to v2.4.0.
+
+---
+
 ## [v2.3.0] — 2026-05-12
 
 ### ✨ New Features
