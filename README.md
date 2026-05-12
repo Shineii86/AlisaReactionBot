@@ -50,7 +50,7 @@
 ### 🔧 Advanced Capabilities
 - ✅ **Smart Rate Limiting** - Prevents API abuse and ensures compliance
 - ✅ **Selective Chat Restrictions** - Granular control over bot behavior
-- ✅ **Donation System** - Integrated payment processing for supporter rewards
+- ✅ **Donation System** - Custom donate message with PayPal & Ko-fi integration
 - ✅ **Multi-environment Support** - Development, staging, and production ready
 - ✅ **Automated Deployment** - CI/CD with GitHub Actions
 
@@ -176,11 +176,25 @@ curl https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
 
 | Command | Description | Usage |
 |---------|-------------|-------|
-| `/start` | Initialize bot and show welcome message | `/start` |
+| `/start` | Initialize bot and show welcome menu | `/start` |
+| `/help` | Show all commands with descriptions | `/help` |
+| `/about` | Bot info, features, and tech stack | `/about` |
+| `/stats` | Live bot statistics and uptime | `/stats` |
 | `/reactions` | Display available reaction emojis | `/reactions` |
-| `/donate` | Support bot development | `/donate` |
-| `/help` | Show help information | `/help` |
-| `/stats` | Display bot statistics | `/stats` |
+| `/donate` | Support bot development (PayPal, Ko-fi) | `/donate` |
+
+### 🔘 Inline Button Navigation
+
+The `/start` menu includes interactive buttons:
+- **✚ Add to Channel / Group** — Quick bot installation links
+- **📚 Help** — Command reference and usage tips
+- **🤖 About** — Bot features and tech details
+- **📊 Stats** — Live performance metrics
+- **🎁 Donate** — Support via PayPal or Ko-fi
+- **🧑‍💻 Developer** — Contact the creator
+- **☁️ Source Code** — GitHub repository
+
+All sub-screens have a **⬅️ Back to Menu** button for seamless navigation.
 
 ## 🔍 Monitoring & Analytics
 

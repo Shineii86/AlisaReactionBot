@@ -154,4 +154,36 @@ export default class TelegramBotAPI {
             ok: ok
         });
     }
+
+    /**
+     * https://core.telegram.org/bots/api#answercallbackquery
+     * @param {string} callbackQueryId - Unique identifier for the query to be answered
+     * @param {string} text - Optional text to show as a notification
+     * @param {boolean} showAlert - Whether to show an alert instead of a toast
+     */
+    async answerCallbackQuery(callbackQueryId, text = '', showAlert = false) {
+        await this.callApi('answerCallbackQuery', {
+            callback_query_id: callbackQueryId,
+            text: text,
+            show_alert: showAlert
+        });
+    }
+
+    /**
+     * https://core.telegram.org/bots/api#editmessagetext
+     * @param {number} chatId
+     * @param {number} messageId
+     * @param {string} text
+     * @param {Array} inlineKeyboard
+     */
+    async editMessageText(chatId, messageId, text, inlineKeyboard = null) {
+        await this.callApi('editMessageText', {
+            chat_id: chatId,
+            message_id: messageId,
+            text: text,
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
 };

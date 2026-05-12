@@ -9,17 +9,61 @@ I’ʟʟ Mᴀᴋᴇ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Fᴜɴ… Iғ Yᴏᴜ Bᴇʜ�
 *• Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ*: I Rᴇᴀᴄᴛ Tᴏ Yᴏᴜʀ Mᴇssᴀɢᴇs Wɪᴛʜ Tʜᴇ Pᴇʀғᴇᴄᴛ Eᴍᴏᴊɪ.
 *• Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs*: Aᴅᴅ Mᴇ Aɴᴅ I’ʟʟ Dʀᴏᴘ Fɪᴛᴛɪɴɢ Rᴇᴀᴄᴛɪᴏɴs Wʜᴇɴ Tʜᴇ Mᴏᴏᴅ Fᴇᴇʟs Rɪɢʜᴛ.
 
-Cᴜʀɪᴏᴜs Aʙᴏᴜᴛ Mʏ Eᴍᴏᴊɪs? Usᴇ /reactions.
+Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ Tᴏ Exᴘʟᴏʀᴇ.`
 
-Lᴇᴛ’s Bʀɪɢʜᴛᴇɴ Yᴏᴜʀ Cʜᴀᴛs A Lɪᴛᴛʟᴇ.
-I’ᴍ Oɴʟʏ Hᴇʟᴘɪɴɢ Bᴇᴄᴀᴜsᴇ I Wᴀɴᴛ Tᴏ… Oᴋᴀʏ?`
+export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ*
 
-export const donateMessage = `🫣 Oʜ... Yᴏᴜ’ʀᴇ Sᴛɪʟʟ Hᴇʀᴇ?
+🔹 */start* — Sᴛᴀʀᴛ Tʜᴇ Bᴏᴛ Aɴᴅ Sᴇᴇ Tʜᴇ Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇ.
+🔹 */help* — Sʜᴏᴡ Tʜɪs Hᴇʟᴘ Mᴇssᴀɢᴇ.
+🔹 */about* — Lᴇᴀʀɴ Mᴏʀᴇ Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ.
+🔹 */stats* — Vɪᴇᴡ Bᴏᴛ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Sᴛᴀᴛɪsᴛɪᴄs.
+🔹 */reactions* — Lɪsᴛ Aʟʟ Cᴜʀʀᴇɴᴛʟʏ Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs.
+🔹 */donate* — Sᴜᴘᴘᴏʀᴛ Tʜᴇ Bᴏᴛ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ.
 
-Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ, Yᴏᴜ Cᴀɴ Sᴜᴘᴘᴏʀᴛ ɪᴛ. Eᴠᴇɴ Oɴᴇ ⭐ Hᴇʟᴘs Kᴇᴇᴘ Iᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
+💡 *Tɪᴘs:*
+• Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I’ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
+• Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
+• Iɴ Gʀᴏᴜᴘs, Mʏ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Rᴀɴᴅᴏᴍɪᴢᴇᴅ Fᴏʀ Nᴀᴛᴜʀᴀʟɪᴛʏ.`
 
-Спасибо Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ.
-I’ᴍ Oɴʟʏ Sᴀʏɪɴɢ Tʜɪs Bᴇᴄᴀᴜsᴇ I Aᴘᴘʀᴇᴄɪᴀᴛᴇ Yᴏᴜ.`
+export const aboutMessage = `🤖 *Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ*
+
+Aʟɪsᴀ Is A Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ Tʜᴀᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ Rᴇᴀᴄᴛs Tᴏ Mᴇssᴀɢᴇs Wɪᴛʜ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪs — Mᴀᴋɪɴɢ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Lɪᴠᴇʟʏ Aɴᴅ Fᴜɴ.
+
+⚡ *Fᴇᴀᴛᴜʀᴇs:*
+• Aᴜᴛᴏ-Rᴇᴀᴄᴛs Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs, Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs
+• Cᴏɴғɪɢᴜʀᴀʙʟᴇ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Nᴀᴛᴜʀᴀʟ Gʀᴏᴜᴘ Bᴇʜᴀᴠɪᴏʀ
+• Rᴇsᴛʀɪᴄᴛ Sᴘᴇᴄɪғɪᴄ Cʜᴀᴛs Fʀᴏᴍ Rᴇᴄᴇɪᴠɪɴɢ Rᴇᴀᴄᴛɪᴏɴs
+• Sᴇʀᴠᴇʀʟᴇss Aʀᴄʜɪᴛᴇᴄᴛᴜʀᴇ — Dᴇᴘʟᴏʏ Oɴ Cʟᴏᴜᴅғʟᴀʀᴇ, Vᴇʀᴄᴇʟ, Dᴏᴄᴋᴇʀ
+
+🛠️ *Tᴇᴄʜ Sᴛᴀᴄᴋ:*
+• Nᴏᴅᴇ.js + Exprᴇss / Clᴏᴜᴅғʟᴀʀᴇ Wᴏʀᴋᴇʀs
+• Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ API v4
+• Zᴇʀᴏ Pᴇʀsɪsᴛᴇɴᴛ Dᴀᴛᴀ — Pʀɪᴠᴀᴄʏ Fɪʀsᴛ
+
+📌 *Sᴏᴜʀᴄᴇ*: [GitHub](https://github.com/Shineii86/AlisaReactionBot)
+👨‍💻 *Dᴇᴠᴇʟᴏᴘᴇʀ*: @Shineii86`
+
+export const donateMessage = `💝 *Sᴜᴘᴘᴏʀᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ*
+
+Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ, Cᴏɴsɪᴅᴇʀ Sᴜᴘᴘᴏʀᴛɪɴɢ Tʜᴇ Pʀᴏᴊᴇᴄᴛ! Yᴏᴜʀ Hᴇʟᴘ Kᴇᴇᴘs Tʜᴇ Bᴏᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
+
+💰 *Hᴏᴡ Tᴏ Dᴏɴᴀᴛᴇ:*
+
+🅿️ *PayPal*
+[Donate Via PayPal](https://www.paypal.com/paypalme/ikx7a)
+
+☕ *Buy Me A Coffee*
+[Support On Ko-fi](https://ko-fi.com/ikx7a)
+
+💜 *Telegram Stars*
+Sᴇɴᴅ Sᴛᴀʀs Dɪʀᴇᴄᴛʟʏ Tᴏ @Shineii86
+
+────────────────
+
+Eᴠᴇɴ A Sᴍᴀʟʟ Cᴏɴᴛʀɪʙᴜᴛɪᴏɴ Mᴇᴀɴs A Lᴏᴛ.
+Sᴘᴀsɪʙᴏ Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ! 🙏`
+
+export const statsHeader = `📊 *Aʟɪsᴀ Bᴏᴛ Sᴛᴀᴛs*\n\n`
 
 export const htmlContent = `
 <!DOCTYPE html>
