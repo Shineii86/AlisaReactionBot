@@ -3,14 +3,11 @@
  * Alisa Reaction Bot
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
- * Telegram API for:
- *      - sendMessage
- *      - setMessageReaction
+ * Telegram Bot API wrapper — all methods used by the bot
  *
  * Copyright (c) 2026 Shinei Nouzen
  *
  * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
@@ -23,161 +20,54 @@ export default class TelegramBotAPI {
         try {
             const response = await fetch(this.apiUrl + action, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
-                signal: AbortSignal.timeout(10000) // 10 second timeout
+                signal: AbortSignal.timeout(10000)
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                // Log error with action and relevant request details
-                console.error(`Telegram API request failed: ${action} (Status: ${response.status})`);
-
-                // Log only relevant fields based on action
-                if (action === 'setMessageReaction') {
-                    console.error(`Chat ID: ${body.chat_id}, Message ID: ${body.message_id}, Reaction: ${body.reaction?.[0]?.emoji}`);
-                } else if (action === 'sendMessage') {
-                    console.error(`Chat ID: ${body.chat_id}, Text: ${body.text?.substring(0, 50)}...`);
-                } else if (action === 'sendInvoice') {
-                    console.error(`Chat ID: ${body.chat_id}, Title: ${body.title}`);
-                } else if (action === 'answerPreCheckoutQuery') {
-                    console.error(`Pre-checkout Query ID: ${body.pre_checkout_query_id}, OK: ${body.ok}`);
-                } else {
-                    console.error(`Chat ID: ${body.chat_id || 'N/A'}`);
-                }
-
-                if (data.description) {
-                    console.error(`Error description: ${data.description}`);
-                }
-                if (data.error_code) {
-                    console.error(`Error code: ${data.error_code}`);
-                }
-
+                console.error(`[TG API] ${action} failed (${response.status}): ${data.description || 'Unknown'}`);
                 throw new Error(`Telegram API error: ${data.description || 'Unknown error'}`);
             }
 
             return data;
-
         } catch (error) {
-            // Log network/timeout errors with action and relevant details
             if (error.name === 'AbortError') {
-                console.error(`Request timeout for action: ${action}`);
-                if (action === 'setMessageReaction') {
-                    console.error(`Chat ID: ${body.chat_id}, Message ID: ${body.message_id}, Reaction: ${body.reaction?.[0]?.emoji}`);
-                } else if (body.chat_id) {
-                    console.error(`Chat ID: ${body.chat_id}`);
-                }
+                console.error(`[TG API] Timeout: ${action}`);
                 throw new Error(`Telegram API timeout: ${action}`);
-            } else if (!error.message.includes('Telegram API error')) {
-                console.error(`Network error for action: ${action}`);
-                if (action === 'setMessageReaction') {
-                    console.error(`Chat ID: ${body.chat_id}, Message ID: ${body.message_id}, Reaction: ${body.reaction?.[0]?.emoji}`);
-                } else if (body.chat_id) {
-                    console.error(`Chat ID: ${body.chat_id}`);
-                }
-                console.error(`Error message: ${error.message}`);
-                throw new Error(`Network error: ${action}`);
             }
-
             throw error;
         }
     }
 
-    /**
-     * https://core.telegram.org/bots/api#setmessagereaction
-     * @param {number} chatId 
-     * @param {number} messageId 
-     * @param {string} emoji 
-     */
-    async setMessageReaction(chatId, messageId, emoji) {
-        await this.callApi('setMessageReaction', {
-            chat_id: chatId,
-            message_id: messageId,
-            reaction: [{
-                type: 'emoji',
-                emoji: emoji
-            }],
-            is_big: true
-        });
+    // ─── Core Methods ───
+
+    async getMe() {
+        return this.callApi('getMe', {});
     }
 
-    /**
-     * https://core.telegram.org/bots/api#sendmessage
-     * @param {number} chatId 
-     * @param {string} text 
-     */
+    async getChat(chatId) {
+        return this.callApi('getChat', { chat_id: chatId });
+    }
+
+    async getChatMember(chatId, userId) {
+        return this.callApi('getChatMember', { chat_id: chatId, user_id: userId });
+    }
+
     async sendMessage(chatId, text, inlineKeyboard = null) {
-        await this.callApi('sendMessage', {
+        return this.callApi('sendMessage', {
             chat_id: chatId,
             text: text,
-            parse_mode: "Markdown",
-            disable_web_page_preview:true,
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
         });
-    } 
-    
-    /**
-     * https://core.telegram.org/bots/api#sendinvoice
-     * @param {number} params.chatId - Unique identifier for the target chat
-     * @param {string} params.title - Product name
-     * @param {string} params.description - Product description
-     * @param {string} params.payload - Bot-defined invoice payload
-     * @param {string} params.providerToken - Payments provider token
-     * @param {string} params.startParameter - Unique deep-linking parameter
-     * @param {string} params.currency - Three-letter ISO 4217 currency code
-     * @param {Array} params.prices - Price breakdown (e.g., [{label: 'Product', amount: 1000}])
-     */
-    async sendInvoice(chatId, title, description, payload, providerToken, startParameter, currency, prices) {
-        await this.callApi('sendInvoice', {
-            chat_id: chatId,
-            title: title,
-            description: description,
-            payload: payload,
-            provider_token: providerToken,
-            start_parameter: startParameter,
-            currency: currency,
-            prices: prices
-        });
     }
 
-    /**
-     * https://core.telegram.org/bots/api#answerprecheckoutquery
-     * @param {string} preCheckoutQueryId - Unique identifier for the query to be answered
-     * @param {boolean} ok - Specify if the query was successful
-     */
-    async answerPreCheckoutQuery(preCheckoutQueryId, ok) {
-        await this.callApi('answerPreCheckoutQuery', {
-            pre_checkout_query_id: preCheckoutQueryId,
-            ok: ok
-        });
-    }
-
-    /**
-     * https://core.telegram.org/bots/api#answercallbackquery
-     * @param {string} callbackQueryId - Unique identifier for the query to be answered
-     * @param {string} text - Optional text to show as a notification
-     * @param {boolean} showAlert - Whether to show an alert instead of a toast
-     */
-    async answerCallbackQuery(callbackQueryId, text = '', showAlert = false) {
-        await this.callApi('answerCallbackQuery', {
-            callback_query_id: callbackQueryId,
-            text: text,
-            show_alert: showAlert
-        });
-    }
-
-    /**
-     * https://core.telegram.org/bots/api#editmessagetext
-     * @param {number} chatId
-     * @param {number} messageId
-     * @param {string} text
-     * @param {Array} inlineKeyboard
-     */
     async editMessageText(chatId, messageId, text, inlineKeyboard = null) {
-        await this.callApi('editMessageText', {
+        return this.callApi('editMessageText', {
             chat_id: chatId,
             message_id: messageId,
             text: text,
@@ -186,4 +76,35 @@ export default class TelegramBotAPI {
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
         });
     }
-};
+
+    async setMessageReaction(chatId, messageId, emoji) {
+        return this.callApi('setMessageReaction', {
+            chat_id: chatId,
+            message_id: messageId,
+            reaction: [{ type: 'emoji', emoji: emoji }],
+            is_big: true
+        });
+    }
+
+    async answerCallbackQuery(callbackQueryId, text = '', showAlert = false) {
+        return this.callApi('answerCallbackQuery', {
+            callback_query_id: callbackQueryId,
+            text: text,
+            show_alert: showAlert
+        });
+    }
+
+    async sendInvoice(chatId, title, description, payload, providerToken, startParameter, currency, prices) {
+        return this.callApi('sendInvoice', {
+            chat_id: chatId, title, description, payload,
+            provider_token: providerToken, start_parameter: startParameter,
+            currency, prices
+        });
+    }
+
+    async answerPreCheckoutQuery(preCheckoutQueryId, ok) {
+        return this.callApi('answerPreCheckoutQuery', {
+            pre_checkout_query_id: preCheckoutQueryId, ok
+        });
+    }
+}

@@ -174,14 +174,20 @@ curl https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
 
 ## 🎮 Bot Commands
 
-| Command | Description | Usage |
-|---------|-------------|-------|
-| `/start` | Initialize bot and show welcome menu | `/start` |
-| `/help` | Show all commands with descriptions | `/help` |
-| `/about` | Bot info, features, and tech stack | `/about` |
-| `/stats` | Live bot statistics and uptime | `/stats` |
-| `/reactions` | Display available reaction emojis | `/reactions` |
-| `/donate` | Support bot development (PayPal, Ko-fi) | `/donate` |
+| Command | Description | Access |
+|---------|-------------|--------|
+| `/start` | Initialize bot and show welcome menu | Everyone |
+| `/help` | Show all commands with descriptions | Everyone |
+| `/about` | Bot info, features, and tech stack | Everyone |
+| `/ping` | Check bot latency and response time | Everyone |
+| `/stats` | Live bot statistics, uptime, top chats | Everyone |
+| `/reactions` | Display available reaction emojis | Everyone |
+| `/setreactions` | Customize reactions for this chat | Group Admins |
+| `/pause` | Pause auto-reactions in this chat | Group Admins |
+| `/resume` | Resume auto-reactions in this chat | Group Admins |
+| `/donate` | Support bot development (PayPal, Ko-fi) | Everyone |
+| `/broadcast` | Send a message to all bot chats | Owner Only |
+| `/log` | View last 10 reactions sent | Owner Only |
 
 ### 🔘 Inline Button Navigation
 
@@ -195,6 +201,19 @@ The `/start` menu includes interactive buttons:
 - **☁️ Source Code** — GitHub repository
 
 All sub-screens have a **⬅️ Back to Menu** button for seamless navigation.
+
+### 🔐 Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `BOT_TOKEN` | Telegram Bot API token from @BotFather | ✅ |
+| `BOT_USERNAME` | Bot username (without @) | ✅ |
+| `EMOJI_LIST` | Reaction emojis (space or comma separated) | ✅ |
+| `RANDOM_LEVEL` | Reaction randomness 0-10 (default: 0) | ❌ |
+| `RESTRICTED_CHATS` | Chat IDs to exclude from reactions | ❌ |
+| `OWNER_ID` | Telegram user ID for owner-only commands | ❌ |
+| `WEBHOOK_SECRET` | Secret token for webhook validation | ❌ |
+| `PORT` | Server port for Docker/VPS (default: 3000) | ❌ |
 
 ## 🔍 Monitoring & Analytics
 

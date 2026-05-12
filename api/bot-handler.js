@@ -1,29 +1,144 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot
+ * Alisa Reaction Bot — Core Handler
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * Copyright (c) 2026 Shinei Nouzen
  *
  * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-import { startMessage, helpMessage, aboutMessage, donateMessage, statsHeader } from './constants.js';
-import { getRandomPositiveReaction } from './helper.js';
+import {
+    startMessage, helpMessage, aboutMessage, donateMessage, statsHeader,
+    reactionsUpdated, reactionsReset, reactionsInvalid,
+    pausedMessage, resumedMessage, notPausedMessage,
+    broadcastStarted, broadcastDone, onlyOwnerMessage,
+    onlyAdminMessage, groupOnlyMessage, pingMessage
+} from './constants.js';
+import { getRandomPositiveReaction, splitEmojis } from './helper.js';
 
-// In-memory stats (resets on restart — no persistent storage by design)
+// ─── In-Memory State (resets on restart — no persistent storage) ───
+
 const stats = {
     messagesProcessed: 0,
     reactionsSent: 0,
     uniqueChats: new Set(),
+    commandUsage: {},
     startTime: Date.now(),
 };
 
-/**
- * Build the start menu inline keyboard
- */
+const reactionLog = [];          // Last 50 reactions: [{chatId, emoji, timestamp}]
+const pausedChats = new Set();   // Chat IDs where reactions are paused
+const perChatReactions = {};     // chatId → emoji string (custom per-chat)
+const rateLimitMap = {};         // chatId → { count, resetAt }
+const chatNames = {};            // chatId → chat title (cached)
+
+const LOG_MAX = 50;
+const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+
+// ─── Helpers ───
+
+function formatUptime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    const d = Math.floor(h / 24);
+    if (d > 0) return `${d}ᴅ ${h % 24}ʜ ${m % 60}ᴍ`;
+    if (h > 0) return `${h}ʜ ${m % 60}ᴍ ${s % 60}s`;
+    if (m > 0) return `${m}ᴍ ${s % 60}s`;
+    return `${s}s`;
+}
+
+function trackCommand(cmd) {
+    stats.commandUsage[cmd] = (stats.commandUsage[cmd] || 0) + 1;
+}
+
+function isOwner(userId, ownerId) {
+    return ownerId && String(userId) === String(ownerId);
+}
+
+function isGroupChat(chatType) {
+    return ['group', 'supergroup'].includes(chatType);
+}
+
+async function isGroupAdmin(botApi, chatId, userId) {
+    try {
+        const res = await botApi.getChatMember(chatId, userId);
+        return ['creator', 'administrator'].includes(res.result?.status);
+    } catch {
+        return false;
+    }
+}
+
+function getReactionsForChat(chatId, globalReactions) {
+    if (perChatReactions[chatId]) {
+        return splitEmojis(perChatReactions[chatId]);
+    }
+    return globalReactions;
+}
+
+function checkRateLimit(chatId) {
+    const now = Date.now();
+    const entry = rateLimitMap[chatId];
+
+    if (!entry || now > entry.resetAt) {
+        rateLimitMap[chatId] = { count: 1, resetAt: now + RATE_LIMIT_WINDOW };
+        return true;
+    }
+
+    if (entry.count >= RATE_LIMIT_MAX) return false;
+    entry.count++;
+    return true;
+}
+
+function logReaction(chatId, emoji) {
+    reactionLog.push({ chatId, emoji, timestamp: Date.now() });
+    if (reactionLog.length > LOG_MAX) reactionLog.shift();
+}
+
+function getTopChats(limit = 5) {
+    const counts = {};
+    for (const entry of reactionLog) {
+        counts[entry.chatId] = (counts[entry.chatId] || 0) + 1;
+    }
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit);
+}
+
+function getStatsMessage() {
+    const uptime = formatUptime(Date.now() - stats.startTime);
+    const cmdLines = Object.entries(stats.commandUsage)
+        .map(([cmd, count]) => `\`/${cmd}\` — ${count}`)
+        .join('\n') || 'No commands used yet.';
+
+    let topChatsText = '';
+    const top = getTopChats(5);
+    if (top.length) {
+        topChatsText = '\n\n🏆 *Tᴏᴘ Cʜᴀᴛs (ʟᴀsᴛ 50 ʀᴇᴀᴄᴛɪᴏɴs):*\n' +
+            top.map(([id, count], i) => {
+                const name = chatNames[id] || `Chat ${id}`;
+                return `${i + 1}. ${name} — ${count}`;
+            }).join('\n');
+    }
+
+    return `${statsHeader}📨 *Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:* ${stats.messagesProcessed.toLocaleString()}
+💫 *Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:* ${stats.reactionsSent.toLocaleString()}
+💬 *Uɴɪqᴜᴇ Cʜᴀᴛs:* ${stats.uniqueChats.size.toLocaleString()}
+⏸️ *Pᴀᴜsᴇᴅ Cʜᴀᴛs:* ${pausedChats.size.toLocaleString()}
+⏱️ *Uᴘᴛɪᴍᴇ:* ${uptime}
+🕐 *Sᴛᴀʀᴛᴇᴅ:* ${new Date(stats.startTime).toUTCString()}
+
+📋 *Cᴏᴍᴍᴀɴᴅ Usᴀɢᴇ:*
+${cmdLines}${topChatsText}
+
+_ɢʟᴏʙᴀʟ sᴛᴀᴛs sɪɴᴄᴇ ʟᴀsᴛ ʀᴇsᴛᴀʀt._`;
+}
+
+// ─── Keyboards ───
+
 function getStartKeyboard(botUsername) {
     return [
         [
@@ -45,193 +160,293 @@ function getStartKeyboard(botUsername) {
     ];
 }
 
-/**
- * Build the back-to-menu keyboard
- */
 function getBackKeyboard() {
-    return [
-        [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
-        ],
-    ];
+    return [[{ text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }]];
 }
 
-/**
- * Build the donate keyboard with payment links
- */
 function getDonateKeyboard() {
     return [
         [
             { text: '🅿️ PayPal', url: 'https://www.paypal.com/paypalme/ikx7a' },
             { text: '☕ Ko-fi', url: 'https://ko-fi.com/ikx7a' },
         ],
-        [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
-        ],
+        [{ text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }],
     ];
 }
 
-/**
- * Format uptime into human-readable string
- */
-function formatUptime(ms) {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days}ᴅ ${hours % 24}ʜ ${minutes % 60}ᴍ`;
-    if (hours > 0) return `${hours}ʜ ${minutes % 60}ᴍ ${seconds % 60}s`;
-    if (minutes > 0) return `${minutes}ᴍ ${seconds % 60}s`;
-    return `${seconds}s`;
-}
-
-/**
- * Build the stats message text
- */
-function getStatsMessage() {
-    const uptime = formatUptime(Date.now() - stats.startTime);
-    return `${statsHeader}📨 *Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:* ${stats.messagesProcessed.toLocaleString()}
-💫 *Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:* ${stats.reactionsSent.toLocaleString()}
-💬 *Uɴɪqᴜᴇ Cʜᴀᴛs:* ${stats.uniqueChats.size.toLocaleString()}
-⏱️ *Uᴘᴛɪᴍᴇ:* ${uptime}
-🕐 *Sᴛᴀʀᴛᴇᴅ:* ${new Date(stats.startTime).toUTCString()}
-
-_Gʟᴏʙᴀʟ sᴛᴀᴛs sɪɴᴄᴇ ʟᴀsᴛ ʀᴇsᴛᴀʀt._`;
-}
+// ─── Main Handler ───
 
 /**
  * Handle incoming Telegram Update
- * https://core.telegram.org/bots/api#update
  *
  * @param {Object} data - Telegram update object
  * @param {Object} botApi - TelegramBotAPI instance
- * @param {Array} Reactions - Array of emoji reactions
+ * @param {Array} Reactions - Default emoji reactions array
  * @param {Array} RestrictedChats - Array of restricted chat IDs
  * @param {string} botUsername - Bot username
  * @param {number} RandomLevel - Random level for group reactions (0-10)
+ * @param {string} ownerId - Bot owner's Telegram user ID
  */
-export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel) {
+export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId) {
 
-    // ─── Callback Query (inline button press) ───
+    // ─── Callback Query ───
     if (data.callback_query) {
         const cq = data.callback_query;
         const chatId = cq.message?.chat?.id;
         const messageId = cq.message?.message_id;
-        const callbackData = cq.data;
 
         try {
-            switch (callbackData) {
+            switch (cq.data) {
                 case 'cb_help':
                     await botApi.editMessageText(chatId, messageId, helpMessage, getBackKeyboard());
-                    await botApi.answerCallbackQuery(cq.id);
                     break;
-
                 case 'cb_about':
                     await botApi.editMessageText(chatId, messageId, aboutMessage, getBackKeyboard());
-                    await botApi.answerCallbackQuery(cq.id);
                     break;
-
                 case 'cb_stats':
                     await botApi.editMessageText(chatId, messageId, getStatsMessage(), getBackKeyboard());
-                    await botApi.answerCallbackQuery(cq.id);
                     break;
-
                 case 'cb_donate':
                     await botApi.editMessageText(chatId, messageId, donateMessage, getDonateKeyboard());
-                    await botApi.answerCallbackQuery(cq.id);
                     break;
-
                 case 'cb_menu': {
-                    const displayName = cq.message?.chat?.type === 'private'
+                    const name = cq.message?.chat?.type === 'private'
                         ? (cq.from?.first_name || cq.message?.chat?.title)
                         : cq.message?.chat?.title;
-                    await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', displayName), getStartKeyboard(botUsername));
-                    await botApi.answerCallbackQuery(cq.id);
+                    await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', name), getStartKeyboard(botUsername));
                     break;
                 }
-
                 default:
-                    await botApi.answerCallbackQuery(cq.id, 'Unknown action', true);
+                    await botApi.answerCallbackQuery(cq.id, '❓ Unknown action', true);
             }
+            await botApi.answerCallbackQuery(cq.id);
         } catch (error) {
-            console.error('Callback query error:', error.message);
-            try { await botApi.answerCallbackQuery(cq.id, 'Something went wrong', true); } catch {}
+            console.error('[Callback]', error.message);
+            try { await botApi.answerCallbackQuery(cq.id, '⚠️ Error', true); } catch {}
         }
         return;
     }
 
-    // ─── Messages & Channel Posts ───
+    // ─── Messages ───
     if (data.message || data.channel_post) {
         const content = data.message || data.channel_post;
         const chatId = content.chat.id;
         const message_id = content.message_id;
         const text = content.text;
+        const chatType = content.chat.type;
+        const userId = content.from?.id;
+
+        // Cache chat name
+        chatNames[chatId] = content.chat.title || content.chat.first_name || String(chatId);
 
         // Track stats
         stats.messagesProcessed++;
         stats.uniqueChats.add(chatId);
 
-        if (data.message) {
-            const isPrivate = content.chat.type === 'private';
-            const displayName = isPrivate
-                ? (content.from?.first_name || content.chat.title)
-                : content.chat.title;
+        // ─── Commands (only from users, not channel posts) ───
+        if (data.message && text) {
+            const cmd = text.split(' ')[0].replace(/@\S+/, '');
+            const args = text.split(' ').slice(1).join(' ');
 
             // /start
-            if (text === '/start' || text === '/start@' + botUsername) {
+            if (cmd === '/start') {
+                trackCommand('start');
+                const displayName = chatType === 'private'
+                    ? (content.from?.first_name || content.chat.title)
+                    : content.chat.title;
                 await botApi.sendMessage(chatId, startMessage.replace('UserName', displayName), getStartKeyboard(botUsername));
                 return;
             }
 
             // /help
-            if (text === '/help' || text === '/help@' + botUsername) {
+            if (cmd === '/help') {
+                trackCommand('help');
                 await botApi.sendMessage(chatId, helpMessage, getBackKeyboard());
                 return;
             }
 
             // /about
-            if (text === '/about' || text === '/about@' + botUsername) {
+            if (cmd === '/about') {
+                trackCommand('about');
                 await botApi.sendMessage(chatId, aboutMessage, getBackKeyboard());
                 return;
             }
 
+            // /ping
+            if (cmd === '/ping') {
+                trackCommand('ping');
+                const start = Date.now();
+                const sent = await botApi.sendMessage(chatId, '🏓 Pɪɴɢɪɴɢ...', null);
+                const latency = Date.now() - start;
+                try {
+                    await botApi.editMessageText(chatId, sent.result.message_id, pingMessage(latency));
+                } catch {
+                    await botApi.sendMessage(chatId, pingMessage(latency));
+                }
+                return;
+            }
+
             // /stats
-            if (text === '/stats' || text === '/stats@' + botUsername) {
+            if (cmd === '/stats') {
+                trackCommand('stats');
                 await botApi.sendMessage(chatId, getStatsMessage(), getBackKeyboard());
                 return;
             }
 
+            // /reactions
+            if (cmd === '/reactions') {
+                trackCommand('reactions');
+                const reactions = getReactionsForChat(chatId, Reactions).join(' ');
+                const isCustom = perChatReactions[chatId] ? '\n\n_✨ Cᴜsᴛᴏᴍ sᴇᴛ ғᴏʀ ᴛʜɪs ᴄʜᴀᴛ._' : '\n\n_📌 Dᴇғᴀᴜʟᴛ ɢʟᴏʙᴀʟ sᴇᴛ._';
+                await botApi.sendMessage(chatId, `🚀 *Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:*\n\n${reactions}${isCustom}`, getBackKeyboard());
+                return;
+            }
+
+            // /setreactions (group admins only)
+            if (cmd === '/setreactions') {
+                trackCommand('setreactions');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    // Reset to default
+                    delete perChatReactions[chatId];
+                    await botApi.sendMessage(chatId, reactionsReset, getBackKeyboard());
+                    return;
+                }
+                const emojis = splitEmojis(args.trim());
+                if (emojis.length === 0) {
+                    await botApi.sendMessage(chatId, reactionsInvalid);
+                    return;
+                }
+                perChatReactions[chatId] = emojis.join('');
+                await botApi.sendMessage(chatId,
+                    `${reactionsUpdated}🎯 *Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:* ${emojis.join(' ')}`,
+                    getBackKeyboard()
+                );
+                return;
+            }
+
+            // /pause (group admins only)
+            if (cmd === '/pause') {
+                trackCommand('pause');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    return;
+                }
+                pausedChats.add(chatId);
+                await botApi.sendMessage(chatId, pausedMessage);
+                return;
+            }
+
+            // /resume (group admins only)
+            if (cmd === '/resume') {
+                trackCommand('resume');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    return;
+                }
+                if (!pausedChats.has(chatId)) {
+                    await botApi.sendMessage(chatId, notPausedMessage);
+                    return;
+                }
+                pausedChats.delete(chatId);
+                await botApi.sendMessage(chatId, resumedMessage);
+                return;
+            }
+
             // /donate
-            if (text === '/donate' || text === '/donate@' + botUsername) {
+            if (cmd === '/donate') {
+                trackCommand('donate');
                 await botApi.sendMessage(chatId, donateMessage, getDonateKeyboard());
                 return;
             }
 
-            // /reactions
-            if (text === '/reactions' || text === '/reactions@' + botUsername) {
-                const reactions = Reactions.join(' ');
-                await botApi.sendMessage(chatId, `🚀 *Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:*\n\n${reactions}`, getBackKeyboard());
+            // /broadcast (owner only)
+            if (cmd === '/broadcast') {
+                trackCommand('broadcast');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    await botApi.sendMessage(chatId, '📝 Usage: `/broadcast <message>`');
+                    return;
+                }
+                await botApi.sendMessage(chatId, broadcastStarted);
+                const allChats = [...stats.uniqueChats];
+                let success = 0, failed = 0;
+                for (const cid of allChats) {
+                    try {
+                        await botApi.sendMessage(cid, `📢 *Bʀᴏᴀᴅᴄᴀsᴛ:*\n\n${args.trim()}`);
+                        success++;
+                    } catch {
+                        failed++;
+                    }
+                }
+                await botApi.sendMessage(chatId, broadcastDone(success, failed));
+                return;
+            }
+
+            // /log (owner only)
+            if (cmd === '/log') {
+                trackCommand('log');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (reactionLog.length === 0) {
+                    await botApi.sendMessage(chatId, '📋 Rᴇᴀᴄᴛɪᴏɴ ʟᴏɢ ɪs ᴇᴍᴘᴛʏ.');
+                    return;
+                }
+                const lines = reactionLog.slice(-10).reverse().map((e, i) => {
+                    const time = new Date(e.timestamp).toLocaleTimeString();
+                    const name = chatNames[e.chatId] || e.chatId;
+                    return `${i + 1}. ${e.emoji} → ${name} (${time})`;
+                }).join('\n');
+                await botApi.sendMessage(chatId, `📋 *Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:*\n\n${lines}`);
                 return;
             }
         }
 
         // ─── Auto-Reaction Logic ───
-        const reaction = getRandomPositiveReaction(Reactions);
-        if (reaction && !RestrictedChats.includes(chatId)) {
-            const isGroup = ['group', 'supergroup'].includes(content.chat.type);
-            if (isGroup) {
-                // Group: react based on RandomLevel threshold
-                const threshold = 1 - (RandomLevel / 10);
-                if (Math.random() <= threshold) {
+        if (RestrictedChats.includes(chatId)) return;
+        if (pausedChats.has(chatId)) return;
+        if (!checkRateLimit(chatId)) return;
+
+        const chatReactions = getReactionsForChat(chatId, Reactions);
+        const reaction = getRandomPositiveReaction(chatReactions);
+        if (!reaction) return;
+
+        const isGroup = isGroupChat(chatType);
+        if (isGroup) {
+            const threshold = 1 - (RandomLevel / 10);
+            if (Math.random() <= threshold) {
+                try {
                     await botApi.setMessageReaction(chatId, message_id, reaction);
                     stats.reactionsSent++;
-                }
-            } else {
-                // Private/Channel: always react
+                    logReaction(chatId, reaction);
+                } catch {}
+            }
+        } else {
+            try {
                 await botApi.setMessageReaction(chatId, message_id, reaction);
                 stats.reactionsSent++;
-            }
+                logReaction(chatId, reaction);
+            } catch {}
         }
     }
 }
