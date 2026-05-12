@@ -8,7 +8,18 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### ✨ New Features
 
-- **`/leave <chat_id>`** — Owner-only command to remove the bot from any group or channel. No admin rights required in the target chat. Cleans up local state (per-chat reactions, paused status) on leave.
+- **`/leave <chat_id>`** — Owner-only command to remove the bot from any group or channel. No admin rights required in the target chat. Cleans up local state on leave.
+- **`/remove <chat_id>`** — Alias for `/leave`.
+- **`/chats`** — Owner-only command to list all active chats with names, IDs, pause/restrict status.
+- **`/setwebhook <url>`** — Owner-only command to set webhook URL via Telegram. Without args, shows current webhook status, pending updates, and last error.
+- **`/restrict <chat_id>`** — Owner-only command to restrict a chat at runtime (bot stops reacting).
+- **`/unrestrict <chat_id>`** — Owner-only command to remove runtime restriction.
+- **Webhook auto-secret** — If `WEBHOOK_SECRET` env is not set, a random UUID is auto-generated at startup.
+- **Broadcast cooldown** — 60-second cooldown between `/broadcast` commands to prevent spam.
+- **Chat ID validation** — `/leave` and `/remove` now validate that the chat ID is numeric before attempting to leave.
+- **Runtime restrictions** — `/restrict` and `/unrestrict` work alongside env-based `RESTRICTED_CHATS`, persisted in memory.
+- **Structured logger** — All files use a consistent `log.info/warn/error` utility with timestamps.
+- **Enhanced health check** — `/health` endpoint now includes `reactionsConfigured` and `restrictedChats` count.
 
 ### 🐛 Bug Fixes
 
@@ -20,10 +31,12 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 - **Removed dead code** — Deleted unused `sendInvoice()` and `answerPreCheckoutQuery()` methods from `TelegramBotAPI.js` (payment logic removed in v2.1.0 but methods were still present).
 - **Removed duplicate keyboard** — `getDonateKeyboard()` in `bot-handler.js` was identical to `getBackKeyboard()`. Consolidated to use `getBackKeyboard()` everywhere.
+- **Extracted landing page** — Moved HTML landing page from `constants.js` to dedicated `api/landing.js` module. Constants file is now clean message definitions only.
 
 ### 🔒 Robustness
 
 - **Added startup env validation** — `api/index.js` now checks for required `BOT_TOKEN` and `BOT_USERNAME` environment variables at startup and exits with a clear error message if missing.
+- **Startup warnings** — Logs warnings for missing `EMOJI_LIST`, `WEBHOOK_SECRET`, and `OWNER_ID` at startup.
 
 ---
 

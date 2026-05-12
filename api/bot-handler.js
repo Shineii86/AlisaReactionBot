@@ -17,7 +17,7 @@ import {
     broadcastStarted, broadcastDone, onlyOwnerMessage,
     onlyAdminMessage, groupOnlyMessage, pingMessage
 } from './constants.js';
-import { getRandomPositiveReaction, splitEmojis } from './helper.js';
+import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 
 // ─── In-Memory State (resets on restart — no persistent storage) ───
 
@@ -32,12 +32,15 @@ const stats = {
 const reactionLog = [];          // Last 50 reactions: [{chatId, emoji, timestamp}]
 const pausedChats = new Set();   // Chat IDs where reactions are paused
 const perChatReactions = {};     // chatId → emoji string (custom per-chat)
+const restrictedChatsRuntime = new Set(); // Runtime-restricted chat IDs
 const rateLimitMap = {};         // chatId → { count, resetAt }
 const chatNames = {};            // chatId → chat title (cached)
 
 const LOG_MAX = 50;
 const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const BROADCAST_COOLDOWN = 60000; // 1 minute between broadcasts
+let lastBroadcastTime = 0;
 
 // ─── Helpers ───
 
@@ -129,6 +132,7 @@ function getStatsMessage() {
 💫 *Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:* ${stats.reactionsSent.toLocaleString()}
 💬 *Uɴɪqᴜᴇ Cʜᴀᴛs:* ${stats.uniqueChats.size.toLocaleString()}
 ⏸️ *Pᴀᴜsᴇᴅ Cʜᴀᴛs:* ${pausedChats.size.toLocaleString()}
+🚫 *Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:* ${restrictedChatsRuntime.size.toLocaleString()}
 ⏱️ *Uᴘᴛɪᴍᴇ:* ${uptime}
 🕐 *Sᴛᴀʀᴛᴇᴅ:* ${new Date(stats.startTime).toUTCString()}
 
@@ -153,10 +157,9 @@ function getStartKeyboard(botUsername) {
         [
             { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate' },
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
-            
         ],
         [
-            { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' },            
+            { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' },
             { text: 'Sᴏᴜʀᴄᴇ Cᴏᴅᴇ ☁️', url: 'https://github.com/Shineii86/AlisaReactionBot' },
         ],
     ];
@@ -167,7 +170,7 @@ function getBackKeyboard() {
         [
             { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
-        ],        
+        ],
         [
             { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }
         ]
@@ -182,12 +185,13 @@ function getBackKeyboard() {
  * @param {Object} data - Telegram update object
  * @param {Object} botApi - TelegramBotAPI instance
  * @param {Array} Reactions - Default emoji reactions array
- * @param {Array} RestrictedChats - Array of restricted chat IDs
+ * @param {Array} RestrictedChats - Array of restricted chat IDs (from env)
  * @param {string} botUsername - Bot username
  * @param {number} RandomLevel - Random level for group reactions (0-10)
  * @param {string} ownerId - Bot owner's Telegram user ID
+ * @param {string} webhookSecret - Webhook secret token
  */
-export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId) {
+export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret) {
 
     // ─── Callback Query ───
     if (data.callback_query) {
@@ -222,7 +226,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             }
             await botApi.answerCallbackQuery(cq.id);
         } catch (error) {
-            console.error('[Callback]', error.message);
+            log.error('[Callback]', error.message);
             try { await botApi.answerCallbackQuery(cq.id, '⚠️ Error', true); } catch {}
         }
         return;
@@ -382,7 +386,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
-            // /broadcast (owner only)
+            // /broadcast (owner only, with cooldown)
             if (cmd === '/broadcast') {
                 trackCommand('broadcast');
                 if (!isOwner(userId, ownerId)) {
@@ -393,9 +397,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/broadcast <message>`');
                     return;
                 }
+                const now = Date.now();
+                if (now - lastBroadcastTime < BROADCAST_COOLDOWN) {
+                    const remaining = Math.ceil((BROADCAST_COOLDOWN - (now - lastBroadcastTime)) / 1000);
+                    await botApi.sendMessage(chatId, `⏳ Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s Bᴇғᴏʀᴇ Nᴇxᴛ Bʀᴏᴀᴅᴄᴀsᴛ.`);
+                    return;
+                }
+                lastBroadcastTime = now;
                 await botApi.sendMessage(chatId, broadcastStarted);
                 const allChats = new Set(stats.uniqueChats);
-                // Ensure owner's chat is included (they may only use groups)
                 if (userId) allChats.add(userId);
                 let success = 0, failed = 0;
                 for (const cid of allChats) {
@@ -430,9 +440,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
-            // /leave <chatId> (owner only)
-            if (cmd === '/leave') {
-                trackCommand('leave');
+            // /leave and /remove (owner only)
+            if (cmd === '/leave' || cmd === '/remove') {
+                trackCommand(cmd === '/leave' ? 'leave' : 'remove');
                 if (!isOwner(userId, ownerId)) {
                     await botApi.sendMessage(chatId, onlyOwnerMessage);
                     return;
@@ -442,21 +452,129 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 const targetChatId = args.trim();
+                if (!/^-?\d+$/.test(targetChatId)) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ A Nᴜᴍᴇʀɪᴄ Vᴀʟᴜᴇ.');
+                    return;
+                }
                 try {
                     await botApi.leaveChat(targetChatId);
                     stats.uniqueChats.delete(Number(targetChatId));
                     delete perChatReactions[targetChatId];
                     pausedChats.delete(Number(targetChatId));
+                    restrictedChatsRuntime.delete(Number(targetChatId));
                     await botApi.sendMessage(chatId, `✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ \`${targetChatId}\`.`);
                 } catch (error) {
                     await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ \`${targetChatId}\`:\n${error.message}`);
                 }
                 return;
             }
+
+            // /chats (owner only)
+            if (cmd === '/chats') {
+                trackCommand('chats');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (stats.uniqueChats.size === 0) {
+                    await botApi.sendMessage(chatId, '📭 Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.');
+                    return;
+                }
+                const chatLines = Array.from(stats.uniqueChats).map((cid, i) => {
+                    const name = chatNames[cid] || `Chat ${cid}`;
+                    const paused = pausedChats.has(cid) ? ' ⏸️' : '';
+                    const restricted = restrictedChatsRuntime.has(cid) || RestrictedChats.includes(cid) ? ' 🚫' : '';
+                    return `${i + 1}. ${name} (${cid})${paused}${restricted}`;
+                }).join('\n');
+                await botApi.sendMessage(chatId, `💬 *Aᴄᴛɪᴠᴇ Cʜᴀᴛs (${stats.uniqueChats.size}):*\n\n${chatLines}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ`);
+                return;
+            }
+
+            // /setwebhook <url> (owner only)
+            if (cmd === '/setwebhook') {
+                trackCommand('setwebhook');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    // Show current webhook info
+                    try {
+                        const info = await botApi.getWebhookInfo();
+                        const wh = info.result;
+                        const status = wh.url ? `🔗 *URL:* ${wh.url}` : '❌ Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ';
+                        const pending = wh.pending_update_count > 0 ? `\n⏳ *Pᴇɴᴅɪɴɢ:* ${wh.pending_update_count}` : '';
+                        const error = wh.last_error_message ? `\n⚠️ *Eʀʀᴏʀ:* ${wh.last_error_message}` : '';
+                        await botApi.sendMessage(chatId, `📡 *Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:*\n\n${status}${pending}${error}`);
+                    } catch (error) {
+                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`);
+                    }
+                    return;
+                }
+                const webhookUrl = args.trim();
+                if (!webhookUrl.startsWith('https://')) {
+                    await botApi.sendMessage(chatId, '❌ Wᴇʙʜᴏᴏᴋ URL Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ `https://`');
+                    return;
+                }
+                try {
+                    await botApi.setWebhook(webhookUrl, webhookSecret || '');
+                    await botApi.sendMessage(chatId, `✅ Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`);
+                } catch (error) {
+                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`);
+                }
+                return;
+            }
+
+            // /restrict <chatId> (owner only)
+            if (cmd === '/restrict') {
+                trackCommand('restrict');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/restrict <chat_id>`');
+                    return;
+                }
+                const restrictId = Number(args.trim());
+                if (!restrictId) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.');
+                    return;
+                }
+                restrictedChatsRuntime.add(restrictId);
+                await botApi.sendMessage(chatId, `🚫 Cʜᴀᴛ \`${restrictId}\` Rᴇsᴛʀɪᴄᴛᴇᴅ. Bᴏᴛ Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ.`);
+                return;
+            }
+
+            // /unrestrict <chatId> (owner only)
+            if (cmd === '/unrestrict') {
+                trackCommand('unrestrict');
+                if (!isOwner(userId, ownerId)) {
+                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    return;
+                }
+                if (!args || args.trim().length === 0) {
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/unrestrict <chat_id>`');
+                    return;
+                }
+                const unrestrictId = Number(args.trim());
+                if (!unrestrictId) {
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.');
+                    return;
+                }
+                if (!restrictedChatsRuntime.has(unrestrictId)) {
+                    await botApi.sendMessage(chatId, 'ℹ️ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.');
+                    return;
+                }
+                restrictedChatsRuntime.delete(unrestrictId);
+                await botApi.sendMessage(chatId, `✅ Cʜᴀᴛ \`${unrestrictId}\` Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`);
+                return;
+            }
         }
 
         // ─── Auto-Reaction Logic ───
         if (RestrictedChats.includes(chatId)) return;
+        if (restrictedChatsRuntime.has(chatId)) return;
         if (pausedChats.has(chatId)) return;
         if (!checkRateLimit(chatId)) return;
 

@@ -12,9 +12,10 @@
 
 import express from 'express';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 import TelegramBotAPI from './TelegramBotAPI.js';
-import { htmlContent } from './constants.js';
-import { splitEmojis, getChatIds } from './helper.js';
+import { htmlContent } from './landing.js';
+import { splitEmojis, getChatIds, log } from './helper.js';
 import { onUpdate } from './bot-handler.js';
 
 // dotenv only needed for local/Docker — Vercel/Render inject env vars natively
@@ -26,7 +27,7 @@ const botToken = process.env.BOT_TOKEN;
 const botUsername = process.env.BOT_USERNAME;
 
 if (!botToken || !botUsername) {
-    console.error('[Startup] Missing required environment variables: BOT_TOKEN and/or BOT_USERNAME');
+    log.error('Missing required environment variables: BOT_TOKEN and/or BOT_USERNAME');
     process.exit(1);
 }
 
@@ -34,7 +35,19 @@ const Reactions = splitEmojis(process.env.EMOJI_LIST);
 const RestrictedChats = getChatIds(process.env.RESTRICTED_CHATS);
 const RandomLevel = parseInt(process.env.RANDOM_LEVEL || '0', 10);
 const ownerId = process.env.OWNER_ID || '';
-const webhookSecret = process.env.WEBHOOK_SECRET || '';
+const webhookSecret = process.env.WEBHOOK_SECRET || crypto.randomUUID();
+
+if (!process.env.EMOJI_LIST) {
+    log.warn('EMOJI_LIST not set — bot will not react to any messages');
+}
+
+if (!process.env.WEBHOOK_SECRET) {
+    log.warn('WEBHOOK_SECRET not set — auto-generated a random secret for this session');
+}
+
+if (!process.env.OWNER_ID) {
+    log.warn('OWNER_ID not set — /broadcast, /log, /leave, /chats, /restrict commands disabled');
+}
 
 const botApi = new TelegramBotAPI(botToken);
 
@@ -43,21 +56,19 @@ app.use(express.json({ limit: '1mb' }));
 
 // ─── Webhook Endpoint ───
 app.post('/', async (req, res) => {
-    // Validate webhook secret if configured
-    if (webhookSecret) {
-        const token = req.headers['x-telegram-bot-api-secret-token'];
-        if (token !== webhookSecret) {
-            console.warn('[Webhook] Secret mismatch — rejecting request');
-            return res.status(403).send('Forbidden');
-        }
+    // Validate webhook secret
+    const token = req.headers['x-telegram-bot-api-secret-token'];
+    if (token !== webhookSecret) {
+        log.warn('Webhook secret mismatch — rejecting request');
+        return res.status(403).send('Forbidden');
     }
 
     const data = req.body;
     try {
-        await onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId);
+        await onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret);
         res.status(200).send('Ok');
     } catch (error) {
-        console.error('[Webhook] Error:', error.message);
+        log.error('Webhook handler error:', error.message);
         res.status(200).send('Ok'); // Always return 200 to Telegram
     }
 });
@@ -75,14 +86,16 @@ app.get('/health', (req, res) => {
         uptime: process.uptime(),
         environment: process.env.NODE_ENV || 'development',
         botConfigured: !!botToken && !!botUsername,
-        webhookSecured: !!webhookSecret
+        webhookSecured: !!process.env.WEBHOOK_SECRET,
+        reactionsConfigured: Reactions.length > 0,
+        restrictedChats: RestrictedChats.length
     });
 });
 
 // ─── Request size error handler ───
 app.use((err, req, res, next) => {
     if (err.type === 'entity.too.large') {
-        console.warn('[Server] Request too large — rejected');
+        log.warn('Request too large — rejected');
         return res.status(413).send('Payload too large');
     }
     next(err);
@@ -92,9 +105,11 @@ app.use((err, req, res, next) => {
 if (!process.env.VERCEL) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        console.log(`Webhook secret: ${webhookSecret ? 'ENABLED' : 'DISABLED'}`);
-        console.log(`Owner ID: ${ownerId || 'NOT SET'}`);
+        log.info(`Server running on port ${PORT}`);
+        log.info(`Owner ID: ${ownerId || 'NOT SET'}`);
+        log.info(`Reactions: ${Reactions.length} emoji(s) loaded`);
+        log.info(`Restricted chats: ${RestrictedChats.length}`);
+        log.info(`Random level: ${RandomLevel}`);
     });
 }
 

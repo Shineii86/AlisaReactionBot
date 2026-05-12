@@ -11,8 +11,8 @@
  */
 
 import TelegramBotAPI from "./TelegramBotAPI.js";
-import { htmlContent } from './constants.js';
-import { splitEmojis, returnHTML, getChatIds } from "./helper.js";
+import { htmlContent } from './landing.js';
+import { splitEmojis, returnHTML, getChatIds, log } from "./helper.js";
 import { onUpdate } from './bot-handler.js';
 
 // Cache for parsed environment variables to avoid repeated parsing
@@ -20,6 +20,12 @@ let configCache = null;
 
 function getConfig(env) {
     if (!configCache || configCache.env !== env) {
+        const webhookSecret = env.WEBHOOK_SECRET || crypto.randomUUID();
+
+        if (!env.EMOJI_LIST) log.warn('EMOJI_LIST not set — bot will not react');
+        if (!env.WEBHOOK_SECRET) log.warn('WEBHOOK_SECRET not set — auto-generated for this session');
+        if (!env.OWNER_ID) log.warn('OWNER_ID not set — owner commands disabled');
+
         configCache = {
             env: env,
             botToken: env.BOT_TOKEN,
@@ -28,7 +34,7 @@ function getConfig(env) {
             restrictedChats: getChatIds(env.RESTRICTED_CHATS),
             randomLevel: parseInt(env.RANDOM_LEVEL || '0', 10),
             ownerId: env.OWNER_ID || '',
-            webhookSecret: env.WEBHOOK_SECRET || '',
+            webhookSecret: webhookSecret,
             botApi: new TelegramBotAPI(env.BOT_TOKEN)
         };
     }
@@ -47,7 +53,9 @@ export default {
                 timestamp: new Date().toISOString(),
                 environment: env.NODE_ENV || 'production',
                 botConfigured: !!config.botToken && !!config.botUsername,
-                webhookSecured: !!config.webhookSecret
+                webhookSecured: !!env.WEBHOOK_SECRET,
+                reactionsConfigured: config.reactions.length > 0,
+                restrictedChats: config.restrictedChats.length
             }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
@@ -57,12 +65,10 @@ export default {
         // Webhook endpoint (POST only)
         if (request.method === 'POST') {
             // Validate webhook secret
-            if (config.webhookSecret) {
-                const token = request.headers.get('x-telegram-bot-api-secret-token');
-                if (token !== config.webhookSecret) {
-                    console.warn('[Webhook] Secret mismatch — rejecting');
-                    return new Response('Forbidden', { status: 403 });
-                }
+            const token = request.headers.get('x-telegram-bot-api-secret-token');
+            if (token !== config.webhookSecret) {
+                log.warn('Webhook secret mismatch — rejecting');
+                return new Response('Forbidden', { status: 403 });
             }
 
             // Reject oversized payloads
@@ -76,10 +82,10 @@ export default {
                 await onUpdate(
                     data, config.botApi, config.reactions,
                     config.restrictedChats, config.botUsername,
-                    config.randomLevel, config.ownerId
+                    config.randomLevel, config.ownerId, config.webhookSecret
                 );
             } catch (error) {
-                console.error('[Webhook] Error:', error.message);
+                log.error('Webhook handler error:', error.message);
             }
 
             return new Response('Ok', { status: 200 });

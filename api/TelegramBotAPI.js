@@ -98,4 +98,20 @@ export default class TelegramBotAPI {
     async leaveChat(chatId) {
         return this.callApi('leaveChat', { chat_id: chatId });
     }
+
+    async setWebhook(url, secretToken = '') {
+        return this.callApi('setWebhook', {
+            url: url,
+            secret_token: secretToken,
+            allowed_updates: ['message', 'channel_post', 'callback_query']
+        });
+    }
+
+    async deleteWebhook() {
+        return this.callApi('deleteWebhook', {});
+    }
+
+    async getWebhookInfo() {
+        return this.callApi('getWebhookInfo', {});
+    }
 }
