@@ -146,7 +146,7 @@ wrangler secret put BOT_TOKEN
 # Paste your bot token when prompted
 
 wrangler secret put WEBHOOK_SECRET
-# Paste your webhook secret when prompted (optional)
+# Paste your webhook secret when prompted (optional — auto-generated if not set)
 ```
 
 For non-secret variables, add them in the Cloudflare Dashboard:
@@ -271,11 +271,27 @@ These platforms offer one-click deploys with managed infrastructure.
 
 ## Set Up the Webhook
 
-After deploying, you need to tell Telegram where to send updates. This is called setting a webhook.
+After deploying, you need to tell Telegram where to send updates. There are three ways to do this.
 
-### From Mobile (Easiest)
+### Option 1: Via Telegram (Recommended)
 
-Open your mobile browser and paste this URL in the address bar — replace the values:
+Send this command to your bot (in a private chat):
+
+```
+/setwebhook https://your-worker.your-subdomain.workers.dev
+```
+
+The bot confirms with the webhook URL. To check the current status without changing it:
+
+```
+/setwebhook
+```
+
+This shows the current URL, pending updates, and any errors.
+
+### Option 2: Via Mobile Browser
+
+Paste this URL in your browser — replace the values:
 
 ```
 https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://YOUR_WORKER_URL
@@ -291,49 +307,33 @@ Press Enter. You'll see:
 {"ok":true,"result":true,"description":"Webhook was set"}
 ```
 
-That's it. ✅
-
-**Or use BotFather:**
-1. Open Telegram → search **@BotFather**
-2. Send `/setwebhook`
-3. Select your bot
-4. Paste your worker URL
-
 **With webhook secret:**
 ```
 https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://YOUR_WORKER_URL&secret_token=YOUR_SECRET
 ```
 
-### From Terminal (Desktop)
-
-**Basic:**
-curl -X POST "https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook" \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://your-worker-url.workers.dev"}'
-```
-
-Replace:
-- `YOUR_BOT_TOKEN` with your actual bot token
-- `https://your-worker-url.workers.dev` with your actual worker URL
-
-### Webhook with Secret (Recommended)
-
-If you set `WEBHOOK_SECRET` in your environment variables, include it when setting the webhook:
+### Option 3: Via Terminal
 
 ```bash
 curl -X POST "https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook" \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://your-worker-url.workers.dev", "secret_token": "your_webhook_secret"}'
+  -d '{"url": "https://your-worker-url.workers.dev", "secret_token": "your_secret"}'
 ```
 
 ### Verify the Webhook
 
-**Mobile:** Paste in your browser:
+**Via Telegram:**
+```
+/setwebhook
+```
+
+**Via browser:**
 ```
 https://api.telegram.org/botYOUR_BOT_TOKEN/getWebhookInfo
 ```
 
-**Terminal:**
+**Via terminal:**
+```bash
 curl "https://api.telegram.org/botYOUR_BOT_TOKEN/getWebhookInfo"
 ```
 
@@ -355,13 +355,8 @@ A correct response looks like:
 
 If you need to remove the webhook (e.g., to switch platforms):
 
-**Mobile:**
 ```
 https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
-```
-
-**Terminal:**
-curl "https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook"
 ```
 
 ---
@@ -376,6 +371,8 @@ curl "https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook"
 | `BOT_USERNAME` | Your bot's username (without @) | `AlisaReactionBot` |
 | `EMOJI_LIST` | Emojis the bot uses for reactions | `👍❤🔥🥰👏😁🎉🤩🙏` |
 
+> **Note:** If `BOT_TOKEN` or `BOT_USERNAME` is missing, the bot exits with an error. If `EMOJI_LIST` is missing, the bot runs but won't react to any messages.
+
 ### Optional Variables
 
 | Variable | What It Does | Default | Example |
@@ -383,8 +380,10 @@ curl "https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook"
 | `RANDOM_LEVEL` | How often the bot reacts in groups (0-10) | `0` (always) | `5` |
 | `RESTRICTED_CHATS` | Chat IDs where the bot never reacts | None | `-100123,456789` |
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
-| `WEBHOOK_SECRET` | Secret token for webhook validation | None | `a1b2c3d4...` |
+| `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
+
+> **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
 
 ### How EMOJI_LIST Works
 
@@ -432,6 +431,8 @@ To find a chat ID:
 4. Or use @userinfobot in the chat
 
 Example: `-1001234567890,-1009876543210`
+
+> **Note:** This is the static, env-based restriction. You can also restrict chats at runtime using the `/restrict` command (see [Owner Commands](#owner-commands)).
 
 ---
 
@@ -497,7 +498,7 @@ Send `/ping` to see how fast the bot responds:
 🏓 Pᴏɴɢ!
 
 ⏱️ Rᴇsᴘᴏɴsᴇ: 47ms
-🕐 Mon, 12 May 2025 12:45:00 GMT
+🕐 Mon, 12 May 2026 12:45:00 GMT
 ```
 
 ---
@@ -573,14 +574,14 @@ If reactions weren't paused, it says:
 
 ## Owner Commands
 
-These commands only work for the user whose ID matches `OWNER_ID`.
+These commands only work for the user whose ID matches `OWNER_ID`. They work in **any chat** — private, group, or channel.
 
 ### /broadcast — Message All Chats
 
 Send a message to every chat the bot has ever been in:
 
 ```
-/broadcast Hey everyone! 🎉 The bot just got a major update with new features. Check /help for details!
+/broadcast Hey everyone! 🎉 The bot just got a major update!
 ```
 
 The bot first says:
@@ -598,10 +599,161 @@ Then reports the results:
 ❌ Fᴀɪʟᴇᴅ: 3
 ```
 
-**Tips:**
-- You can use Markdown formatting: **bold**, *italic*, `code`
-- Failed sends are chats where the bot was kicked or the chat was deleted
-- The broadcast goes to every unique chat ID the bot has seen since last restart
+**Notes:**
+- **60-second cooldown** between broadcasts to prevent spam
+- Markdown formatting is preserved
+- Failed sends are chats where the bot was kicked or deleted
+
+### /leave — Remove Bot from a Chat
+
+Remove the bot from any chat without needing admin rights in that chat:
+
+```
+/leave -1001234567890
+```
+
+The bot confirms:
+
+```
+✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ -1001234567890.
+```
+
+If the chat ID is invalid or the bot isn't in that chat:
+
+```
+❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ -1001234567890:
+Bot is not a member of this chat
+```
+
+**What it cleans up:**
+- Removes from active chats list
+- Removes per-chat custom reactions
+- Removes pause state
+- Removes runtime restrictions
+
+### /remove — Alias for /leave
+
+Same as `/leave` — use whichever you prefer:
+
+```
+/remove -1001234567890
+```
+
+### /chats — List All Active Chats
+
+See every chat the bot is currently in, with status indicators:
+
+```
+/chats
+```
+
+The bot replies:
+
+```
+💬 Aᴄᴛɪᴠᴇ Cʜᴀᴛs (42):
+
+1. Anime Lovers Group (-1001234567890)
+2. Dev Chat (-1009876543210) ⏸️
+3. My Channel (-100111222333) 🚫
+4. Friends Group (-100444555666)
+...
+
+⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ
+```
+
+**Indicators:**
+- No indicator → Active (reacting normally)
+- ⏸️ → Paused (admin used `/pause`)
+- 🚫 → Restricted (owner used `/restrict` or in `RESTRICTED_CHATS`)
+
+### /restrict — Restrict a Chat
+
+Stop the bot from reacting in a specific chat, without removing it:
+
+```
+/restrict -1001234567890
+```
+
+The bot confirms:
+
+```
+🚫 Cʜᴀᴛ -1001234567890 Rᴇsᴛʀɪᴄᴛᴇᴅ. Bᴏᴛ Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ.
+```
+
+The bot stays in the chat but won't react to messages. It still responds to commands.
+
+**Differences from /pause:**
+| | `/pause` | `/restrict` |
+|---|---|---|
+| Who can use it | Group admins | Bot owner |
+| Where it works | Only in that group | From any chat |
+| Scope | Per-chat only | Can restrict any chat |
+| Persisted | Until restart | Until restart or `/unrestrict` |
+
+### /unrestrict — Remove Restriction
+
+Allow the bot to react in a previously restricted chat:
+
+```
+/unrestrict -1001234567890
+```
+
+The bot confirms:
+
+```
+✅ Cʜᴀᴛ -1001234567890 Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.
+```
+
+If the chat wasn't restricted:
+
+```
+ℹ️ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.
+```
+
+### /setwebhook — Set or View Webhook
+
+**Set a new webhook:**
+
+```
+/setwebhook https://your-worker.your-subdomain.workers.dev
+```
+
+The bot confirms:
+
+```
+✅ Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!
+
+🔗 https://your-worker.your-subdomain.workers.dev
+```
+
+**View current webhook status:**
+
+```
+/setwebhook
+```
+
+The bot shows:
+
+```
+📡 Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:
+
+🔗 URL: https://your-worker.your-subdomain.workers.dev
+⏳ Pᴇɴᴅɪɴɢ: 0
+```
+
+If there's an error:
+
+```
+📡 Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:
+
+🔗 URL: https://your-worker.your-subdomain.workers.dev
+⏳ Pᴇɴᴅɪɴɢ: 3
+⚠️ Eʀʀᴏʀ: Connection refused
+```
+
+**Requirements:**
+- URL must start with `https://`
+- The bot must have the `WEBHOOK_SECRET` set (or one is auto-generated)
 
 ### /log — View Reaction History
 
@@ -623,8 +775,6 @@ The bot replies:
 5. 🎉 → Anime Lovers Group (12:44:30 PM)
 ...
 ```
-
-This helps you see which chats are getting the most reactions.
 
 ---
 
@@ -662,9 +812,10 @@ This means:
 
 1. A message arrives in a chat where the bot is present
 2. The bot checks:
-   - Is this chat restricted? → Skip
-   - Is this chat paused? → Skip
-   - Is the rate limit exceeded? → Skip
+   - Is this chat in `RESTRICTED_CHATS` (env)? → Skip
+   - Is this chat restricted at runtime (`/restrict`)? → Skip
+   - Is this chat paused (`/pause`)? → Skip
+   - Is the rate limit exceeded (30/min)? → Skip
 3. The bot picks a random emoji from the reaction list
 4. In groups: the bot checks the random level — should it react this time?
 5. The bot sends the reaction via `setMessageReaction`
@@ -706,6 +857,7 @@ The `/stats` command shows a snapshot of the bot's activity since the last resta
 | **Reactions Sent** | Every successful reaction placed on a message |
 | **Unique Chats** | How many different chats the bot has interacted with |
 | **Paused Chats** | How many groups currently have reactions paused |
+| **Restricted Chats** | How many chats are restricted at runtime |
 | **Uptime** | Time since the bot last started |
 | **Started** | The exact time the bot started |
 
@@ -749,6 +901,7 @@ The `/broadcast` command lets you send a message to every chat the bot has ever 
 1. You type: `/broadcast Hello everyone! 👋`
 2. The bot checks: is your user ID the `OWNER_ID`?
    - No → You see: "👑 This command is only available to the bot owner."
+   - Cooldown active → You see: "⏳ Cooldown! Wait Xs before next broadcast."
    - Yes → Continue
 3. The bot says: "📡 Broadcasting..."
 4. It loops through every unique chat ID:
@@ -756,11 +909,9 @@ The `/broadcast` command lets you send a message to every chat the bot has ever 
    - Counts successes and failures
 5. The bot reports: "✅ Broadcast Complete! 📨 Sent: 47 ❌ Failed: 3"
 
-### What Gets Broadcasted
+### Cooldown
 
-- Your message text (after `/broadcast `)
-- Markdown formatting is preserved (**bold**, *italic*, etc.)
-- The message is prefixed with `📢 Broadcast:`
+There is a **60-second cooldown** between broadcasts. If you try to broadcast again within 60 seconds, the bot tells you how long to wait.
 
 ### Who Receives It
 
@@ -777,11 +928,13 @@ If the bot was kicked from a group, that group is still in the list but the send
 
 ### Webhook Secret
 
-When you set `WEBHOOK_SECRET`, the bot validates every incoming request. Telegram includes the secret in the `x-telegram-bot-api-secret-token` header. If the secret doesn't match, the request is rejected with a 403 error.
+When `WEBHOOK_SECRET` is set (or auto-generated), the bot validates every incoming request. Telegram includes the secret in the `x-telegram-bot-api-secret-token` header. If the secret doesn't match, the request is rejected with a 403 error.
 
 This prevents someone from sending fake updates to your bot.
 
-**How to set it:**
+**Auto-generation:** If you don't set `WEBHOOK_SECRET`, a random UUID is generated at startup. The webhook still works, but you must include this generated secret when setting the webhook via API.
+
+**How to set it manually:**
 
 1. Choose a secret string (e.g., generate one with `openssl rand -hex 32`)
 2. Set it as the `WEBHOOK_SECRET` environment variable
@@ -793,11 +946,32 @@ This prevents someone from sending fake updates to your bot.
 
 ### Owner-Only Commands
 
-Only the user whose ID matches `OWNER_ID` can use `/broadcast` and `/log`. Everyone else sees: "👑 This command is only available to the bot owner."
+Only the user whose ID matches `OWNER_ID` can use:
+- `/broadcast` — Send messages to all chats
+- `/leave` / `/remove` — Remove bot from any chat
+- `/chats` — List all active chats
+- `/restrict` / `/unrestrict` — Runtime chat restrictions
+- `/setwebhook` — Set or view webhook configuration
+- `/log` — View reaction history
+
+Everyone else sees: "👑 This command is only available to the bot owner."
 
 ### Admin Permission Checks
 
 Commands like `/setreactions`, `/pause`, and `/resume` check if the user is actually a group admin. The bot calls `getChatMember` to verify the user's status is `creator` or `administrator`. Regular members see: "🔒 This command requires group admin permissions."
+
+### Broadcast Cooldown
+
+The `/broadcast` command has a **60-second cooldown** between uses to prevent accidental spam.
+
+### Runtime Restrictions
+
+The owner can restrict chats at runtime using `/restrict`. These restrictions:
+- Work alongside env-based `RESTRICTED_CHATS`
+- Persist in memory until restart
+- Are shown in `/chats` (🚫 indicator) and `/stats`
+- Can be removed with `/unrestrict`
+- Are cleaned up automatically when using `/leave`
 
 ### Request Size Limit
 
@@ -811,11 +985,12 @@ The bot rejects webhook payloads larger than 1MB. This prevents memory exhaustio
 
 **Check these:**
 1. Is the bot added to the chat? → Add it
-2. Is the chat in `RESTRICTED_CHATS`? → Remove it
-3. Is the chat paused? → Send `/resume`
-4. Is `RANDOM_LEVEL` set to 10? → Lower it
-5. Is the webhook set? → Check with `getWebhookInfo`
-6. Is the bot token correct? → Check your environment variables
+2. Is the chat in `RESTRICTED_CHATS`? → Remove it from the env variable
+3. Is the chat restricted at runtime? → Use `/unrestrict <chat_id>` or check `/chats`
+4. Is the chat paused? → Send `/resume`
+5. Is `RANDOM_LEVEL` set to 10? → Lower it
+6. Is `EMOJI_LIST` set? → Check your environment variables
+7. Is the webhook set? → Use `/setwebhook` to check
 
 ### Bot reacts but very slowly
 
@@ -835,6 +1010,11 @@ The bot rejects webhook payloads larger than 1MB. This prevents memory exhaustio
 - Make sure the value matches your Telegram user ID exactly
 - Get your ID from @userinfobot
 
+### /broadcast says "cooldown"
+
+- Wait 60 seconds between broadcasts
+- This is a safety feature to prevent spam
+
 ### /setreactions says "group only"
 
 - This command only works in groups and supergroups
@@ -844,6 +1024,17 @@ The bot rejects webhook payloads larger than 1MB. This prevents memory exhaustio
 
 - You need to be a group creator or administrator
 - Regular members cannot pause reactions
+
+### /leave says "invalid chat ID"
+
+- Chat IDs must be numeric (e.g., `-1001234567890`)
+- Include the `-` prefix for groups and channels
+
+### /setwebhook fails
+
+- URL must start with `https://`
+- Check that your worker is deployed and accessible
+- Check the `/setwebhook` output for error details
 
 ### Webhook shows errors in getWebhookInfo
 
@@ -885,6 +1076,7 @@ All in-memory state is lost:
 - Stats counters reset to 0
 - Per-chat custom reactions reset to default
 - Paused chats unpause
+- Runtime restrictions are removed
 - Reaction log clears
 - Chat names cache clears
 
@@ -908,6 +1100,21 @@ wrangler deploy        # Cloudflare
 vercel --prod          # Vercel
 docker-compose up -d   # Docker
 ```
+
+### Can I remove the bot from a group I don't admin?
+
+Yes! Use `/leave <chat_id>` or `/remove <chat_id>`. The bot leaves the chat on its own — you don't need any rights in that chat.
+
+### What's the difference between RESTRICTED_CHATS and /restrict?
+
+| | `RESTRICTED_CHATS` | `/restrict` |
+|---|---|---|
+| Set via | Environment variable | Telegram command |
+| Who can set it | Server admin | Bot owner |
+| Persists across restarts | ✅ Yes | ❌ No |
+| Can be changed at runtime | ❌ No | ✅ Yes |
+
+You can use both — the bot checks both sources.
 
 ---
 

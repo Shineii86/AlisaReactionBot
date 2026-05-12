@@ -38,6 +38,11 @@ All notable changes to Alisa Reaction Bot are documented here.
 - **Added startup env validation** — `api/index.js` now checks for required `BOT_TOKEN` and `BOT_USERNAME` environment variables at startup and exits with a clear error message if missing.
 - **Startup warnings** — Logs warnings for missing `EMOJI_LIST`, `WEBHOOK_SECRET`, and `OWNER_ID` at startup.
 
+### 📝 Docs
+
+- **README.md** — Overhauled with all v2.2.1 commands, security features, architecture updates
+- **GUIDE.md** — Rewritten with all new owner commands, webhook setup via Telegram, runtime restrictions, broadcast cooldown, troubleshooting, and FAQ
+
 ---
 
 ## [v2.2.0] — 2025-05-12
