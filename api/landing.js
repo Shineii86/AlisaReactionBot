@@ -1,12 +1,88 @@
 export const htmlContent = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Alisa · Neural Reaction Engine</title>
-  <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation, edge-deployed neural architecture.">
-  <link rel="icon" type="image/svg+xml" href="image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1.5'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Favicon Stack — Every size for every platform              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1.5'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/logo.png">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/logo2.png">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="msapplication-TileColor" content="#6366f1">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Primary Meta — Search engines + browser tabs               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation, edge-deployed neural architecture. Auto-react to messages with curated emojis across private chats, groups, and channels.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://alisareactionbot.vercel.app">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Open Graph — Facebook, Discord, Telegram preview, LinkedIn -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <meta property="og:title" content="Alisa · Neural Reaction Engine" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://alisareactionbot.vercel.app" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png" />
+  <meta property="og:image:secure_url" content="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="640" />
+  <meta property="og:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
+  <meta property="og:description" content="Sub-100ms Telegram automation. Serverless mesh, infinite scaling. Auto-react to messages with curated emojis across private chats, groups, and channels." />
+  <meta property="og:site_name" content="Alisa Reaction Bot" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Twitter Card — X/Twitter preview                           -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@Shineii86" />
+  <meta name="twitter:creator" content="@Shineii86" />
+  <meta name="twitter:title" content="Alisa · Neural Reaction Engine" />
+  <meta name="twitter:description" content="Sub-100ms Telegram automation. Edge-deployed, zero-log, infinite scale." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png" />
+  <meta name="twitter:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
+  <meta name="twitter:domain" content="alisareactionbot.vercel.app" />
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- JSON-LD Structured Data — Google rich results              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Alisa Reaction Bot",
+    "description": "Automated Telegram reaction bot with sub-100ms latency, edge-deployed serverless architecture, per-chat customization, and zero persistent data.",
+    "url": "https://alisareactionbot.vercel.app",
+    "applicationCategory": "CommunicationApplication",
+    "operatingSystem": "Cloudflare Workers, Vercel, Docker",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Shinei Nouzen",
+      "url": "https://github.com/Shineii86"
+    },
+    "image": "https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png",
+    "softwareVersion": "2.2.1",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "1"
+    }
+  }
+  </script>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
