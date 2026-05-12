@@ -273,9 +273,40 @@ These platforms offer one-click deploys with managed infrastructure.
 
 After deploying, you need to tell Telegram where to send updates. This is called setting a webhook.
 
-### Basic Webhook
+### From Mobile (Easiest)
 
-```bash
+Open your mobile browser and paste this URL in the address bar — replace the values:
+
+```
+https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://YOUR_WORKER_URL
+```
+
+**Example:**
+```
+https://api.telegram.org/bot1234567890:ABCdefGHIjklMNOpqrsTUVwxyz/setWebhook?url=https://alisareactionbot.shineii86.workers.dev
+```
+
+Press Enter. You'll see:
+```json
+{"ok":true,"result":true,"description":"Webhook was set"}
+```
+
+That's it. ✅
+
+**Or use BotFather:**
+1. Open Telegram → search **@BotFather**
+2. Send `/setwebhook`
+3. Select your bot
+4. Paste your worker URL
+
+**With webhook secret:**
+```
+https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://YOUR_WORKER_URL&secret_token=YOUR_SECRET
+```
+
+### From Terminal (Desktop)
+
+**Basic:**
 curl -X POST "https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook" \
   -H "Content-Type: application/json" \
   -d '{"url": "https://your-worker-url.workers.dev"}'
@@ -297,9 +328,12 @@ curl -X POST "https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook" \
 
 ### Verify the Webhook
 
-Check if the webhook is set correctly:
+**Mobile:** Paste in your browser:
+```
+https://api.telegram.org/botYOUR_BOT_TOKEN/getWebhookInfo
+```
 
-```bash
+**Terminal:**
 curl "https://api.telegram.org/botYOUR_BOT_TOKEN/getWebhookInfo"
 ```
 
@@ -321,7 +355,12 @@ A correct response looks like:
 
 If you need to remove the webhook (e.g., to switch platforms):
 
-```bash
+**Mobile:**
+```
+https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
+```
+
+**Terminal:**
 curl "https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook"
 ```
 
