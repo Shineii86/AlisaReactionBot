@@ -37,8 +37,6 @@ export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ
 
 ────────────────
 
-────────────────
-
 👑 *Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:*
 🔹 */pause* — Pᴀᴜsᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
 🔹 */resume* — Rᴇsᴜᴍᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
@@ -148,5 +146,3 @@ export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏ�
 
 // ─── Ping Messages ───────────────────────────────────────────
 export const pingMessage = (ms) => `🏓 *Pᴏɴɢ!*\n\n⏱️ Rᴇsᴘᴏɴsᴇ: \`${ms}ms\`\n🕐 ${new Date().toUTCString()}`
-
-// ─── Landing Page ─────────────────────────────────────────── 
