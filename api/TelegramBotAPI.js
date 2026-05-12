@@ -8,6 +8,7 @@
  * Copyright (c) 2026 Shinei Nouzen
  *
  * Released under the MIT License.
+ * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
