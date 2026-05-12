@@ -113,12 +113,12 @@ function getStatsMessage() {
     const uptime = formatUptime(Date.now() - stats.startTime);
     const cmdLines = Object.entries(stats.commandUsage)
         .map(([cmd, count]) => `\`/${cmd}\` — ${count}`)
-        .join('\n') || 'No commands used yet.';
+        .join('\n') || 'Nᴏ Cᴏᴍᴍᴀɴᴅs Usᴇᴅ Yᴇᴛ.';
 
     let topChatsText = '';
     const top = getTopChats(5);
     if (top.length) {
-        topChatsText = '\n\n🏆 *Tᴏᴘ Cʜᴀᴛs (ʟᴀsᴛ 50 ʀᴇᴀᴄᴛɪᴏɴs):*\n' +
+        topChatsText = '\n\n🏆 *Tᴏᴘ Cʜᴀᴛs (Lᴀsᴛ 50 Rᴇᴀᴄᴛɪᴏɴs):*\n' +
             top.map(([id, count], i) => {
                 const name = chatNames[id] || `Chat ${id}`;
                 return `${i + 1}. ${name} — ${count}`;
@@ -135,7 +135,7 @@ function getStatsMessage() {
 📋 *Cᴏᴍᴍᴀɴᴅ Usᴀɢᴇ:*
 ${cmdLines}${topChatsText}
 
-_ɢʟᴏʙᴀʟ sᴛᴀᴛs sɪɴᴄᴇ ʟᴀsᴛ ʀᴇsᴛᴀʀt._`;
+_Gʟᴏʙᴀʟ Sᴛᴀᴛs Sɪɴᴄᴇ Lᴀsᴛ Rᴇsᴛᴀʀᴛ._`;
 }
 
 // ─── Keyboards ───
@@ -143,35 +143,46 @@ _ɢʟᴏʙᴀʟ sᴛᴀᴛs sɪɴᴄᴇ ʟᴀsᴛ ʀᴇsᴛᴀʀt._`;
 function getStartKeyboard(botUsername) {
     return [
         [
-            { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ ✚', url: `https://t.me/${botUsername}?startchannel=botstart` },
-            { text: '✚ Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart` },
+            { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ', url: `https://t.me/${botUsername}?startchannel=botstart` },
+            { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart` },
         ],
         [
             { text: '📚 Hᴇʟᴘ', callback_data: 'cb_help' },
-            { text: '🤖 Aʙᴏᴜᴛ', callback_data: 'cb_about' },
-            { text: '📊 Sᴛᴀᴛs', callback_data: 'cb_stats' },
+            { text: 'Aʙᴏᴜᴛ 🤖', callback_data: 'cb_about' },
         ],
         [
             { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate' },
-            { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' },
+            { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
+            
         ],
         [
-            { text: '☁️ Sᴏᴜʀᴄᴇ Cᴏᴅᴇ', url: 'https://github.com/Shineii86/AlisaReactionBot' },
+            { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' },            
+            { text: 'Sᴏᴜʀᴄᴇ Cᴏᴅᴇ ☁️', url: 'https://github.com/Shineii86/AlisaReactionBot' },
         ],
     ];
 }
 
 function getBackKeyboard() {
-    return [[{ text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }]];
+    return [
+        [
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
+        ],        
+        [
+            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }
+        ]
+    ];
 }
 
 function getDonateKeyboard() {
     return [
         [
-            { text: '🅿️ PayPal', url: 'https://www.paypal.com/paypalme/ikx7a' },
-            { text: '☕ Ko-fi', url: 'https://ko-fi.com/ikx7a' },
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
+        ],        
+        [
+            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }
         ],
-        [{ text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }],
     ];
 }
 
@@ -305,7 +316,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/reactions') {
                 trackCommand('reactions');
                 const reactions = getReactionsForChat(chatId, Reactions).join(' ');
-                const isCustom = perChatReactions[chatId] ? '\n\n_✨ Cᴜsᴛᴏᴍ sᴇᴛ ғᴏʀ ᴛʜɪs ᴄʜᴀᴛ._' : '\n\n_📌 Dᴇғᴀᴜʟᴛ ɢʟᴏʙᴀʟ sᴇᴛ._';
+                const isCustom = perChatReactions[chatId] ? '\n\n_✨ Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ._' : '\n\n_📌 Dᴇғᴀᴜʟᴛ Gʟᴏʙᴀʟ Sᴇᴛ._';
                 await botApi.sendMessage(chatId, `🚀 *Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:*\n\n${reactions}${isCustom}`, getBackKeyboard());
                 return;
             }
@@ -391,7 +402,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Usage: `/broadcast <message>`');
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/broadcast <message>`');
                     return;
                 }
                 await botApi.sendMessage(chatId, broadcastStarted);
@@ -419,7 +430,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (reactionLog.length === 0) {
-                    await botApi.sendMessage(chatId, '📋 Rᴇᴀᴄᴛɪᴏɴ ʟᴏɢ ɪs ᴇᴍᴘᴛʏ.');
+                    await botApi.sendMessage(chatId, '📋 Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ Is Eᴍᴘᴛʏ.');
                     return;
                 }
                 const lines = reactionLog.slice(-10).reverse().map((e, i) => {
