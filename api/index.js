@@ -1,12 +1,16 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot
+ * Alisa Reaction Bot — index.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
- * Copyright (c) 2026 Shinei Nouzen
+ * @description
+ *   Express server entry point for Docker, Vercel, and local
+ *   development. Handles webhook routing, env validation,
+ *   health checks, and the landing page.
  *
- * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * @version 2.8.0
+ * @author  Shinei Nouzen
+ * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
@@ -118,3 +122,5 @@ if (!process.env.VERCEL) {
 }
 
 export default app;
+
+// ══════════════════════════════════════════════════════════════ END: index.js

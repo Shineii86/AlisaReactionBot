@@ -1,12 +1,16 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot
+ * Alisa Reaction Bot — worker.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
- * Copyright (c) 2026 Shinei Nouzen
+ * @description
+ *   Cloudflare Workers entry point. Handles webhook routing,
+ *   env validation, health checks, and the landing page.
+ *   Parallel implementation of index.js for the Workers runtime.
  *
- * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * @version 2.8.0
+ * @author  Shinei Nouzen
+ * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
@@ -100,3 +104,5 @@ export default {
         return returnHTML(htmlContent);
     }
 };
+
+// ══════════════════════════════════════════════════════════════ END: worker.js

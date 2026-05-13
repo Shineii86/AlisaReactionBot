@@ -1,14 +1,18 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot
+ * Alisa Reaction Bot — TelegramBotAPI.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
- * Telegram Bot API wrapper — all methods used by the bot
+ * @description
+ *   Telegram Bot API wrapper. All HTTP calls to the Telegram
+ *   API go through this class for consistent error handling,
+ *   logging, and request formatting.
  *
- * Copyright (c) 2026 Shinei Nouzen
+ * @exports TelegramBotAPI (default)
  *
- * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * @version 2.8.0
+ * @author  Shinei Nouzen
+ * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
@@ -151,3 +155,5 @@ export default class TelegramBotAPI {
         return this.callApi('getWebhookInfo', {});
     }
 }
+
+// ══════════════════════════════════════════════════════════════ END: TelegramBotAPI.js

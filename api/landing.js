@@ -1,3 +1,21 @@
+/*
+ * ======= • ======= • ======= • ======= • =======• =======
+ * Alisa Reaction Bot — landing.js
+ * Repository: https://github.com/Shineii86/AlisaReactionBot
+ *
+ * @description
+ *   Landing page HTML template. Self-contained single-page
+ *   with inline CSS, Lucide icons, scroll animations,
+ *   and character DNA section.
+ *
+ * @exports htmlContent (named)
+ *
+ * @version 2.8.0
+ * @author  Shinei Nouzen
+ * @license MIT
+ * ======= • ======= • ======= • ======= • =======• =======
+ */
+
 export const htmlContent = `
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
@@ -19,7 +37,7 @@ export const htmlContent = `
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- Primary Meta — Search engines + browser tabs               -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation, edge-deployed neural architecture. Auto-react to messages with curated emojis across private chats, groups, and channels.">
+  <meta name="description" content="Alisa Reaction Bot — ultra-low latency Telegram automation inspired by Alisa Mikhailovna Kujou. Edge-deployed neural architecture. Auto-react to messages with curated emojis.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://alisareactionbot.vercel.app">
 
@@ -35,7 +53,7 @@ export const htmlContent = `
   <meta property="og:image:width" content="1280" />
   <meta property="og:image:height" content="640" />
   <meta property="og:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
-  <meta property="og:description" content="Sub-100ms Telegram automation. Serverless mesh, infinite scaling. Auto-react to messages with curated emojis across private chats, groups, and channels." />
+  <meta property="og:description" content="Sub-100ms Telegram automation. Inspired by Alisa Mikhailovna Kujou — the tsundere ice queen whose Russian slips through when emotions run high. Edge-deployed, zero-log, infinite scale." />
   <meta property="og:site_name" content="Alisa Reaction Bot" />
   <meta property="og:locale" content="en_US" />
 
@@ -46,7 +64,7 @@ export const htmlContent = `
   <meta name="twitter:site" content="@Shineii86" />
   <meta name="twitter:creator" content="@Shineii86" />
   <meta name="twitter:title" content="Alisa · Neural Reaction Engine" />
-  <meta name="twitter:description" content="Sub-100ms Telegram automation. Edge-deployed, zero-log, infinite scale." />
+  <meta name="twitter:description" content="Sub-100ms Telegram automation. Inspired by Alisa Mikhailovna Kujou. Edge-deployed, zero-log, infinite scale." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png" />
   <meta name="twitter:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
   <meta name="twitter:domain" content="alisareactionbot.vercel.app" />
@@ -59,7 +77,7 @@ export const htmlContent = `
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Alisa Reaction Bot",
-    "description": "Automated Telegram reaction bot with sub-100ms latency, edge-deployed serverless architecture, per-chat customization, and zero persistent data.",
+    "description": "Automated Telegram reaction bot inspired by Alisa Mikhailovna Kujou. Sub-100ms latency, edge-deployed serverless architecture, per-chat customization, and zero persistent data.",
     "url": "https://alisareactionbot.vercel.app",
     "applicationCategory": "CommunicationApplication",
     "operatingSystem": "Cloudflare Workers, Vercel, Docker",
@@ -74,7 +92,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png",
-    "softwareVersion": "2.6.0",
+    "softwareVersion": "2.8.0",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -529,10 +547,10 @@ export const htmlContent = `
       <div class="hero-content">
         <div class="hero-tag">
           <span class="hero-tag-dot"></span>
-          NEURAL LINK ACTIVE
+          ХОРОШО — NEURAL LINK ACTIVE
         </div>
         <h1><span class="hl">Alisa</span><br>Reaction Matrix</h1>
-        <p class="hero-desc">Sub-100ms Telegram automation. Serverless mesh, infinite scaling. Deploy at the edge with zero cold starts.</p>
+        <p class="hero-desc">Sub-100ms Telegram automation. Inspired by Alisa Mikhailovna Kujou — the tsundere ice queen who hides her feelings in Russian. Reacts with precision. Not that she cares or anything.</p>
         <div class="hero-btns">
           <a href="#deploy" class="btn btn-primary"><i data-lucide="cloud"></i> Edge Deploy</a>
           <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn btn-ghost"><i data-lucide="code-2"></i> Source</a>
@@ -556,7 +574,7 @@ export const htmlContent = `
             <div class="code-line"><span class="code-prompt">$</span> <span class="code-cmd">npx wrangler deploy</span></div>
             <div class="code-line"><span class="code-ok"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle"></i></span> <span class="code-muted">Deployed to Cloudflare Workers</span></div>
             <div class="code-line"><span class="code-ok"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle"></i></span> <span class="code-muted">Webhook configured</span></div>
-            <div class="code-line"><span class="code-ok"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle"></i></span> <span class="code-muted">Bot online — reaction.core active</span></div>
+            <div class="code-line"><span class="code-ok"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle"></i></span> <span class="code-muted">Bot online — Хорошо, reaction.core active</span></div>
             <div class="code-line" style="margin-top:14px"><span class="code-prompt">$</span> <span class="code-cmd">curl /health</span></div>
             <div class="code-line"><span class="code-muted">{ "status": "ok", "latency": "47ms" }</span></div>
             <div class="code-line" style="margin-top:14px"><span class="code-prompt">$</span> <span class="code-cmd">_</span><span class="cursor-blink"></span></div>
@@ -571,7 +589,7 @@ export const htmlContent = `
       <div class="features-head reveal">
         <div class="section-label">core_modules</div>
         <h2 class="section-title">Neural Primitives</h2>
-        <p class="section-subtitle">Built for hyper-reactive Telegram bots — edge-optimized, zero-trust, sub-linear scaling.</p>
+        <p class="section-subtitle">Built for hyper-reactive Telegram bots — edge-optimized, zero-trust, sub-linear scaling. Хмпф, naturally.</p>
       </div>
       <div class="feat-grid">
         <div class="feat-card reveal">
@@ -602,7 +620,25 @@ export const htmlContent = `
     </div>
   </section>
 
-  <section id="deploy" style="background: var(--surface);">
+  <section style="background: var(--surface);">
+    <div class="container">
+      <div class="reveal" style="text-align: center; max-width: 700px; margin: 0 auto;">
+        <div class="section-label" style="justify-content:center;">character_dna</div>
+        <h2 class="section-title">Inspired by Alisa Mikhailovna Kujou</h2>
+        <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.8; margin-top: 16px;">
+          The half-Russian, half-Japanese tsundere from <i>"Alya Sometimes Hides Her Feelings in Russian"</i> — whose sharp tongue, elegant pride, and moments when Russian slips through her composed facade define every interaction. This bot carries her essence: precise, proud, and secretly warm.
+        </p>
+        <div style="display: flex; gap: 24px; justify-content: center; margin-top: 28px; flex-wrap: wrap;">
+          <span style="font-family: var(--mono); font-size: 13px; color: var(--primary); background: var(--primary-bg); padding: 6px 16px; border-radius: 100px;">Хмпф — Hmph</span>
+          <span style="font-family: var(--mono); font-size: 13px; color: var(--primary); background: var(--primary-bg); padding: 6px 16px; border-radius: 100px;">Хорошо — Okay</span>
+          <span style="font-family: var(--mono); font-size: 13px; color: var(--primary); background: var(--primary-bg); padding: 6px 16px; border-radius: 100px;">Дурак — Idiot</span>
+          <span style="font-family: var(--mono); font-size: 13px; color: var(--primary); background: var(--primary-bg); padding: 6px 16px; border-radius: 100px;">Спасибо — Thank You</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="deploy" style="background: var(--bg);">
     <div class="container">
       <div class="reveal">
         <div class="section-label">edge_deployment</div>
@@ -651,7 +687,7 @@ export const htmlContent = `
       <div class="cta-box reveal">
         <div class="section-label" style="justify-content:center; margin-bottom: 16px;">protocol</div>
         <h3>Ready to integrate <span class="hl" style="background:var(--gradient-main);-webkit-background-clip:text;background-clip:text;color:transparent;">Alisa</span>?</h3>
-        <p>Deploy your own neural reaction bot in minutes. Full Telegram API compatibility, zero maintenance overhead.</p>
+        <p>Deploy your own neural reaction bot in minutes. Not that you need my permission. Хорошо?</p>
         <div class="cta-btns">
           <a href="https://t.me/AlisaReactionBot" target="_blank" class="btn btn-primary"><i data-lucide="message-circle"></i> Try on Telegram</a>
           <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn btn-ghost"><i data-lucide="code-2"></i> GitHub</a>
@@ -667,10 +703,10 @@ export const htmlContent = `
 
   <footer>
     <div class="container">
-      <span>© 2026 Alisa Reaction Bot</span>
+      <span>© 2026 Alisa Reaction Bot · Хмпф</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.7.0</span>
+        <span class="ft-ver">v2.8.0</span>
       </div>
     </div>
   </footer>
@@ -729,3 +765,5 @@ export const htmlContent = `
 </body>
 </html>
 `;
+
+// ══════════════════════════════════════════════════════════════ END: landing.js

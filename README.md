@@ -29,6 +29,7 @@
 ## 📖 Table of Contents
 
 - [What Is Alisa?](#-what-is-alisa)
+- [Who Is Alisa Mikhailovna Kujou?](#-who-is-alisa-mikhailovna-kujou)
 - [✨ Features](#-features)
 - [🎮 Commands](#-commands)
 - [📊 How Stats Work](#-how-stats-work)
@@ -57,6 +58,35 @@ Alisa is a Telegram bot that **automatically reacts** to messages with curated e
 - **Channels** → Reacts to every post
 
 Add Alisa to any chat, and she quietly drops fitting reactions when the mood feels right. No spam, no commands needed — just vibes.
+
+Хмпф… Not that you need my permission to add me.
+
+---
+
+## 🦊 Who Is Alisa Mikhailovna Kujou?
+
+<img src="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/refs/heads/main/assets/logo2.png" width="120" height="120" style="border-radius: 16px;" align="right" />
+
+**Alisa Mikhailovna Kujou** (アリサ・ミハイロヴナ・九条) is the female lead of *"Tokidoki Bosotto Russia-go de Dereru Tonari no Alya-san"* (Alya Sometimes Hides Her Feelings in Russian), a romantic comedy light novel and anime series.
+
+| | |
+|:---|:---|
+| **Full Name** | Alisa Mikhailovna Kujou (Алиса Михайловна Кудзё) |
+| **Aliases** | Alya, The Ice Queen |
+| **Heritage** | Half-Russian, Half-Japanese |
+| **Family** | Masachika Kuze (love interest), Maria Kujou (older sister) |
+| **Role** | Student Council Treasurer |
+| **Personality** | Tsundere — proud, elegant, and sharp-tongued on the surface, but secretly caring and easily flustered |
+| **Signature Trait** | Speaks her true feelings in Russian, believing no one around her can understand |
+| **Common Phrases** | Хмпф (hmph), Хорошо (okay), Дурак (idiot), Спасибо (thank you), До свидания (goodbye) |
+
+### Why Alisa?
+
+The character's defining trait — **hiding emotions behind a language barrier** — perfectly mirrors this bot's behavior: silently reacting to messages with the right emoji at the right time. Just like Alisa watches from a distance and slips in her true feelings in Russian, this bot observes your chats and drops reactions that say more than words.
+
+Her tsundere personality — cold on the outside, warm on the inside — gives the bot its voice. Every message carries her pride, her wit, and those rare moments of genuine warmth.
+
+> *"N-Not that I care about your chats or anything… Хмпф."*
 
 ---
 
@@ -537,7 +567,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.7.0** — Added AdLab, photo support, welcome/leave messages, close button, IST timestamps.
+**Latest: v2.8.0** — Full character rewrite with Alisa Mikhailovna Kujou's personality, tsundere voice, and Russian emotional moments.
 
 ---
 

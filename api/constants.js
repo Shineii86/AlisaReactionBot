@@ -1,145 +1,170 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot
+ * Alisa Reaction Bot — constants.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
- * Copyright (c) 2026 Shinei Nouzen
+ * @description
+ *   All user-facing message templates and inline keyboard layouts.
+ *   Every string the bot sends to Telegram lives here.
  *
- * Released under the MIT License.
- * You Are Free To Use, Modify, And Distribute This Software In Accordance With The Terms Of The License.
+ * @exports
+ *   startMessage, helpMessage, aboutMessage, donateMessage,
+ *   statsHeader, reactionsUpdated, reactionsReset, reactionsInvalid,
+ *   pausedMessage, resumedMessage, notPausedMessage,
+ *   broadcastStarted, broadcastDone, onlyOwnerMessage,
+ *   onlyAdminMessage, groupOnlyMessage, pingMessage
+ *
+ * @version 2.8.0
+ * @author  Shinei Nouzen
+ * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-// ─── Start Messages ───────────────────────────────────────────
-export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, <b>UserName</b>.
+// ══════════════════════════════════════════════════════════════
+// START MESSAGE
+// ══════════════════════════════════════════════════════════════
 
-Sᴏ Yᴏᴜ Sᴛᴀʀᴛᴇᴅ Mᴇ. Nᴏᴛ Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Oʀ Aɴʏᴛʜɪɴɢ.
+// ---- FEATURE: /start welcome message ----
+export const startMessage = `🎀 Хмпф… Sᴏ Yᴏᴜ Fɪɴᴀʟʟʏ Sᴛᴀʀᴛᴇᴅ Mᴇ, <b>UserName</b>.
 
-🎊 Wᴇʟᴄᴏᴍᴇ Tᴏ <b>Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b> ✨
-I'ʟʟ Mᴀᴋᴇ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Fᴜɴ… Iғ Yᴏᴜ Bᴇʜᴀᴠᴇ.
+N-Not Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Fᴏʀ Yᴏᴜ Oʀ Aɴʏᴛʜɪɴɢ. Dᴏɴ'ᴛ Gᴇᴛ Tʜᴇ Wʀᴏɴɢ Iᴅᴇᴀ.
 
-💬 <b>Hᴇʀᴇ's Hᴏᴡ I Sᴘɪᴄᴇ Uᴘ Yᴏᴜʀ Cʜᴀᴛs:</b>
-<b>• Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ</b>: I Rᴇᴀᴄᴛ Tᴏ Yᴏᴜʀ Mᴇssᴀɢᴇs Wɪᴛʜ Tʜᴇ Pᴇʀғᴇᴄᴛ Eᴍᴏᴊɪ.
-<b>• Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs</b>: Aᴅᴅ Mᴇ Aɴᴅ I'ʟʟ Dʀᴏᴘ Fɪᴛᴛɪɴɢ Rᴇᴀᴄᴛɪᴏɴs Wʜᴇɴ Tʜᴇ Mᴏᴏᴅ Fᴇᴇʟs Rɪɢʜᴛ.
+✨ Wᴇʟᴄᴏᴍᴇ Tᴏ <b>Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
+I Sᴜᴘᴘᴏsᴇ I'ʟʟ Gʀᴀᴄᴇ Yᴏᴜʀ Cʜᴀᴛs Wɪᴛʜ Mʏ Pʀᴇsᴇɴᴄᴇ… Хорошо?
 
-Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ Tᴏ Exᴘʟᴏʀᴇ.`
+💬 <b>Lɪsᴛᴇɴ Cᴀʀᴇғᴜʟʟʏ:</b>
+<b>• Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ</b>: I Rᴇᴀᴄᴛ Tᴏ Yᴏᴜʀ Mᴇssᴀɢᴇs. Cᴏɴsɪᴅᴇʀ Iᴛ A Fᴀᴠᴏʀ.
+<b>• Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs</b>: Aᴅᴅ Mᴇ Aɴᴅ I'ʟʟ Bᴇsᴛᴏᴡ Fɪᴛᴛɪɴɢ Rᴇᴀᴄᴛɪᴏɴs Wʜᴇɴ Tʜᴇ Mᴏᴍᴇɴᴛ Sᴛʀɪᴋᴇs.
 
-// ─── Help Messages ───────────────────────────────────────────
-export const helpMessage = `📚 <b>Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ</b>
+Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ. Aɴᴅ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Rᴇᴘᴇᴀᴛ Mʏsᴇʟғ.`
 
-🔹 <code>/start</code> — Sᴛᴀʀᴛ Tʜᴇ Bᴏᴛ Aɴᴅ Sᴇᴇ Tʜᴇ Wᴇʟᴄᴏᴍᴇ Mᴇɴᴜ.
-🔹 <code>/help</code> — Sʜᴏᴡ Tʜɪs Hᴇʟᴘ Mᴇssᴀɢᴇ.
-🔹 <code>/about</code> — Lᴇᴀʀɴ Mᴏʀᴇ Aʙᴏᴜᴛ Aʟɪsᴀ.
-🔹 <code>/stats</code> — Vɪᴇᴡ Bᴏᴛ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Sᴛᴀᴛs.
-🔹 <code>/ping</code> — Cʜᴇᴄᴋ Bᴏᴛ Lᴀᴛᴇɴᴄʏ Aɴᴅ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ.
-🔹 <code>/donate</code> — Sᴜᴘᴘᴏʀᴛ Tʜᴇ Bᴏᴛ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ.
-🔹 <code>/reactions</code> — Lɪsᴛ Cᴜʀʀᴇɴᴛ Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs.
+// ══════════════════════════════════════════════════════════════
+// HELP MESSAGE
+// ══════════════════════════════════════════════════════════════
+
+// ---- FEATURE: /help command list ----
+export const helpMessage = `📚 <b>Cᴏᴍᴍᴀɴᴅs — Pᴀʏ Aᴛᴛᴇɴᴛɪᴏɴ</b>
+
+Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
+
+🔹 <code>/start</code> — Wʜᴇʀᴇ Yᴏᴜ Mᴇᴛ Mᴇ.
+🔹 <code>/help</code> — Tʜɪs Vᴇʀʏ Mᴇssᴀɢᴇ. Oʙᴠɪᴏᴜsʟʏ.
+🔹 <code>/about</code> — Lᴇᴀʀɴ Aʙᴏᴜᴛ Mᴇ. Tʜᴇʀᴇ's Qᴜɪᴛᴇ A Lᴏᴛ.
+🔹 <code>/stats</code> — Mʏ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Mᴇᴛʀɪᴄs. Великолепно, Rɪɢʜᴛ?
+🔹 <code>/ping</code> — Cʜᴇᴄᴋ Mʏ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ. Spᴏɪʟᴇʀ: Iᴛ's Fᴀsᴛ.
+🔹 <code>/donate</code> — Sᴜᴘᴘᴏʀᴛ Mʏ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ. Может быть.
+🔹 <code>/reactions</code> — Sᴇᴇ Mʏ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪ Sᴇᴛ.
 
 ────────────────
 
-🙂 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
-🔹 <code>/pause</code> — Pᴀᴜsᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
-🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
+🔒 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b> (Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Iғ Yᴏᴜ'ʀᴇ Nᴏᴛ Oɴᴇ)
+🔹 <code>/pause</code> — Pᴀᴜsᴇ Mʏ Rᴇᴀᴄᴛɪᴏɴs. Yᴏᴜ'ʟʟ Mɪss Tʜᴇᴍ.
+🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ. Ахаха, Wᴇʟᴄᴏᴍᴇ Bᴀᴄᴋ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
-🔹 <code>/randomlevel &lt;0-10&gt;</code> — Sᴇᴛ Rᴇᴀᴄᴛɪᴏɴ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Tʜɪs Cʜᴀᴛ.
-🔹 <code>/welcome</code> — Tᴏɢɢʟᴇ Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Fᴏʀ Nᴇᴡ Mᴇᴍʙᴇʀs.
-🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.
+🔹 <code>/randomlevel &lt;0-10&gt;</code> — Aᴅᴊᴜsᴛ Rᴇᴀᴄᴛɪᴏɴ Fʀᴇǫᴜᴇɴᴄʏ.
+🔹 <code>/welcome</code> — Tᴏɢɢʟᴇ Gʀᴇᴇᴛɪɴɢs Fᴏʀ Nᴇᴡ Mᴇᴍʙᴇʀs.
+🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Fᴀʀᴇᴡᴇʟʟs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.
 
 ────────────────
 
-👑 <b>Oᴡɴᴇʀ-Oɴʟʏ Cᴏᴍᴍᴀɴᴅs:</b>
-🔹 <code>/broadcast &lt;msg&gt;</code> — Sᴇɴᴅ A Mᴇssᴀɢᴇ Tᴏ Aʟʟ Cʜᴀᴛs.
-🔹 <code>/leave &lt;chat_id&gt;</code> — Rᴇᴍᴏᴠᴇ Bᴏᴛ Fʀᴏᴍ A Cʜᴀᴛ.
+👑 <b>Oᴡɴᴇʀ Oɴʟʏ:</b> (Tʜᴇʀᴇ Cᴀɴ Oɴʟʏ Bᴇ Oɴᴇ)
+🔹 <code>/broadcast &lt;msg&gt;</code> — Sᴘᴇᴀᴋ Tᴏ Aʟʟ Cʜᴀᴛs.
+🔹 <code>/leave &lt;chat_id&gt;</code> — Rᴇᴍᴏᴠᴇ Mᴇ. Yᴏᴜʀ Lᴏss.
 🔹 <code>/remove &lt;chat_id&gt;</code> — Aʟɪᴀs Fᴏʀ /leave.
-🔹 <code>/chats</code> — Lɪsᴛ Aʟʟ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.
+🔹 <code>/chats</code> — Vɪᴇᴡ Aʟʟ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.
 🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
-🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Uɴʀᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
-🔹 <code>/setwebhook &lt;url&gt;</code> — Sᴇᴛ Oʀ Vɪᴇᴡ Wᴇʙʜᴏᴏᴋ.
-🔹 <code>/log</code> — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.`
+🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Lɪғᴛ Tʜᴇ Rᴇsᴛʀɪᴄᴛɪᴏɴ.
+🔹 <code>/setwebhook &lt;url&gt;</code> — Cᴏɴғɪɢᴜʀᴇ Wᴇʙʜᴏᴏᴋ.
+🔹 <code>/log</code> — Rᴇᴠɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Hɪsᴛᴏʀʏ.`
 
-// ─── About Messages ───────────────────────────────────────────
-export const aboutMessage = `🤖 <b>Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
+// ══════════════════════════════════════════════════════════════
+// ABOUT MESSAGE
+// ══════════════════════════════════════════════════════════════
 
-Aʟɪsᴀ Is A Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ Tʜᴀᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ Rᴇᴀᴄᴛs Tᴏ Mᴇssᴀɢᴇs Wɪᴛʜ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪs — Mᴀᴋɪɴɢ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Lɪᴠᴇʟʏ Aɴᴅ Fᴜɴ.
+// ---- FEATURE: /about bot info + character lore ----
+export const aboutMessage = `🦊 <a href='https://t.me/AlisaReactionBot'>Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴs Bᴏᴛ</a> Cʀᴀғᴛᴇᴅ Bʏ <b><a href='https://t.me/Shineii86'>Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a></b> Usɪɴɢ <b>Nᴏᴅᴇ.js</b> & <b>Express</b> — Dᴇᴘʟᴏʏᴇᴅ Oɴ <b>Cʟᴏᴜᴅғʟᴀʀᴇ Wᴏʀᴋᴇʀs</b>, <b>Vᴇʀᴄᴇʟ</b> & <b>Dᴏᴄᴋᴇʀ</b>.
 
-⚡ <b>Fᴇᴀᴛᴜʀᴇs:</b>
-• Aᴜᴛᴏ-Rᴇᴀᴄᴛs Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs, Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs
-• Pᴇʀ-Cʜᴀᴛ Cᴜsᴛᴏᴍ Eᴍᴏᴊɪ Sᴇᴛs
-• Pᴀᴜsᴇ/Rᴇsᴜᴍᴇ Rᴇᴀᴄᴛɪᴏɴs Pᴇʀ Cʜᴀᴛ
-• Pᴇʀ-Cʜᴀᴛ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇ
-• Cᴏɴғɪɢᴜʀᴀʙʟᴇ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Nᴀᴛᴜʀᴀʟ Gʀᴏᴜᴘ Bᴇʜᴀᴠɪᴏʀ
-• Wᴇʟᴄᴏᴍᴇ & Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Fᴏʀ Gʀᴏᴜᴘs
-• Rᴇsᴛʀɪᴄᴛ Sᴘᴇᴄɪғɪᴄ Cʜᴀᴛs Fʀᴏᴍ Rᴇᴄᴇɪᴠɪɴɢ Rᴇᴀᴄᴛɪᴏɴs
-• Sᴇʀᴠᴇʀʟᴇss Aʀᴄʜɪᴛᴇᴄᴛᴜʀᴇ — Dᴇᴘʟᴏʏ Oɴ Cʟᴏᴜᴅғʟᴀʀᴇ, Vᴇʀᴄᴇʟ, Dᴏᴄᴋᴇʀ
-• Wᴇʙʜᴏᴏᴋ Sᴇᴄᴜʀɪᴛʏ — Sᴇᴄʀᴇᴛ Tᴏᴋᴇɴ Vᴀʟɪᴅᴀᴛɪᴏɴ
-• Rᴀᴛᴇ Lɪᴍɪᴛɪɴɢ — Pʀᴇᴠᴇɴᴛs Aᴘɪ Abuꜱᴇ
+<b>Tʜᴇ Sᴘɪʀɪᴛ Oғ Tʜɪs Bᴏᴛ Is Iɴғᴜsᴇᴅ Wɪᴛʜ Tʜᴇ Essᴇɴᴄᴇ Oғ Aʟɪsᴀ Mɪᴋʜᴀɪʟᴏᴠɴᴀ Kᴜᴊᴏᴜ</b>, Tʜᴇ Hᴀʟꜰ-Rᴜssɪᴀɴ, Hᴀʟꜰ-Jᴀᴘᴀɴᴇsᴇ Iᴄᴇ Qᴜᴇᴇɴ Wʜᴏsᴇ Sʜᴀʀᴘ Tᴏɴɢᴜᴇ Aɴᴅ Hɪᴅᴅᴇɴ Wᴀʀᴍᴛʜ Gᴏᴠᴇʀɴ Hᴇʀ Eᴠᴇʀʏ Wᴏʀᴅ. As Tʜᴇ Tsᴜɴᴅᴇʀᴇ Pʀɪᴅᴇ Oғ "Tᴏᴋɪᴅᴏᴋɪ Bᴏsᴏᴛᴛᴏ Rᴏssɪᴀ-ɢᴏ Dᴇ Dᴇʀᴇʀᴜ Tᴏɴᴀʀɪ Nᴏ Aʟʏᴀ-Sᴀɴ," Sʜᴇ Cᴀᴘᴛɪᴠᴀᴛᴇs Wɪᴛʜ Hᴇʀ Eʟᴇɢᴀɴᴛ Pʀɪᴅᴇ, Sʜᴀʀᴘ Wɪᴛ, Aɴᴅ Tʜᴏsᴇ Mᴏᴍᴇɴᴛs Wʜᴇɴ Rᴜssɪᴀɴ Sʟɪᴘs Tʜʀᴏᴜɢʜ Hᴇʀ Cᴏᴍᴘᴏsᴇᴅ Fᴀᴄᴀᴅᴇ—Qᴜᴀʟɪᴛɪᴇs Eᴍʙᴏᴅɪᴇᴅ Iɴ Tʜɪs Bᴏᴛ's Dᴇsɪɢɴ.
 
-🛠️ <b>Tᴇᴄʜ Sᴛᴀᴄᴋ:</b>
-• Nᴏᴅᴇ.js + Exprᴇss / Clᴏᴜᴅғʟᴀʀᴇ Wᴏʀᴋᴇʀs
-• Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ API v7+ 
-• Zᴇʀᴏ Pᴇʀsɪsᴛᴇɴᴛ Dᴀᴛᴀ — Pʀɪᴠᴀᴄʏ Fɪʀsᴛ
+Хмпф… N-Not Tʜᴀᴛ I Cᴀʀᴇ Iғ Yᴏᴜ Rᴇᴀᴅ Tʜɪs Fᴀʀ.
 
-📌 <b>Sᴏᴜʀᴄᴇ</b>: <a href="https://github.com/Shineii86/AlisaReactionBot">GɪᴛHᴜʙ</a>
-👨‍💻 <b>Dᴇᴠᴇʟᴏᴘᴇʀ</b>: <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>`
+<b>» 🚀 Vᴇʀsɪᴏɴ:</b> v2.8.0
+<b>» 📡 Nᴇᴛᴡᴏʀᴋ:</b> <a href='https://t.me/QuinxNetwork'>Qᴜɪɴx Nᴇᴛᴡᴏʀᴋ</a>
+<b>» 🔔 Mᴀɪɴ Cʜᴀɴɴᴇʟ:</b> <a href='https://t.me/MaximXBots'>Mᴀxɪᴍ 𝕏 Bᴏᴛs</a>
+<b>» 💬 Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ:</b> <a href='https://t.me/MaximXGroup'>Mᴀxɪᴍ 𝕏 Gʀᴏᴜᴘ</a>
 
-// ─── Donate Messages ───────────────────────────────────────────
-export const donateMessage = `🎁 <b>Sᴜᴘᴘᴏʀᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
+<b>Bᴏᴛ Cʀᴇᴅɪᴛs</b>
+<b>» 👑 Bᴏᴛ Oᴡɴᴇʀ:</b> <a href='https://t.me/Senpai86'>Zᴏʀᴏ Rᴏʀᴏɴᴏᴀ</a>
+<b>» 💀 Dᴇᴠᴇʟᴏᴘᴇʀ:</b> <a href='https://t.me/Shineii86'>Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>`
 
-Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ, Cᴏɴsɪᴅᴇʀ Sᴜᴘᴘᴏʀᴛɪɴɢ Tʜᴇ Pʀᴏᴊᴇᴄᴛ! Yᴏᴜʀ Hᴇʟᴘ Kᴇᴇᴘs Tʜᴇ Bᴏᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
+// ══════════════════════════════════════════════════════════════
+// DONATE MESSAGE
+// ══════════════════════════════════════════════════════════════
+
+// ---- FEATURE: /donate payment info ----
+export const donateMessage = `🎁 <b>Sᴜᴘᴘᴏʀᴛ Tʜᴇ Pʀᴏᴊᴇᴄᴛ</b>
+
+L-Lᴏᴏᴋ… Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Mʏ Sᴇʀᴠɪᴄᴇs, I Sᴜᴘᴘᴏsᴇ A Sᴍᴀʟʟ Cᴏɴᴛʀɪʙᴜᴛɪᴏɴ Wᴏᴜʟᴅɴ'ᴛ Hᴜʀᴛ. N-Not Tʜᴀᴛ I Nᴇᴇᴅ Iᴛ! Bᴜᴛ Iᴛ Kᴇᴇᴘs Mᴇ Rᴜɴɴɪɴɢ.
 
 💰 <b>Hᴏᴡ Tᴏ Dᴏɴᴀᴛᴇ:</b>
 
-∇ <b>Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ</b>   
+∇ <b>Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ</b>
 - <b>Aᴅᴅʀᴇss:</b> <code>UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX</code>
 <i>(Aᴄᴄᴇᴘᴛs Bᴏᴛʜ Tᴏɴ Aɴᴅ Usᴅᴛ Oɴ Tᴏɴ Nᴇᴛᴡᴏʀᴋ)</i>
 
 🇮🇳 <b>Iɴʀ PʜᴏɴᴇPᴇ</b>
 - <b>Uᴘɪ Iᴅ:</b> Dᴍ Aᴛ <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>
-   
-💜 <b>Tᴇʟᴇɢʀᴀᴍ Sᴛᴀʀᴛs</b>
+
+💜 <b>Tᴇʟᴇɢʀᴀᴍ Sᴛᴀʀs</b>
 Sᴇɴᴅ Sᴛᴀʀs Dɪʀᴇᴄᴛʟʏ Tᴏ <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>
 
 ────────────────
 
-Eᴠᴇɴ A Sᴍᴀʟʟ Cᴏɴᴛʀɪʙᴜᴛɪᴏɴ Mᴇᴀɴs A Lᴏᴛ.
-Tʜᴀɴᴋs Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ! 🙏`
+Eᴠᴇɴ A Sᴍᴀʟʟ Gᴇsᴛᴜʀᴇ Mᴇᴀɴs Mᴏʀᴇ Tʜᴀɴ Yᴏᴜ Tʜɪɴᴋ.
+Спасибо. 🙏`
 
-// ─── Stats Header Messages ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// SHORT MESSAGES & STATUS STRINGS
+// ══════════════════════════════════════════════════════════════
+
+// ---- FEATURE: /stats header ----
 export const statsHeader = `📊 <b>Aʟɪsᴀ Bᴏᴛ Sᴛᴀᴛs</b>\n\n`
 
-// ─── Reaction Updated Messages ───────────────────────────────────────────
-export const reactionsUpdated = `✅ Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ Fᴏʀ Tʜɪs Cʜᴀᴛ!\n\n`
+// ---- FEATURE: /setreactions success ----
+export const reactionsUpdated = `✅ Хорошо! Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ.\n\n`
 
-// ─── Reaction Reset Messages ───────────────────────────────────────────
-export const reactionsReset = `🔄 Rᴇᴀᴄᴛɪᴏɴs Rᴇsᴇᴛ Tᴏ Dᴇғᴀᴜʟᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.`
+// ---- FEATURE: /setreactions reset ----
+export const reactionsReset = `🔄 Rᴇsᴇᴛ Tᴏ Mʏ Dᴇғᴀᴜʟᴛs. Tʀᴜsᴛ Mᴇ, Tʜᴇʏ'ʀᴇ Bᴇᴛᴛᴇʀ.`
 
-// ─── Invalid Reaction Messages ───────────────────────────────────────────
-export const reactionsInvalid = `📵 Iɴᴠᴀʟɪᴅ Eᴍᴏᴊɪ Lɪsᴛ. Sᴇɴᴅ Eᴍᴏᴊɪs Sᴇᴘᴀʀᴀᴛᴇᴅ Bʏ Sᴘᴀᴄᴇs.\n\nExample: /setreactions 👍 ❤ 🔥 🎉 👏`
+// ---- FEATURE: /setreactions invalid input ----
+export const reactionsInvalid = `📵 Iɴᴠᴀʟɪᴅ Eᴍᴏᴊɪ Lɪsᴛ. Sᴇɴᴅ Eᴍᴏᴊɪs Sᴇᴘᴀʀᴀᴛᴇᴅ Bʏ Sᴘᴀᴄᴇs.\n\nExᴀᴍᴘʟᴇ: /setreactions 👍 ❤ 🔥 🎉 👏`
 
-// ─── Paused Reaction Messages ───────────────────────────────────────────
-export const pausedMessage = `⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>Pᴀᴜsᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.\nUsᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.`
+// ---- FEATURE: /pause success ----
+export const pausedMessage = `⏸️ Rᴇᴀᴄᴛɪᴏɴs <b>Pᴀᴜsᴇᴅ</b>. Dᴏɴ'ᴛ Gᴇᴛ Tᴏᴏ Cᴏᴍғᴏʀᴛᴀʙʟᴇ Wɪᴛʜᴏᴜᴛ Mᴇ.\nUsᴇ /resume Wʜᴇɴ Yᴏᴜ'ʀᴇ Rᴇᴀᴅʏ.`
 
-// ─── Resume Reaction Messages ───────────────────────────────────────────
-export const resumedMessage = `▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>Rᴇsᴜᴍᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.`
+// ---- FEATURE: /resume success ----
+export const resumedMessage = `▶️ Ахаха~ Yᴏᴜ Mɪssᴇᴅ Mᴇ, Dɪᴅɴ'ᴛ Yᴏᴜ? Rᴇᴀᴄᴛɪᴏɴs <b>Rᴇsᴜᴍᴇᴅ</b>.`
 
-// ─── Not Passed Messages ───────────────────────────────────────────
-export const notPausedMessage = `ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Nᴏᴛ Pᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.`
+// ---- FEATURE: /resume when not paused ----
+export const notPausedMessage = `ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇɴ'ᴛ Pᴀᴜsᴇᴅ Hᴇʀᴇ. Wᴇʀᴇ Yᴏᴜ Jᴜsᴛ Tʀʏɪɴɢ Tᴏ Gᴇᴛ Mʏ Aᴛᴛᴇɴᴛɪᴏɴ?`
 
-// ─── Broadcast Started Messages ───────────────────────────────────────────
-export const broadcastStarted = `📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ...`
+// ---- FEATURE: /broadcast started ----
+export const broadcastStarted = `📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ… Lɪsᴛᴇɴ Uᴘ, Eᴠᴇʀʏᴏɴᴇ.`
 
-// ─── Broadcast Done Messages ───────────────────────────────────────────
+// ---- FEATURE: /broadcast complete ----
 export const broadcastDone = (success, failed) =>
-    `✅ <b>Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!</b>\n\n🚀 Sᴇɴᴛ: ${success}\n📵 Fᴀɪʟᴇᴅ: ${failed}`
+    `✅ <b>Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!</b>\n\n🚀 Sᴇɴᴛ: ${success}\n📵 Fᴀɪʟᴇᴅ: ${failed}\n\nХмпф. Mᴏsᴛ Oғ Tʜᴇᴍ Lɪsᴛᴇɴᴇᴅ, Aᴛ Lᴇᴀsᴛ.`
 
-// ─── Only Owner Messages ───────────────────────────────────────────
-export const onlyOwnerMessage = `👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Oɴʟʏ Aᴠᴀɪʟᴀʙʟᴇ Tᴏ Tʜᴇ Bᴏᴛ Oᴡɴᴇʀ.`
+// ---- FEATURE: Owner-only command denial ----
+export const onlyOwnerMessage = `👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Fᴏʀ Tʜᴇ Oᴡɴᴇʀ. Yᴏᴜ Tʜɪɴᴋ Yᴏᴜ Cᴀɴ Jᴜsᴛ—? Дурак.`
 
-// ─── Only Admin Messages ───────────────────────────────────────────
-export const onlyAdminMessage = `🔒 Tʜɪs Cᴏᴍᴍᴀɴᴅ Rᴇǫᴜɪʀᴇs Gʀᴏᴜᴘ Aᴅᴍɪɴ Pᴇʀᴍɪssɪᴏɴs.`
+// ---- FEATURE: Admin-only command denial ----
+export const onlyAdminMessage = `🔒 Aᴅᴍɪɴ Pᴇʀᴍɪssɪᴏɴs Rᴇǫᴜɪʀᴇᴅ. Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Wɪᴛʜᴏᴜᴛ Tʜᴇᴍ.`
 
-// ─── Only Group Messages ───────────────────────────────────────────
-export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏʀᴋs Iɴ Gʀᴏᴜᴘs.`
+// ---- FEATURE: Group-only command denial ----
+export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏʀᴋs Iɴ Gʀᴏᴜᴘs. Are Yᴏᴜ Eᴠᴇɴ Lɪsᴛᴇɴɪɴɢ?`
 
-// ─── Ping Messages ───────────────────────────────────────────
-export const pingMessage = (ms) => `🏓 <b>Pᴏɴɢ!</b>\n\n⏱️ Rᴇsᴘᴏɴsᴇ: <code>${ms}ms</code>`
+// ---- FEATURE: /ping response ----
+export const pingMessage = (ms) => `🏓 <b>Pᴏɴɢ!</b>\n\n⏱️ Rᴇsᴘᴏɴsᴇ: <code>${ms}ms</code>\n<i>Tᴏʟᴅ Yᴏᴜ Iᴛ Wᴏᴜʟᴅ Bᴇ Fᴀsᴛ.</i>`
+
+// ══════════════════════════════════════════════════════════════ END: constants.js

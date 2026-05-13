@@ -4,6 +4,41 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.8.0] — 2026-05-14
+
+### ✨ Character Rewrite — Alisa Mikhailovna Kujou Voice
+
+- **Rewrote all bot messages** to match the personality and vibes of **Alisa Mikhailovna Kujou** from *Alya Sometimes Hides Her Feelings in Russian (Roshidere)*.
+  - **Tsundere tone**: Messages carry Alisa's signature pride, sharp wit, and hidden warmth.
+  - **Russian at emotional moments**: Proper Cyrillic Russian words appear naturally when Alisa is flustered, proud, or emotional — exactly like in the anime where she hides her true feelings in Russian. Not random mixing, but character-authentic placement.
+  - **Key Russian phrases used**: Хмпф (hmph), Хорошо (okay/good), Спасибо (thank you), Дурак (idiot), До свидания (goodbye), Может быть (perhaps), Что (what), Ничего страшного (no big deal), Великолепно (magnificent), Ахаха (her signature laugh).
+  - **Start message**: Cold greeting with Russian "Хмпф" and "Хорошо?" — secretly welcomes users.
+  - **Help message**: Commands delivered with confident authority, "Может быть" for donate.
+  - **About message**: Styled after Miko Reactions Bot layout — bot identity, character essence description, version, network, channels, and credits. Includes Alisa's tsundere touch at the end.
+  - **Donate message**: Tsundere deflection ending with authentic "Спасибо".
+  - **Ping response**: "Тold You It Would Be Fast."
+  - **Paused/Resumed**: "Don't Get Too Comfortable" / "Аahaha~ You Missed Me, Didn't You?"
+  - **Broadcast**: "Listen Up, Everyone" / "Хмпф. Most Of Them Listened."
+  - **Permission errors**: "Дурaк" for unauthorized owner access, sharp refusals for others.
+  - **Welcome/Leave**: "Аahaha~ Welcome" / "До свидания. Not That I'll Miss You."
+  - **Stats footer**: "Хорошо, Right?"
+  - **Callbacks**: "Что?! Something Went Wrong."
+  - All inline responses updated with personality-appropriate variants.
+
+### 🔧 Changes
+
+- `api/constants.js` — Complete rewrite of all exported message constants with Alisa's personality. About message restructured with character-lore layout, credits, and metadata.
+- `api/bot-handler.js` — Updated all inline message strings (welcome, leave, randomlevel, broadcast, stats, error callbacks).
+- `api/landing.js` — Version badge updated to v2.8.0. Added Alisa's personality to hero, terminal, features, CTA, and footer. Added "Inspired by Alisa Mikhailovna Kujou" character DNA section with Russian phrase badges. Updated meta descriptions and JSON-LD with character references.
+- `package.json` — Version bumped to v2.8.0.
+
+### 📝 Docs
+
+- **README.md** — Added "Who Is Alisa Mikhailovna Kujou?" wiki profile section with character bio, personality traits, common Russian phrases, and the connection between the character's signature trait and the bot's behavior. Updated "What Is Alisa?" with personality touch. Updated latest version reference to v2.8.0.
+- **CHANGELOG.md** — v2.8.0 entry added.
+
+---
+
 ## [v2.7.0] — 2026-05-14
 
 ### ✨ New Features

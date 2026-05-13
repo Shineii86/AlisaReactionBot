@@ -65,3 +65,5 @@ export function getAdFooter() {
 export function getAdCount() {
     return advertisements.length;
 }
+
+// ══════════════════════════════════════════════════════════════ END: ads.js

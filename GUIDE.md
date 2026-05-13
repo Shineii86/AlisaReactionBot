@@ -35,6 +35,10 @@
 
 Alisa is a Telegram bot that automatically reacts to messages with emoji. You add her to a chat, and she quietly drops fitting reactions on messages — making conversations more lively.
 
+**Inspired by Alisa Mikhailovna Kujou** — the half-Russian, half-Japanese tsundere from *"Alya Sometimes Hides Her Feelings in Russian."* Her personality defines every message the bot sends: proud, sharp-tongued, and secretly warm. When emotions run high, Russian slips through.
+
+Хмпф… Not that you need to know all this.
+
 **Where she works:**
 - **Private chats** — She reacts to every message you send
 - **Groups** — She reacts randomly based on a configurable level
@@ -447,11 +451,12 @@ Example: `-1001234567890,-1009876543210`
 Send `/start` to the bot. You'll see a welcome message with inline buttons:
 
 ```
-👋 Oʜ? Hᴇʟʟᴏ, [Your Name].
+🎀 Хмпф… Sᴏ Yᴏᴜ Fɪɴᴀʟʟʏ Sᴛᴀʀᴛᴇᴅ Mᴇ, [Your Name].
 
-Sᴏ Yᴏᴜ Sᴛᴀʀᴛᴇᴅ Mᴇ. Nᴏᴛ Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Oʀ Aɴʏᴛʜɪɴɢ.
+N-Not Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Fᴏʀ Yᴏᴜ Oʀ Aɴʏᴛʜɪɴɢ. Dᴏɴ'ᴛ Gᴇᴛ Tʜᴇ Wʀᴏɴɢ Iᴅᴇᴀ.
 
-🎊 Wᴇʟᴄᴏᴍᴇ Tᴏ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ ✨
+✨ Wᴇʟᴄᴏᴍᴇ Tᴏ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ
+I Sᴜᴘᴘᴏsᴇ I'ʟʟ Gʀᴀᴄᴇ Yᴏᴜʀ Cʜᴀᴛs Wɪᴛʜ Mʏ Pʀᴇsᴇɴᴄᴇ… Хорошо?
 ...
 ```
 
@@ -491,7 +496,7 @@ Send `/reactions` to see which emojis the bot is currently using:
 
 👍 ❤ 🔥 🥰 👏 😁 🎉 🟰 🙏
 
-📌 Dᴇғᴀᴜʟᴛ ɢʟᴏʙᴀʟ sᴇᴛ.
+📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.
 ```
 
 ### Checking Latency
@@ -503,6 +508,7 @@ Send `/ping` to see how fast the bot responds:
 
 ⏱️ Rᴇsᴘᴏɴsᴇ: 47ms
 🕐 Mon, 12 May 2026 12:45:00 GMT
+Tᴏʟᴅ Yᴏᴜ Iᴛ Wᴏᴜʟᴅ Bᴇ Fᴀsᴛ.
 ```
 
 ---
@@ -522,7 +528,7 @@ Want different reactions in your group? Use `/setreactions` followed by the emoj
 The bot confirms:
 
 ```
-✅ Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ Fᴏʀ Tʜɪs Cʜᴀᴛ!
+✅ Хорошо! Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ.
 
 🎯 Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs: 😂 💀 🤣 😭 😩
 ```
@@ -548,8 +554,8 @@ Need the bot to be quiet for a while?
 The bot confirms:
 
 ```
-⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs ᴘᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.
-Usᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.
+⏸️ Rᴇᴀᴄᴛɪᴏɴs Pᴀᴜsᴇᴅ. Dᴏɴ'ᴛ Gᴇᴛ Tᴏᴏ Cᴏᴍғᴏʀᴛᴀʙʟᴇ Wɪᴛʜᴏᴜᴛ Mᴇ.
+Usᴇ /resume Wʜᴇɴ Yᴏᴜ'ʀᴇ Rᴇᴀᴅʏ.
 ```
 
 The bot stays in the group but stops reacting. It still responds to commands.
@@ -565,13 +571,13 @@ Ready to bring reactions back?
 The bot confirms:
 
 ```
-▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs ʀᴇsᴜᴍᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.
+▶️ Ахаха~ Yᴏᴜ Mɪssᴇᴅ Mᴇ, Dɪᴅɴ'ᴛ Yᴏᴜ? Rᴇᴀᴄᴛɪᴏɴs Rᴇsᴜᴍᴇᴅ.
 ```
 
 If reactions weren't paused, it says:
 
 ```
-ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Nᴏᴛ Pᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.
+ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇɴ'ᴛ Pᴀᴜsᴇᴅ Hᴇʀᴇ. Wᴇʀᴇ Yᴏᴜ Jᴜsᴛ Tʀʏɪɴɢ Tᴏ Gᴇᴛ Mʏ Aᴛᴛᴇɴᴛɪᴏɴ?
 ```
 
 ### /randomlevel — Control Reaction Randomness
@@ -587,10 +593,10 @@ The bot confirms:
 ```
 🎲 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ! 📊
 
-🎯 Lᴇᴠᴇʟ: 5 — Rᴇᴀᴄᴛ ~50% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ
+🎯 Lᴇᴠᴇʟ: 5 — Rᴇᴀᴄᴛ ~50% Oғ Tʜᴇ Tɪᴍᴇ
 
-💡 0 = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | 10 = ᴠᴇʀʏ ʀᴀʀᴇ
-🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.
+💡 0 = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | 10 = Nᴇᴠᴇʀ
+🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ. Ничего страшного.
 ```
 
 **Check current level:**
@@ -604,10 +610,10 @@ Shows the current level and whether it's custom or global:
 ```
 🎲 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:
 
-📊 Cᴜʀʀᴇɴᴛ: 5 (Cᴜsᴛᴏᴍ)
+📊 Cᴜʀʀᴇɴᴛ: 5 (Cᴜsᴛᴏᴍ) — Rᴇᴀᴄᴛ ~50%
 📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: 0
 
-💡 Usᴇ /randomlevel <0-10> ᴛᴏ ᴄʜᴀɴɢᴇ.
+💡 Usᴇ /randomlevel <0-10> Tᴏ Cʜᴀɴɢᴇ. Iғ Yᴏᴜ Dᴀʀᴇ.
 ```
 
 **How it works:**
@@ -644,7 +650,7 @@ Send a message to every chat the bot has ever been in:
 The bot first says:
 
 ```
-📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ...
+📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ… Lɪsᴛᴇɴ Uᴘ, Eᴠᴇʀʏᴏɴᴇ.
 ```
 
 Then reports the results:
@@ -652,8 +658,10 @@ Then reports the results:
 ```
 ✅ Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!
 
-📨 Sᴇɴᴛ: 47
-❌ Fᴀɪʟᴇᴅ: 3
+🚀 Sᴇɴᴛ: 47
+📵 Fᴀɪʟᴇᴅ: 3
+
+Хмпф. Mᴏsᴛ Oғ Tʜᴇᴍ Lɪsᴛᴇɴᴇᴅ, Aᴛ Lᴇᴀsᴛ.
 ```
 
 **Notes:**
@@ -672,13 +680,13 @@ Remove the bot from any chat without needing admin rights in that chat:
 The bot confirms:
 
 ```
-✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ -1001234567890.
+✅ До свидания. Left Chat -1001234567890.
 ```
 
 If the chat ID is invalid or the bot isn't in that chat:
 
 ```
-❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ -1001234567890:
+❌ Хмпф. Failed To Leave Chat -1001234567890:
 Bot is not a member of this chat
 ```
 
@@ -734,7 +742,7 @@ Stop the bot from reacting in a specific chat, without removing it:
 The bot confirms:
 
 ```
-🚫 Cʜᴀᴛ -1001234567890 Rᴇsᴛʀɪᴄᴛᴇᴅ. Bᴏᴛ Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ.
+🚫 Хорошо. Chat -1001234567890 Restricted. I Will Not React There.
 ```
 
 The bot stays in the chat but won't react to messages. It still responds to commands.
@@ -758,13 +766,13 @@ Allow the bot to react in a previously restricted chat:
 The bot confirms:
 
 ```
-✅ Cʜᴀᴛ -1001234567890 Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.
+✅ Хорошо. Chat -1001234567890 Unrestricted.
 ```
 
 If the chat wasn't restricted:
 
 ```
-ℹ️ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.
+ℹ️ Хмпф. That Chat Is Not Restricted.
 ```
 
 ### /setwebhook — Set or View Webhook
@@ -778,7 +786,7 @@ If the chat wasn't restricted:
 The bot confirms:
 
 ```
-✅ Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!
+✅ Хорошо! Webhook Set Successfully!
 
 🔗 https://your-worker.your-subdomain.workers.dev
 ```
@@ -957,8 +965,8 @@ The `/broadcast` command lets you send a message to every chat the bot has ever 
 
 1. You type: `/broadcast Hello everyone! 👋`
 2. The bot checks: is your user ID the `OWNER_ID`?
-   - No → You see: "👑 This command is only available to the bot owner."
-   - Cooldown active → You see: "⏳ Cooldown! Wait Xs before next broadcast."
+   - No → You see: "👑 This command is for the owner. You think you can just—? Дурак."
+   - Cooldown active → You see: "⏳ Хмпф. Cooldown! Wait Xs. Don't Rush Me."
    - Yes → Continue
 3. The bot says: "📡 Broadcasting..."
 4. It loops through every unique chat ID:
@@ -1116,18 +1124,18 @@ Each toggle is per-group and resets on bot restart (in-memory state).
 ### Welcome Message Example
 
 ```
-🦊 Aʜᴀʜᴀ, Wᴇʟᴄᴏᴍᴇ, John, Jane! 🎋
-Yᴏᴜ'ᴠᴇ Sᴛᴇᴘᴘᴇᴅ Iɴᴛᴏ Tʜᴇ Sᴀᴄʀᴇᴅ Hᴀʟʟs Oғ My Group
-Wʜᴇʀᴇ Eᴠᴇʀʏ Cʜᴀᴛ Sᴘᴀʀᴋʟᴇs Lɪᴋᴇ A Gʀᴀɴᴅ Fᴇsᴛɪᴠᴀʟ. ✨
+🎀 Ахаха~ Wᴇʟᴄᴏᴍᴇ, John, Jane! 🎋
+Yᴏᴜ'ᴠᴇ Sᴛᴇᴘᴘᴇᴅ Iɴᴛᴏ My Group. Tʀᴇᴀᴅ Cᴀʀᴇғᴜʟʟʏ.
+I'ʟʟ Bᴇ Wᴀᴛᴄʜɪɴɢ… Аɴᴅ Rᴇᴀᴄᴛɪɴɢ. ✨
 ```
 
 ### Leave Message Example
 
 ```
-👋 Fᴀʀᴇᴡᴇʟʟ, John…
-Yᴏᴜʀ Sᴘᴀʀᴋ Wɪʟʟ Aʟᴡᴀʏs Lɪɴɢᴇʀ Wɪᴛʜɪɴ My Group.
+👋 Хмпф… Gᴏᴏᴅʙʏᴇ, John.
+My Group Wɪʟʟ Mᴀɴᴀɢᴇ Wɪᴛʜᴏᴜᴛ Yᴏᴜ.
 
-Mᴀʏ Tʜᴇ Eʟᴇᴄᴛʀᴏ Aʀᴄʜᴏɴ Gᴜɪᴅᴇ Yᴏᴜ Bᴀᴄᴋ Aɴʏᴛɪᴍᴇ.
+До свидания. N-Not Tʜᴀᴛ I'ʟʟ Mɪss Yᴏᴜ.
 ```
 
 ### Stats
@@ -1171,11 +1179,11 @@ Only the user whose ID matches `OWNER_ID` can use:
 - `/setwebhook` — Set or view webhook configuration
 - `/log` — View reaction history
 
-Everyone else sees: "👑 This command is only available to the bot owner."
+Everyone else sees: "👑 This command is for the owner. You think you can just—? Дурак."
 
 ### Admin Permission Checks
 
-Commands like `/setreactions`, `/pause`, and `/resume` check if the user is actually a group admin. The bot calls `getChatMember` to verify the user's status is `creator` or `administrator`. Regular members see: "🔒 This command requires group admin permissions."
+Commands like `/setreactions`, `/pause`, and `/resume` check if the user is actually a group admin. The bot calls `getChatMember` to verify the user's status is `creator` or `administrator`. Regular members see: "🔒 Admin permissions required. Don't even try without them."
 
 ### Broadcast Cooldown
 
