@@ -87,11 +87,11 @@ function formatIST(date) {
     const month = ['Jᴀɴ', 'Fᴇʙ', 'Mᴀʀ', 'Aᴘʀ', 'Mᴀʏ', 'Jᴜɴ', 'Jᴜʟ', 'Aᴜɢ', 'Sᴇᴘ', 'Oᴄᴛ', 'Nᴏᴠ', 'Dᴇᴄ'][ist.getUTCMonth()];
     const year = ist.getUTCFullYear();
     let hours = ist.getUTCHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? 'Pᴍ' : 'Aᴍ';
     hours = hours % 12 || 12;
     const mins = String(ist.getUTCMinutes()).padStart(2, '0');
     const secs = String(ist.getUTCSeconds()).padStart(2, '0');
-    return `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm} IST`;
+    return `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm} Isᴛ`;
 }
 
 function trackCommand(cmd) {
@@ -164,12 +164,12 @@ function getStatsMessage() {
     const uptime = formatUptime(Date.now() - stats.startTime);
     const cmdLines = Object.entries(stats.commandUsage)
         .map(([cmd, count]) => `<code>/${cmd}</code> — ${count}`)
-        .join('\n') || 'No Commands Used Yet. Impressive Restraint.';
+        .join('\n') || 'Nᴏ Cᴏᴍᴍᴀɴᴅs Usᴇᴅ Yᴇᴛ. Iᴍᴘʀᴇssɪᴠᴇ Rᴇsᴛʀᴀɪɴᴛ.';
 
     let topChatsText = '';
     const top = getTopChats(5);
     if (top.length) {
-        topChatsText = '\n\n🏆 <b>Top Chats (Last 50 Reactions):</b>\n' +
+        topChatsText = '\n\n🏆 <b>Tᴏᴘ Cʜᴀᴛs (Lᴀsᴛ 50 Rᴇᴀᴄᴛɪᴏɴs):</b>\n' +
             top.map(([id, count], i) => {
                 const name = chatNames[id] || `Chat ${id}`;
                 return `${i + 1}. ${name} — ${count}`;
@@ -214,7 +214,7 @@ function getStartKeyboard(botUsername) {
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
         ],
         [
-            { text: '🎀 Cʟᴏsᴇ Mᴇɴᴜ ✕', callback_data: 'cb_close' },
+            { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' },
         ],
     ];
 }
@@ -481,7 +481,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 perChatReactions[chatId] = emojis.join('');
                 await botApi.sendMessage(chatId,
-                    `${reactionsUpdated}🎯 <b>New Reactions:</b> ${emojis.join(' ')}`,
+                    `${reactionsUpdated}🎯 <b>Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:</b> ${emojis.join(' ')}`,
                     getBackKeyboard()
                 );
                 return;
@@ -535,11 +535,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const globalLevel = RandomLevel;
                         const globalChance = (10 - globalLevel) * 10;
                         await botApi.sendMessage(chatId,
-                            `🎲 <b>Random Level — Global Default</b>\n\n` +
-                            `📊 Current: <code>${globalLevel}</code> — React ~${globalChance}% Of The Time\n\n` +
-                            `💡 <code>0</code> = Every Message | <code>10</code> = Never\n\n` +
-                            `⚠️ To Override, Use <code>/randomlevel &lt;0-10&gt;</code> In A Group.\n` +
-                            `📌 Admins Only. Don't Even Try Otherwise.`,
+                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
+                            `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n\n` +
+                            `⚠️ To Oᴠᴇʀʀɪᴅᴇ, Usᴇ <code>/randomlevel &lt;0-10&gt;</code> Iɴ A Gʀᴏᴜᴘ.\n` +
+                            `📌 Aᴅᴍɪɴs Oɴʟʏ. Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Oᴛʜᴇʀᴡɪsᴇ.`,
                             getCloseKeyboard()
                         );
                         return;
@@ -559,10 +559,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
                         const currentChance = (10 - current) * 10;
                         await botApi.sendMessage(chatId,
-                            `🎲 <b>Random Level For This Chat:</b>\n\n` +
-                            `📊 Current: <code>${current}</code> (${source}) — React ~${currentChance}%\n` +
-                            `📌 Global Default: <code>${RandomLevel}</code>\n\n` +
-                            `💡 Use <code>/randomlevel &lt;0-10&gt;</code> To Change. If You Dare.`,
+                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: <code>${current}</code> (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
+                            `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: <code>${RandomLevel}</code>\n\n` +
+                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> To Cʜᴀɴᴀɢᴇ. Iғ Yᴏᴜ Dᴀʀᴇ.`,
                             getCloseKeyboard()
                         );
                         return;
@@ -572,9 +572,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const level = parseInt(trimmedArgs, 10);
                     if (isNaN(level) || level < 0 || level > 10) {
                         await botApi.sendMessage(chatId,
-                            `❌ Random Level Must Be A Number Between <code>0</code> And <code>10</code>.\n\n` +
-                            `📌 Usage: <code>/randomlevel &lt;0-10&gt;</code>\n` +
-                            `💡 <code>0</code> = Every Message | <code>10</code> = Never. Even I Could Figure That Out.`,
+                            `📵 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ <code>0</code> Aɴᴅ <code>10</code>.\n\n` +
+                            `📌 Usᴀɢᴇ: <code>/randomlevel &lt;0-10&gt;</code>\n` +
+                            `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ. Eᴠᴇɴ I Cᴏᴜʟᴅ Fɪɢᴜʀᴇ Tʜᴀᴛ Oᴜᴛ.`,
                             getCloseKeyboard()
                         );
                         return;
@@ -584,16 +584,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     perChatRandomLevel[chatId] = level;
                     const chance = (10 - level) * 10;
                     await botApi.sendMessage(chatId,
-                        `🎲 <b>Random Level Set!</b> 📊\n\n` +
-                        `🎯 Level: <code>${level}</code> — React ~${chance}% Of The Time\n\n` +
-                        `💡 <code>0</code> = Every Message | <code>10</code> = Never\n` +
-                        `🔄 Resets On Restart. Ничего страшного.`,
+                        `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
+                        `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
+                        `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n` +
+                        `🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ. Ничего страшного.`,
                         getCloseKeyboard()
                     );
                 } catch (error) {
                     log.error('[/randomlevel]', error.message);
                     try {
-                        await botApi.sendMessage(chatId, `❌ Хмпф. Failed To Process /randomlevel: ${error.message}`, getCloseKeyboard());
+                        await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`, getCloseKeyboard());
                     } catch {}
                 }
                 return;
@@ -619,13 +619,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф… Usage: <code>/broadcast &lt;message&gt;</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📝 Хмпф… Usᴀɢᴇ: <code>/broadcast &lt;message&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const now = Date.now();
                 if (now - lastBroadcastTime < BROADCAST_COOLDOWN) {
                     const remaining = Math.ceil((BROADCAST_COOLDOWN - (now - lastBroadcastTime)) / 1000);
-                    await botApi.sendMessage(chatId, `⏳ Хмпф. Cooldown! Wait ${remaining}s. Don't Rush Me.`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `⏳ Хмпф. Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s. Dᴏɴ'ᴛ Rᴜsʜ Mᴇ.`, getCloseKeyboard());
                     return;
                 }
                 lastBroadcastTime = now;
@@ -635,7 +635,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 let success = 0, failed = 0;
                 for (const cid of allChats) {
                     try {
-                        await botApi.sendMessage(cid, `📢 <b>Broadcast:</b>\n\n${args.trim()}`);
+                        await botApi.sendMessage(cid, `📢 <b>Bʀᴏᴀᴅᴄᴀsᴛ:</b>\n\n${args.trim()}`);
                         success++;
                     } catch {
                         failed++;
@@ -661,7 +661,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const name = chatNames[e.chatId] || e.chatId;
                     return `${i + 1}. ${e.emoji} → ${name} (${time})`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `📋 <b>Last 10 Reactions:</b>\n\n${lines}`, getCloseKeyboard());
+                await botApi.sendMessage(chatId, `📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`, getCloseKeyboard());
                 return;
             }
 
@@ -673,12 +673,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usage: <code>/leave &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/leave &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const targetChatId = args.trim();
                 if (!/^-?\d+$/.test(targetChatId)) {
-                    await botApi.sendMessage(chatId, '❌ Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ Nᴜᴍᴇʀɪᴄ.', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ Nᴜᴍᴇʀɪᴄ.', getCloseKeyboard());
                     return;
                 }
                 try {
@@ -688,9 +688,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     delete perChatRandomLevel[targetChatId];
                     pausedChats.delete(Number(targetChatId));
                     restrictedChatsRuntime.delete(Number(targetChatId));
-                    await botApi.sendMessage(chatId, `✅ До свидания. Left Chat <code>${targetChatId}</code>.`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `❌ Хмпф. Failed To Leave Chat <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `❌ Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
                 }
                 return;
             }
@@ -712,7 +712,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const restricted = restrictedChatsRuntime.has(cid) || RestrictedChats.includes(cid) ? ' 🚫' : '';
                     return `${i + 1}. ${name} (${cid})${paused}${restricted}`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `💬 <b>Active Chats (${stats.uniqueChats.size}):</b>\n\n${chatLines}\n\n⏸️ = Paused | 🚫 = Restricted`, getCloseKeyboard());
+                await botApi.sendMessage(chatId, `💬 <b>Aᴄᴛɪᴠᴇ Cʜᴀᴛs (${stats.uniqueChats.size}):</b>\n\n${chatLines}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ`, getCloseKeyboard());
                 return;
             }
 
@@ -728,25 +728,25 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     try {
                         const info = await botApi.getWebhookInfo();
                         const wh = info.result;
-                        const status = wh.url ? `🔗 <b>URL:</b> ${wh.url}` : '❌ No Webhook Set.';
-                        const pending = wh.pending_update_count > 0 ? `\n⏳ <b>Pending:</b> ${wh.pending_update_count}` : '';
-                        const error = wh.last_error_message ? `\n⚠️ <b>Error:</b> ${wh.last_error_message}` : '';
-                        await botApi.sendMessage(chatId, `📡 <b>Webhook Status:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
+                        const status = wh.url ? `🔗 <b>Uʀʟ:</b> ${wh.url}` : '📵 Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ.';
+                        const pending = wh.pending_update_count > 0 ? `\n⏳ <b>Pᴇɴᴅɪɴɢ:</b> ${wh.pending_update_count}` : '';
+                        const error = wh.last_error_message ? `\n⚠️ <b>Eʀʀᴏʀ:</b> ${wh.last_error_message}` : '';
+                        await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
                     } catch (error) {
-                        await botApi.sendMessage(chatId, `❌ Хмпф. Failed To Fetch Webhook Info:\n${error.message}`, getCloseKeyboard());
+                        await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`, getCloseKeyboard());
                     }
                     return;
                 }
                 const webhookUrl = args.trim();
                 if (!webhookUrl.startsWith('https://')) {
-                    await botApi.sendMessage(chatId, '❌ Хмпф. Webhook URL Must Start With <code>https://</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📵 Хмпф. Wᴇʙʜᴏᴏᴋ Uʀʟ Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ<code>https://</code>', getCloseKeyboard());
                     return;
                 }
                 try {
                     await botApi.setWebhook(webhookUrl, webhookSecret || '');
-                    await botApi.sendMessage(chatId, `✅ Хорошо! Webhook Set Successfully!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `✅ Хорошо! Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `❌ Хмпф. Failed To Set Webhook:\n${error.message}`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`, getCloseKeyboard());
                 }
                 return;
             }
