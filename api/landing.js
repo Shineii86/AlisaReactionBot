@@ -670,7 +670,7 @@ export const htmlContent = `
       <span>© 2026 Alisa Reaction Bot</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.6.0</span>
+        <span class="ft-ver">v2.7.0</span>
       </div>
     </div>
   </footer>

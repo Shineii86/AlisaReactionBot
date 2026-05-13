@@ -21,7 +21,11 @@
 13. [How Reactions Work](#how-reactions-work)
 15. [How Stats Work](#how-stats-work)
 16. [How Broadcast Works](#how-broadcast-works)
-17. [Security Features](#security-features)
+17. [Ad Library (AdLab)](#ad-library-adlab)
+18. [Photo Support](#photo-support)
+19. [Close Button](#close-button)
+20. [Welcome & Leave Messages](#welcome--leave-messages)
+21. [Security Features](#security-features)
 18. [Troubleshooting](#troubleshooting)
 19. [Frequently Asked Questions](#frequently-asked-questions)
 
@@ -380,6 +384,7 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `RESTRICTED_CHATS` | Chat IDs where the bot never reacts | None | `-100123,456789` |
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
+| `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | None | `https://example.com/photo.jpg` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
@@ -653,7 +658,7 @@ Then reports the results:
 
 **Notes:**
 - **60-second cooldown** between broadcasts to prevent spam
-- Markdown formatting is preserved
+- HTML formatting is preserved
 - Failed sends are chats where the bot was kicked or deleted
 
 ### /leave — Remove Bot from a Chat
@@ -973,6 +978,166 @@ Every chat where the bot has ever seen a message:
 - Channels
 
 If the bot was kicked from a group, that group is still in the list but the send will fail (counted as a failure).
+
+---
+
+## Ad Library (AdLab)
+
+The bot includes a built-in ad management library inspired by [AdLab](https://github.com/Shineii86/AdLab). It automatically appends a formatted ad footer to key bot responses (`/start`, `/help`, `/about`, `/donate`, `/stats`, `/reactions`).
+
+### How It Works
+
+1. A pool of promotional messages is stored in `api/ads.js`
+2. When a command response is generated, one ad is picked at random
+3. The ad is formatted as an HTML blockquote footer and appended to the message
+4. The footer includes a separator line and a clickable attribution link
+
+### Ad Pool
+
+The default pool promotes @MaximX channels (Emojis, Stickers, Bots, Arts, Icons, Anime). To customize, edit the `advertisements` array in `api/ads.js`.
+
+### Where Ads Appear
+
+| Command | Ad Footer? |
+|---|:---:|
+| `/start` | ✅ |
+| `/help` | ✅ |
+| `/about` | ✅ |
+| `/stats` | ✅ |
+| `/reactions` | ✅ |
+| `/donate` | ✅ |
+| `/ping` | ❌ |
+| `/broadcast` | ❌ |
+| `/pause` / `/resume` | ❌ |
+| `/setreactions` | ❌ |
+| Callback queries (inline buttons) | ✅ |
+
+### Technical Details
+
+- Module: `api/ads.js`
+- Functions: `getRandomAd()`, `getAdFooter()`, `getAdCount()`
+- Parse mode: HTML (Telegram)
+- Footer format: separator + bold "Ads:" label + blockquote with ad text
+- No external dependencies
+- Always active — no environment variables needed
+
+---
+
+## Photo Support
+
+The bot can send photos with its messages when `BOT_PHOTO` is configured. This makes the bot look more professional and branded.
+
+### Setup
+
+Set the `BOT_PHOTO` environment variable to a photo URL or Telegram file_id:
+
+```
+BOT_PHOTO=https://example.com/bot-photo.jpg
+```
+
+### How It Works
+
+- **`/start`** — Sends photo with welcome message as caption
+- **`/help`** — Sends photo with help message as caption
+- **`/about`** — Sends photo with about message as caption
+- **`/stats`** — Sends photo with stats as caption
+- **`/reactions`** — Sends photo with reaction list as caption
+- **`/donate`** — Sends photo with donation info as caption
+- **Callback queries** — When user clicks buttons on a photo message, the photo is updated (menu) or caption is edited (help/about/stats/donate)
+
+### Without BOT_PHOTO
+
+If `BOT_PHOTO` is not set, all commands send regular text messages. The bot works perfectly fine without it.
+
+### Technical Details
+
+- New methods: `sendPhoto()`, `editMessageMedia()`, `editMessageCaption()`, `deleteMessage()`
+- Photo messages use caption (max 1024 chars) instead of text (max 4096 chars)
+- Callback queries automatically detect photo vs text messages and use the appropriate edit method
+
+---
+
+## Close Button
+
+Every inline keyboard now includes an ✖️ Close button alongside the ⬅️ Back to Menu button. Tapping Close deletes the message immediately — no confirmation needed.
+
+### Where It Appears
+
+- All command responses (`/ping`, `/pause`, `/resume`, `/setreactions`, `/randomlevel`, `/broadcast`, `/log`, `/leave`, `/chats`, `/setwebhook`, `/restrict`, `/unrestrict`)
+- All callback query responses (Help, About, Stats, Donate)
+- Error messages and validation messages
+
+### Why Close?
+
+- Keeps chats clean — users can dismiss bot messages instantly
+- No need to manually delete messages
+- Consistent UX across all commands
+
+---
+
+## Welcome & Leave Messages
+
+Groups can automatically greet new members and farewell leaving members. This feature is **disabled by default** — admins must enable it per group.
+
+### Commands
+
+| Command | Description | Access |
+|---|---|---|
+| `/welcome` | Toggle welcome messages on/off | Group Admin |
+| `/goodbye` | Toggle leave messages on/off | Group Admin |
+
+### How Welcome Works
+
+1. A new member joins the group
+2. Bot deletes Telegram's default "X joined" notification
+3. Bot sends a welcome message mentioning the new member by name
+4. Message includes inline buttons (Developer, Stickers, Bots)
+5. If `BOT_PHOTO` is set, the welcome is sent as a photo with caption
+
+### How Leave Works
+
+1. A member leaves the group
+2. Bot deletes Telegram's default "X left" notification
+3. Bot sends a farewell message with the member's name
+4. Message includes inline buttons
+5. If `BOT_PHOTO` is set, the farewell is sent as a photo with caption
+
+### Enabling
+
+Only group admins can toggle these features:
+
+```
+/welcome   →  Toggle welcome messages
+/goodbye   →  Toggle leave messages
+```
+
+Each toggle is per-group and resets on bot restart (in-memory state).
+
+### Welcome Message Example
+
+```
+🦊 Aʜᴀʜᴀ, Wᴇʟᴄᴏᴍᴇ, John, Jane! 🎋
+Yᴏᴜ'ᴠᴇ Sᴛᴇᴘᴘᴇᴅ Iɴᴛᴏ Tʜᴇ Sᴀᴄʀᴇᴅ Hᴀʟʟs Oғ My Group
+Wʜᴇʀᴇ Eᴠᴇʀʏ Cʜᴀᴛ Sᴘᴀʀᴋʟᴇs Lɪᴋᴇ A Gʀᴀɴᴅ Fᴇsᴛɪᴠᴀʟ. ✨
+```
+
+### Leave Message Example
+
+```
+👋 Fᴀʀᴇᴡᴇʟʟ, John…
+Yᴏᴜʀ Sᴘᴀʀᴋ Wɪʟʟ Aʟᴡᴀʏs Lɪɴɢᴇʀ Wɪᴛʜɪɴ My Group.
+
+Mᴀʏ Tʜᴇ Eʟᴇᴄᴛʀᴏ Aʀᴄʜᴏɴ Gᴜɪᴅᴇ Yᴏᴜ Bᴀᴄᴋ Aɴʏᴛɪᴍᴇ.
+```
+
+### Stats
+
+`/stats` shows how many groups have welcome and goodbye enabled:
+
+```
+👋 Wᴇʟᴄᴏᴍᴇ Eɴᴀʙʟᴇᴅ: 5
+🚪 Gᴏᴏᴅʙʏᴇ Eɴᴀʙʟᴇᴅ: 3
+```
 
 ---
 

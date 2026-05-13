@@ -4,6 +4,81 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.7.0] — 2026-05-14
+
+### ✨ New Features
+
+- **AdLab — Centralized Ad Library** — Added a built-in advertisement management module (`api/ads.js`) inspired by [AdLab](https://github.com/Shineii86/AdLab).
+  - Random ad selection from a curated pool of promotional messages
+  - HTML-formatted ad footers appended to bot responses (`/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`, callback queries)
+  - Default ads promoting @MaximX channels (Emojis, Stickers, Bots, Arts, Icons, Anime)
+  - New functions: `getRandomAd()`, `getAdFooter()`, `getAdCount()`
+  - No external dependencies — pure JavaScript module
+  - Always active — no configuration needed
+
+- **Photo Support** — Bot now sends photos with key commands when `BOT_PHOTO` is configured.
+  - New `sendPhoto()` method — sends photo with HTML caption and inline keyboard
+  - New `editMessageMedia()` method — edits photo messages (used for menu navigation)
+  - New `editMessageCaption()` method — edits caption on photo messages
+  - New `deleteMessage()` method — deletes messages (used for close button)
+  - Commands with photo: `/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`
+  - Callback queries (Help, About, Stats, Donate, Menu) work on both photo and text messages
+  - `BOT_PHOTO` env var — accepts URL or Telegram file_id
+
+- **Close Button** — Added ✖️ Close button to all inline keyboards.
+  - Deletes the message when tapped
+  - Available on every command response and callback query
+  - Back button now paired with Close on all keyboards
+
+- **Buttons on All Commands** — Every command now shows inline keyboard buttons.
+  - `/ping` — Close + Back to Menu
+  - `/pause`, `/resume` — Close + Back to Menu
+  - `/setreactions` — Close + Back to Menu
+  - `/randomlevel` — Close + Back to Menu
+  - `/broadcast` — Close + Back to Menu
+  - `/log` — Close + Back to Menu
+  - `/leave`, `/remove` — Close + Back to Menu
+  - `/chats` — Close + Back to Menu
+  - `/setwebhook` — Close + Back to Menu
+  - `/restrict`, `/unrestrict` — Close + Back to Menu
+
+- **Welcome & Leave Messages** — Groups can now greet new members and farewell leaving members.
+  - `/welcome` — Admin-only toggle to enable/disable welcome messages for new members
+  - `/goodbye` — Admin-only toggle to enable/disable farewell messages when members leave
+  - Welcome message: greets new members with mention, chat name, and inline buttons
+  - Leave message: farewell with member name, chat name, and inline buttons
+  - Auto-deletes Telegram's default join/leave notification messages
+  - Uses `BOT_PHOTO` when configured, falls back to text
+  - `/stats` shows welcome and goodbye enabled chat counts
+  - Inspired by [feature.txt](https://github.com/Shineii86) welcome/leave implementation
+
+- **IST Timestamps** — All times displayed in Indian Standard Time (UTC+5:30).
+  - `/stats` start time now shows IST
+  - `/ping` response time shows IST
+  - `/log` reaction timestamps show IST
+  - New `formatIST()` helper function
+
+### 🔧 Changes
+
+- **Switched parse_mode from Markdown to HTML** — All bot messages now use `parse_mode: 'HTML'` for more reliable formatting across all Telegram clients.
+  - Converted all constants.js messages: `*bold*` → `<b>`, `_italic_` → `<i>`, backtick code → `<code>`, `[text](url)` → `<a href>`
+  - Converted all inline messages in `bot-handler.js` to HTML
+  - Updated `TelegramBotAPI.js` — `sendMessage` and `editMessageText` now use `parse_mode: 'HTML'`
+- `api/bot-handler.js` — Imported `getAdFooter` from ads module; added `withAd()` helper; `onUpdate()` now accepts `botPhoto` parameter
+- `api/index.js` — Reads `BOT_PHOTO` env var, passes to `onUpdate()`
+- `api/worker.js` — Reads `BOT_PHOTO` env var, passes to `onUpdate()`
+- `.env.example` — Added `BOT_PHOTO` variable
+- `package.json` — Version bumped to v2.7.0
+- `api/landing.js` — Version badge updated to v2.7.0
+
+### 📝 Docs
+
+- **README.md** — Added AdLab feature section, `ads.js` to project structure, updated Latest version
+- **GUIDE.md** — Added "Ad Library (AdLab)" section with usage and technical details; added to table of contents
+- **CHANGELOG.md** — v2.7.0 entry added
+
+---
+
 ## [v2.6.1] — 2026-05-14
 
 ### 🐛 Bug Fixes

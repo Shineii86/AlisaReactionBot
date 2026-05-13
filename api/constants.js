@@ -11,96 +11,99 @@
  */
 
 // ─── Start Messages ───────────────────────────────────────────
-export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, *UserName*.
+export const startMessage = `👋 Oʜ? Hᴇʟʟᴏ, <b>UserName</b>.
 
 Sᴏ Yᴏᴜ Sᴛᴀʀᴛᴇᴅ Mᴇ. Nᴏᴛ Tʜᴀᴛ I Wᴀs Wᴀɪᴛɪɴɢ Oʀ Aɴʏᴛʜɪɴɢ.
 
-🎊 Wᴇʟᴄᴏᴍᴇ Tᴏ *Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ* ✨
+🎊 Wᴇʟᴄᴏᴍᴇ Tᴏ <b>Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b> ✨
 I'ʟʟ Mᴀᴋᴇ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Fᴜɴ… Iғ Yᴏᴜ Bᴇʜᴀᴠᴇ.
 
-💬 *Hᴇʀᴇ's Hᴏᴡ I Sᴘɪᴄᴇ Uᴘ Yᴏᴜʀ Cʜᴀᴛs:*
-*• Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ*: I Rᴇᴀᴄᴛ Tᴏ Yᴏᴜʀ Mᴇssᴀɢᴇs Wɪᴛʜ Tʜᴇ Pᴇʀғᴇᴄᴛ Eᴍᴏᴊɪ.
-*• Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs*: Aᴅᴅ Mᴇ Aɴᴅ I'ʟʟ Dʀᴏᴘ Fɪᴛᴛɪɴɢ Rᴇᴀᴄᴛɪᴏɴs Wʜᴇɴ Tʜᴇ Mᴏᴏᴅ Fᴇᴇʟs Rɪɢʜᴛ.
+💬 <b>Hᴇʀᴇ's Hᴏᴡ I Sᴘɪᴄᴇ Uᴘ Yᴏᴜʀ Cʜᴀᴛs:</b>
+<b>• Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ</b>: I Rᴇᴀᴄᴛ Tᴏ Yᴏᴜʀ Mᴇssᴀɢᴇs Wɪᴛʜ Tʜᴇ Pᴇʀғᴇᴄᴛ Eᴍᴏᴊɪ.
+<b>• Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs</b>: Aᴅᴅ Mᴇ Aɴᴅ I'ʟʟ Dʀᴏᴘ Fɪᴛᴛɪɴɢ Rᴇᴀᴄᴛɪᴏɴs Wʜᴇɴ Tʜᴇ Mᴏᴏᴅ Fᴇᴇʟs Rɪɢʜᴛ.
 
 Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ Tᴏ Exᴘʟᴏʀᴇ.`
 
 // ─── Help Messages ───────────────────────────────────────────
-export const helpMessage = `📚 *Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ*
+export const helpMessage = `📚 <b>Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢᴇ</b>
 
-🔹 */start* — Sᴛᴀʀᴛ Tʜᴇ Bᴏᴛ Aɴᴅ Sᴇᴇ Tʜᴇ Wᴇʟᴄᴏᴍᴇ Mᴇɴᴜ.
-🔹 */help* — Sʜᴏᴡ Tʜɪs Hᴇʟᴘ Mᴇssᴀɢᴇ.
-🔹 */about* — Lᴇᴀʀɴ Mᴏʀᴇ Aʙᴏᴜᴛ Aʟɪsᴀ.
-🔹 */stats* — Vɪᴇᴡ Bᴏᴛ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Sᴛᴀᴛs.
-🔹 */ping* — Cʜᴇᴄᴋ Bᴏᴛ Lᴀᴛᴇɴᴄʏ Aɴᴅ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ.
-🔹 */donate* — Sᴜᴘᴘᴏʀᴛ Tʜᴇ Bᴏᴛ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ.
-🔹 */reactions* — Lɪsᴛ Cᴜʀʀᴇɴᴛ Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs.
-
-────────────────
-
-👑 *Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:*
-🔹 */pause* — Pᴀᴜsᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
-🔹 */resume* — Rᴇsᴜᴍᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
-🔹 */setreactions* — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
-🔹 */randomlevel <0-10>* — Sᴇᴛ Rᴇᴀᴄᴛɪᴏɴ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Tʜɪs Cʜᴀᴛ.
+🔹 <code>/start</code> — Sᴛᴀʀᴛ Tʜᴇ Bᴏᴛ Aɴᴅ Sᴇᴇ Tʜᴇ Wᴇʟᴄᴏᴍᴇ Mᴇɴᴜ.
+🔹 <code>/help</code> — Sʜᴏᴡ Tʜɪs Hᴇʟᴘ Mᴇssᴀɢᴇ.
+🔹 <code>/about</code> — Lᴇᴀʀɴ Mᴏʀᴇ Aʙᴏᴜᴛ Aʟɪsᴀ.
+🔹 <code>/stats</code> — Vɪᴇᴡ Bᴏᴛ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Sᴛᴀᴛs.
+🔹 <code>/ping</code> — Cʜᴇᴄᴋ Bᴏᴛ Lᴀᴛᴇɴᴄʏ Aɴᴅ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ.
+🔹 <code>/donate</code> — Sᴜᴘᴘᴏʀᴛ Tʜᴇ Bᴏᴛ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ.
+🔹 <code>/reactions</code> — Lɪsᴛ Cᴜʀʀᴇɴᴛ Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs.
 
 ────────────────
 
-👑 *Oᴡɴᴇʀ-Oɴʟʏ Cᴏᴍᴍᴀɴᴅs:*
-🔹 */broadcast <msg>* — Sᴇɴᴅ A Mᴇssᴀɢᴇ Tᴏ Aʟʟ Cʜᴀᴛs.
-🔹 */leave <chat_id>* — Rᴇᴍᴏᴠᴇ Bᴏᴛ Fʀᴏᴍ A Cʜᴀᴛ.
-🔹 */remove <chat_id>* — Aʟɪᴀs Fᴏʀ /leave.
-🔹 */chats* — Lɪsᴛ Aʟʟ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.
-🔹 */restrict <chat_id>* — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
-🔹 */unrestrict <chat_id>* — Uɴʀᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
-🔹 */setwebhook <url>* — Sᴇᴛ Oʀ Vɪᴇᴡ Wᴇʙʜᴏᴏᴋ.
-🔹 */log* — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.
+👑 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
+🔹 <code>/pause</code> — Pᴀᴜsᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
+🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
+🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
+🔹 <code>/randomlevel &lt;0-10&gt;</code> — Sᴇᴛ Rᴇᴀᴄᴛɪᴏɴ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Tʜɪs Cʜᴀᴛ.
+🔹 <code>/welcome</code> — Tᴏɢɢʟᴇ Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Fᴏʀ Nᴇᴡ Mᴇᴍʙᴇʀs.
+🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.
 
-💡 *Pʀᴏ Tɪᴘs:*
+────────────────
+
+👑 <b>Oᴡɴᴇʀ-Oɴʟʏ Cᴏᴍᴍᴀɴᴅs:</b>
+🔹 <code>/broadcast &lt;msg&gt;</code> — Sᴇɴᴅ A Mᴇssᴀɢᴇ Tᴏ Aʟʟ Cʜᴀᴛs.
+🔹 <code>/leave &lt;chat_id&gt;</code> — Rᴇᴍᴏᴠᴇ Bᴏᴛ Fʀᴏᴍ A Cʜᴀᴛ.
+🔹 <code>/remove &lt;chat_id&gt;</code> — Aʟɪᴀs Fᴏʀ /leave.
+🔹 <code>/chats</code> — Lɪsᴛ Aʟʟ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.
+🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
+🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Uɴʀᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
+🔹 <code>/setwebhook &lt;url&gt;</code> — Sᴇᴛ Oʀ Vɪᴇᴡ Wᴇʙʜᴏᴏᴋ.
+🔹 <code>/log</code> — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.
+
+💡 <b>Pʀᴏ Tɪᴘs:</b>
 • Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
 • Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
-• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ */pause* Aɴᴅ */setreactions*.
-• Usᴇ */setwebhook* Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`
+• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ <code>/pause</code> Aɴᴅ <code>/setreactions</code>.
+• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`
 
 // ─── About Messages ───────────────────────────────────────────
-export const aboutMessage = `🤖 *Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ*
+export const aboutMessage = `🤖 <b>Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
 
 Aʟɪsᴀ Is A Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ Tʜᴀᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ Rᴇᴀᴄᴛs Tᴏ Mᴇssᴀɢᴇs Wɪᴛʜ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪs — Mᴀᴋɪɴɢ Yᴏᴜʀ Cʜᴀᴛs Mᴏʀᴇ Lɪᴠᴇʟʏ Aɴᴅ Fᴜɴ.
 
-⚡ *Fᴇᴀᴛᴜʀᴇs:*
+⚡ <b>Fᴇᴀᴛᴜʀᴇs:</b>
 • Aᴜᴛᴏ-Rᴇᴀᴄᴛs Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs, Gʀᴏᴜᴘs & Cʜᴀɴɴᴇʟs
 • Pᴇʀ-Cʜᴀᴛ Cᴜsᴛᴏᴍ Eᴍᴏᴊɪ Sᴇᴛs
 • Pᴀᴜsᴇ/Rᴇsᴜᴍᴇ Rᴇᴀᴄᴛɪᴏɴs Pᴇʀ Cʜᴀᴛ
 • Pᴇʀ-Cʜᴀᴛ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇ
 • Cᴏɴғɪɢᴜʀᴀʙʟᴇ Rᴀɴᴅᴏᴍɴᴇss Fᴏʀ Nᴀᴛᴜʀᴀʟ Gʀᴏᴜᴘ Bᴇʜᴀᴠɪᴏʀ
+• Wᴇʟᴄᴏᴍᴇ & Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Fᴏʀ Gʀᴏᴜᴘs
 • Rᴇsᴛʀɪᴄᴛ Sᴘᴇᴄɪғɪᴄ Cʜᴀᴛs Fʀᴏᴍ Rᴇᴄᴇɪᴠɪɴɢ Rᴇᴀᴄᴛɪᴏɴs
 • Sᴇʀᴠᴇʀʟᴇss Aʀᴄʜɪᴛᴇᴄᴛᴜʀᴇ — Dᴇᴘʟᴏʏ Oɴ Cʟᴏᴜᴅғʟᴀʀᴇ, Vᴇʀᴄᴇʟ, Dᴏᴄᴋᴇʀ
 • Wᴇʙʜᴏᴏᴋ Sᴇᴄᴜʀɪᴛʏ — Sᴇᴄʀᴇᴛ Tᴏᴋᴇɴ Vᴀʟɪᴅᴀᴛɪᴏɴ
 • Rᴀᴛᴇ Lɪᴍɪᴛɪɴɢ — Pʀᴇᴠᴇɴᴛs Aᴘɪ Abuꜱᴇ
 
-🛠️ *Tᴇᴄʜ Sᴛᴀᴄᴋ:*
+🛠️ <b>Tᴇᴄʜ Sᴛᴀᴄᴋ:</b>
 • Nᴏᴅᴇ.js + Exprᴇss / Clᴏᴜᴅғʟᴀʀᴇ Wᴏʀᴋᴇʀs
 • Tᴇʟᴇɢʀᴀᴍ Bᴏᴛ API v7+ 
 • Zᴇʀᴏ Pᴇʀsɪsᴛᴇɴᴛ Dᴀᴛᴀ — Pʀɪᴠᴀᴄʏ Fɪʀsᴛ
 
-📌 *Sᴏᴜʀᴄᴇ*: [GɪᴛHᴜʙ](https://github.com/Shineii86/AlisaReactionBot)
-👨‍💻 *Dᴇᴠᴇʟᴏᴘᴇʀ*: [Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ](https://t.me/Shineii86)`
+📌 <b>Sᴏᴜʀᴄᴇ</b>: <a href="https://github.com/Shineii86/AlisaReactionBot">GɪᴛHᴜʙ</a>
+👨‍💻 <b>Dᴇᴠᴇʟᴏᴘᴇʀ</b>: <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>`
 
 // ─── Donate Messages ───────────────────────────────────────────
-export const donateMessage = `🎁 *Sᴜᴘᴘᴏʀᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ*
+export const donateMessage = `🎁 <b>Sᴜᴘᴘᴏʀᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
 
 Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ, Cᴏɴsɪᴅᴇʀ Sᴜᴘᴘᴏʀᴛɪɴɢ Tʜᴇ Pʀᴏᴊᴇᴄᴛ! Yᴏᴜʀ Hᴇʟᴘ Kᴇᴇᴘs Tʜᴇ Bᴏᴛ Oɴʟɪɴᴇ Aɴᴅ Iᴍᴘʀᴏᴠɪɴɢ.
 
-💰 *Hᴏᴡ Tᴏ Dᴏɴᴀᴛᴇ:*
+💰 <b>Hᴏᴡ Tᴏ Dᴏɴᴀᴛᴇ:</b>
 
-∇ *Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ*   
-- *Aᴅᴅʀᴇss:* UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX
-_(Accepts both TON and USDT on TON network)_
+∇ <b>Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ</b>   
+- <b>Aᴅᴅʀᴇss:</b> <code>UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX</code>
+<i>(Accepts both TON and USDT on TON network)</i>
 
-🇮🇳 **Iɴʀ PʜᴏɴᴇPᴇ**
-- *Uᴘɪ Iᴅ:* Dᴍ Aᴛ [Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ](https://t.me/Shineii86)
+🇮🇳 <b>Iɴʀ PʜᴏɴᴇPᴇ</b>
+- <b>Uᴘɪ Iᴅ:</b> Dᴍ Aᴛ <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>
    
-💜 *Tᴇʟᴇɢʀᴀᴍ Sᴛᴀʀᴛs*
-Sᴇɴᴅ Sᴛᴀʀs Dɪʀᴇᴄᴛʟʏ Tᴏ [Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ](https://t.me/Shineii86)
+💜 <b>Tᴇʟᴇɢʀᴀᴍ Sᴛᴀʀᴛs</b>
+Sᴇɴᴅ Sᴛᴀʀs Dɪʀᴇᴄᴛʟʏ Tᴏ <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>
 
 ────────────────
 
@@ -108,7 +111,7 @@ Eᴠᴇɴ A Sᴍᴀʟʟ Cᴏɴᴛʀɪʙᴜᴛɪᴏɴ Mᴇᴀɴs A Lᴏᴛ.
 Sᴘᴀsɪʙᴏ Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ! 🙏`
 
 // ─── Stats Header Messages ───────────────────────────────────────────
-export const statsHeader = `📊 *Aʟɪsᴀ Bᴏᴛ Sᴛᴀᴛs*\n\n`
+export const statsHeader = `📊 <b>Aʟɪsᴀ Bᴏᴛ Sᴛᴀᴛs</b>\n\n`
 
 // ─── Reaction Updated Messages ───────────────────────────────────────────
 export const reactionsUpdated = `✅ Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ Fᴏʀ Tʜɪs Cʜᴀᴛ!\n\n`
@@ -120,10 +123,10 @@ export const reactionsReset = `🔄 Rᴇᴀᴄᴛɪᴏɴs Rᴇsᴇᴛ Tᴏ Dᴇ�
 export const reactionsInvalid = `❌ Iɴᴠᴀʟɪᴅ Eᴍᴏᴊɪ Lɪsᴛ. Sᴇɴᴅ Eᴍᴏᴊɪs Sᴇᴘᴀʀᴀᴛᴇᴅ Bʏ Sᴘᴀᴄᴇs.\n\nExample: /setreactions 👍 ❤ 🔥 🎉 👏`
 
 // ─── Paused Reaction Messages ───────────────────────────────────────────
-export const pausedMessage = `⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs *ᴘᴀᴜsᴇᴅ* Iɴ Tʜɪs Cʜᴀᴛ.\nUsᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.`
+export const pausedMessage = `⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>ᴘᴀᴜsᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.\nUsᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.`
 
 // ─── Resume Reaction Messages ───────────────────────────────────────────
-export const resumedMessage = `▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs *ʀᴇsᴜᴍᴇᴅ* Iɴ Tʜɪs Cʜᴀᴛ.`
+export const resumedMessage = `▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>ʀᴇsᴜᴍᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.`
 
 // ─── Not Passed Messages ───────────────────────────────────────────
 export const notPausedMessage = `ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Nᴏᴛ Pᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.`
@@ -133,7 +136,7 @@ export const broadcastStarted = `📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ...`
 
 // ─── Broadcast Done Messages ───────────────────────────────────────────
 export const broadcastDone = (success, failed) =>
-    `✅ *Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!*\n\n📨 Sᴇɴᴛ: ${success}\n❌ Fᴀɪʟᴇᴅ: ${failed}`
+    `✅ <b>Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!</b>\n\n📨 Sᴇɴᴛ: ${success}\n❌ Fᴀɪʟᴇᴅ: ${failed}`
 
 // ─── Only Owner Messages ───────────────────────────────────────────
 export const onlyOwnerMessage = `👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Oɴʟʏ Aᴠᴀɪʟᴀʙʟᴇ Tᴏ Tʜᴇ Bᴏᴛ Oᴡɴᴇʀ.`
@@ -145,4 +148,4 @@ export const onlyAdminMessage = `🔒 Tʜɪs Cᴏᴍᴍᴀɴᴅ Rᴇǫᴜɪʀᴇ
 export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏʀᴋs Iɴ Gʀᴏᴜᴘs.`
 
 // ─── Ping Messages ───────────────────────────────────────────
-export const pingMessage = (ms) => `🏓 *Pᴏɴɢ!*\n\n⏱️ Rᴇsᴘᴏɴsᴇ: \`${ms}ms\`\n🕐 ${new Date().toUTCString()}`
+export const pingMessage = (ms) => `🏓 <b>Pᴏɴɢ!</b>\n\n⏱️ Rᴇsᴘᴏɴsᴇ: <code>${ms}ms</code>`

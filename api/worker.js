@@ -38,6 +38,7 @@ function getConfig(env) {
             })(),
             ownerId: env.OWNER_ID || '',
             webhookSecret: webhookSecret,
+            botPhoto: env.BOT_PHOTO || '',
             botApi: new TelegramBotAPI(env.BOT_TOKEN)
         };
     }
@@ -85,7 +86,8 @@ export default {
                 await onUpdate(
                     data, config.botApi, config.reactions,
                     config.restrictedChats, config.botUsername,
-                    config.randomLevel, config.ownerId, config.webhookSecret
+                    config.randomLevel, config.ownerId, config.webhookSecret,
+                    config.botPhoto
                 );
             } catch (error) {
                 log.error('Webhook handler error:', error.message);

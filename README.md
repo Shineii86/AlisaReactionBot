@@ -110,6 +110,39 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 
 </td>
 </tr>
+<tr>
+<td>
+
+### 📮 Ad Library (AdLab)
+- **Random Ad Selection** — Picks one ad from a curated pool per message
+- **Formatted Ad Footers** — Styled ad blocks appended to bot responses automatically
+- **Default Ad Pool** — Promotes @MaximX channels (Emojis, Stickers, Bots, Arts, Icons, Anime)
+- **Inspired by [AdLab](https://github.com/Shineii86/AdLab)** — Centralized ad management
+
+</td>
+<td>
+
+### 📸 Photo & UI
+- **Photo Messages** — Bot sends photos with `/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`
+- **Close Button** — ✖️ Close on every keyboard deletes the message
+- **Buttons Everywhere** — All commands have inline keyboard buttons
+- **`BOT_PHOTO` Env Var** — Set photo URL or Telegram file_id
+- **Photo Callback Support** — Menu navigation works on both photo and text messages
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 👋 Welcome & Leave
+- **Welcome Messages** — Greet new members when they join a group
+- **Leave Messages** — Farewell members when they leave
+- **Admin Toggle** — `/welcome` and `/goodbye` to enable/disable per group
+- **Auto-Delete Notifications** — Removes Telegram's default join/leave messages
+- **Photo Support** — Uses `BOT_PHOTO` when set
+
+</td>
+</tr>
 </table>
 
 ---
@@ -138,6 +171,8 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | `/resume` | Resume auto-reactions in this chat |
 | `/randomlevel <0-10>` | Set reaction randomness for this chat |
 | `/randomlevel` | View current random level |
+| `/welcome` | Toggle welcome messages for new members |
+| `/goodbye` | Toggle farewell messages when members leave |
 
 ### 🔒 Owner Only
 
@@ -292,6 +327,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `RESTRICTED_CHATS` | Chat IDs to exclude (comma separated) | `-100123,456789` | ❌ |
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
+| `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
@@ -372,7 +408,8 @@ AlisaReactionBot/
 │   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
-│   └── helper.js             # Emoji parsing, chat ID parsing, logger
+│   ├── helper.js             # Emoji parsing, chat ID parsing, logger
+│   └── ads.js                # AdLab — centralized ad management library
 ├── assets/                   # Logo and banner images
 ├── .env.example              # Environment variable template
 ├── .gitignore
@@ -500,7 +537,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.6.0** — Removed card feature entirely. Bot now focuses purely on auto-reactions.
+**Latest: v2.7.0** — Added AdLab, photo support, welcome/leave messages, close button, IST timestamps.
 
 ---
 

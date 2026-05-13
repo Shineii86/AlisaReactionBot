@@ -39,6 +39,7 @@ const RandomLevel = (() => {
 })();
 const ownerId = process.env.OWNER_ID || '';
 const webhookSecret = process.env.WEBHOOK_SECRET || crypto.randomUUID();
+const botPhoto = process.env.BOT_PHOTO || '';
 
 if (!process.env.EMOJI_LIST) {
     log.warn('EMOJI_LIST not set — bot will not react to any messages');
@@ -68,7 +69,7 @@ app.post('/', async (req, res) => {
 
     const data = req.body;
     try {
-        await onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret);
+        await onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto);
         res.status(200).send('Ok');
     } catch (error) {
         log.error('Webhook handler error:', error.message);

@@ -18,6 +18,7 @@ import {
     onlyAdminMessage, groupOnlyMessage, pingMessage
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
+import { getAdFooter } from './ads.js';
 
 // ─── In-Memory State (resets on restart — no persistent storage) ───
 
@@ -36,6 +37,8 @@ const restrictedChatsRuntime = new Set(); // Runtime-restricted chat IDs
 const rateLimitMap = {};         // chatId → { count, resetAt }
 const chatNames = {};            // chatId → chat title (cached)
 const perChatRandomLevel = {};   // chatId → random level override (0-10)
+const welcomeEnabled = new Set(); // Chat IDs where welcome messages are enabled
+const leaveEnabled = new Set();   // Chat IDs where leave messages are enabled
 
 const LOG_MAX = 50;
 const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
@@ -54,6 +57,25 @@ function formatUptime(ms) {
     if (h > 0) return `${h}ʜ ${m % 60}ᴍ ${s % 60}s`;
     if (m > 0) return `${m}ᴍ ${s % 60}s`;
     return `${s}s`;
+}
+
+/**
+ * Format a Date/timestamp to IST (Indian Standard Time, UTC+5:30)
+ * @param {Date|number} date — Date object or timestamp ms
+ * @returns {string} — Formatted IST string (12-hour AM/PM)
+ */
+function formatIST(date) {
+    const d = date instanceof Date ? date : new Date(date);
+    const ist = new Date(d.getTime() + (5 * 60 + 30) * 60 * 1000);
+    const day = String(ist.getUTCDate()).padStart(2, '0');
+    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][ist.getUTCMonth()];
+    const year = ist.getUTCFullYear();
+    let hours = ist.getUTCHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const mins = String(ist.getUTCMinutes()).padStart(2, '0');
+    const secs = String(ist.getUTCSeconds()).padStart(2, '0');
+    return `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm} IST`;
 }
 
 function trackCommand(cmd) {
@@ -113,35 +135,46 @@ function getTopChats(limit = 5) {
         .slice(0, limit);
 }
 
+/**
+ * Append ad footer to a message.
+ * @param {string} msg — Original message text
+ * @returns {string} — Message with ad footer appended
+ */
+function withAd(msg) {
+    return msg + getAdFooter();
+}
+
 function getStatsMessage() {
     const uptime = formatUptime(Date.now() - stats.startTime);
     const cmdLines = Object.entries(stats.commandUsage)
-        .map(([cmd, count]) => `\`/${cmd}\` — ${count}`)
+        .map(([cmd, count]) => `<code>/${cmd}</code> — ${count}`)
         .join('\n') || 'Nᴏ Cᴏᴍᴍᴀɴᴅs Usᴇᴅ Yᴇᴛ.';
 
     let topChatsText = '';
     const top = getTopChats(5);
     if (top.length) {
-        topChatsText = '\n\n🏆 *Tᴏᴘ Cʜᴀᴛs (Lᴀsᴛ 50 Rᴇᴀᴄᴛɪᴏɴs):*\n' +
+        topChatsText = '\n\n🏆 <b>Tᴏᴘ Cʜᴀᴛs (Lᴀsᴛ 50 Rᴇᴀᴄᴛɪᴏɴs):</b>\n' +
             top.map(([id, count], i) => {
                 const name = chatNames[id] || `Chat ${id}`;
                 return `${i + 1}. ${name} — ${count}`;
             }).join('\n');
     }
 
-    return `${statsHeader}📨 *Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:* ${stats.messagesProcessed.toLocaleString()}
-💫 *Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:* ${stats.reactionsSent.toLocaleString()}
-💬 *Uɴɪqᴜᴇ Cʜᴀᴛs:* ${stats.uniqueChats.size.toLocaleString()}
-⏸️ *Pᴀᴜsᴇᴅ Cʜᴀᴛs:* ${pausedChats.size.toLocaleString()}
-🚫 *Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:* ${restrictedChatsRuntime.size.toLocaleString()}
-🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:* ${Object.keys(perChatRandomLevel).length.toLocaleString()}
-⏱️ *Uᴘᴛɪᴍᴇ:* ${uptime}
-🕐 *Sᴛᴀʀᴛᴇᴅ:* ${new Date(stats.startTime).toUTCString()}
+    return `${statsHeader}📨 <b>Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:</b> ${stats.messagesProcessed.toLocaleString()}
+💫 <b>Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:</b> ${stats.reactionsSent.toLocaleString()}
+💬 <b>Uɴɪqᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()}
+⏸️ <b>Pᴀᴜsᴇᴅ Cʜᴀᴛs:</b> ${pausedChats.size.toLocaleString()}
+🚫 <b>Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:</b> ${restrictedChatsRuntime.size.toLocaleString()}
+🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:</b> ${Object.keys(perChatRandomLevel).length.toLocaleString()}
+👋 <b>Wᴇʟᴄᴏᴍᴇ Eɴᴀʙʟᴇᴅ:</b> ${welcomeEnabled.size.toLocaleString()}
+🚪 <b>Gᴏᴏᴅʙʏᴇ Eɴᴀʙʟᴇᴅ:</b> ${leaveEnabled.size.toLocaleString()}
+⏱️ <b>Uᴘᴛɪᴍᴇ:</b> ${uptime}
+🕐 <b>Sᴛᴀʀᴛᴇᴅ:</b> ${formatIST(stats.startTime)}
 
-📋 *Cᴏᴍᴍᴀɴᴅ Usᴀɢᴇ:*
+📋 <b>Cᴏᴍᴍᴀɴᴅ Usᴀɢᴇ:</b>
 ${cmdLines}${topChatsText}
 
-_Gʟᴏʙᴀʟ Sᴛᴀᴛs Sɪɴᴄᴇ Lᴀsᴛ Rᴇsᴛᴀʀᴛ._`;
+<i>Gʟᴏʙᴀʟ Sᴛᴀᴛs Sɪɴᴄᴇ Lᴀsᴛ Rᴇsᴛᴀʀᴛ.</i>`;
 }
 
 // ─── Keyboards ───
@@ -174,7 +207,17 @@ function getBackKeyboard() {
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
         ],
         [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' }
+            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
+            { text: '✖️ Cʟᴏsᴇ', callback_data: 'cb_close' }
+        ]
+    ];
+}
+
+function getCloseKeyboard() {
+    return [
+        [
+            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
+            { text: '✖️ Cʟᴏsᴇ', callback_data: 'cb_close' }
         ]
     ];
 }
@@ -192,8 +235,9 @@ function getBackKeyboard() {
  * @param {number} RandomLevel - Random level for group reactions (0-10)
  * @param {string} ownerId - Bot owner's Telegram user ID
  * @param {string} webhookSecret - Webhook secret token
+ * @param {string} botPhoto - Bot photo URL from env
  */
-export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret) {
+export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
 
     // Guard against NaN RandomLevel from invalid env var
     if (isNaN(RandomLevel) || RandomLevel < 0 || RandomLevel > 10) {
@@ -207,26 +251,47 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         const messageId = cq.message?.message_id;
 
         try {
+            // Helper: edit message caption (for photo messages) or text
+            const editMsg = async (text, keyboard) => {
+                try {
+                    await botApi.editMessageCaption(chatId, messageId, text, keyboard);
+                } catch {
+                    await botApi.editMessageText(chatId, messageId, text, keyboard);
+                }
+            };
+
             switch (cq.data) {
                 case 'cb_help':
-                    await botApi.editMessageText(chatId, messageId, helpMessage, getBackKeyboard());
+                    await editMsg(withAd(helpMessage), getBackKeyboard());
                     break;
                 case 'cb_about':
-                    await botApi.editMessageText(chatId, messageId, aboutMessage, getBackKeyboard());
+                    await editMsg(withAd(aboutMessage), getBackKeyboard());
                     break;
                 case 'cb_stats':
-                    await botApi.editMessageText(chatId, messageId, getStatsMessage(), getBackKeyboard());
+                    await editMsg(withAd(getStatsMessage()), getBackKeyboard());
                     break;
                 case 'cb_donate':
-                    await botApi.editMessageText(chatId, messageId, donateMessage, getBackKeyboard());
+                    await editMsg(withAd(donateMessage), getBackKeyboard());
                     break;
                 case 'cb_menu': {
                     const name = cq.message?.chat?.type === 'private'
                         ? (cq.from?.first_name || cq.message?.chat?.title)
                         : cq.message?.chat?.title;
-                    await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', name), getStartKeyboard(botUsername));
+                    if (botPhoto) {
+                        await botApi.editMessageMedia(chatId, messageId, {
+                            type: 'photo',
+                            media: botPhoto,
+                            caption: startMessage.replace('UserName', name),
+                            parse_mode: 'HTML'
+                        }, getStartKeyboard(botUsername));
+                    } else {
+                        await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', name), getStartKeyboard(botUsername));
+                    }
                     break;
                 }
+                case 'cb_close':
+                    await botApi.deleteMessage(chatId, messageId);
+                    break;
                 default:
                     await botApi.answerCallbackQuery(cq.id, '❓ Unknown action', true);
                     return;
@@ -266,21 +331,36 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const displayName = chatType === 'private'
                     ? (content.from?.first_name || content.chat.title)
                     : content.chat.title;
-                await botApi.sendMessage(chatId, startMessage.replace('UserName', displayName), getStartKeyboard(botUsername));
+                const caption = withAd(startMessage.replace('UserName', displayName));
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getStartKeyboard(botUsername));
+                } else {
+                    await botApi.sendMessage(chatId, caption, getStartKeyboard(botUsername));
+                }
                 return;
             }
 
             // /help
             if (cmd === '/help') {
                 trackCommand('help');
-                await botApi.sendMessage(chatId, helpMessage, getBackKeyboard());
+                const caption = withAd(helpMessage);
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                } else {
+                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                }
                 return;
             }
 
             // /about
             if (cmd === '/about') {
                 trackCommand('about');
-                await botApi.sendMessage(chatId, aboutMessage, getBackKeyboard());
+                const caption = withAd(aboutMessage);
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                } else {
+                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                }
                 return;
             }
 
@@ -289,17 +369,19 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 trackCommand('ping');
                 const start = Date.now();
                 try {
-                    const sent = await botApi.sendMessage(chatId, '🏓 Pɪɴɢɪɴɢ...', null);
+                    const sent = await botApi.sendMessage(chatId, '🏓 Pɪɴɢɪɴɢ...', getCloseKeyboard());
                     const latency = Date.now() - start;
                     const msgId = sent?.result?.message_id;
+                    const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
                     if (msgId) {
-                        await botApi.editMessageText(chatId, msgId, pingMessage(latency));
+                        await botApi.editMessageText(chatId, msgId, pingText, getCloseKeyboard());
                     } else {
-                        await botApi.sendMessage(chatId, pingMessage(latency));
+                        await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
                     }
                 } catch {
                     const latency = Date.now() - start;
-                    await botApi.sendMessage(chatId, pingMessage(latency));
+                    const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
+                    await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
                 }
                 return;
             }
@@ -307,7 +389,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             // /stats
             if (cmd === '/stats') {
                 trackCommand('stats');
-                await botApi.sendMessage(chatId, getStatsMessage(), getBackKeyboard());
+                const caption = withAd(getStatsMessage());
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                } else {
+                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                }
                 return;
             }
 
@@ -315,8 +402,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/reactions') {
                 trackCommand('reactions');
                 const reactions = getReactionsForChat(chatId, Reactions).join(' ');
-                const isCustom = perChatReactions[chatId] ? '\n\n_✨ Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ._' : '\n\n_📌 Dᴇғᴀᴜʟᴛ Gʟᴏʙᴀʟ Sᴇᴛ._';
-                await botApi.sendMessage(chatId, `🚀 *Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:*\n\n${reactions}${isCustom}`, getBackKeyboard());
+                const isCustom = perChatReactions[chatId] ? '\n\n<i>✨ Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>' : '\n\n<i>📌 Dᴇғᴀᴜʟᴛ Gʟᴏʙᴀʟ Sᴇᴛ.</i>';
+                const caption = withAd(`🚀 <b>Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${reactions}${isCustom}`);
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                } else {
+                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                }
                 return;
             }
 
@@ -324,27 +416,27 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/setreactions') {
                 trackCommand('setreactions');
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
                     // Reset to default
                     delete perChatReactions[chatId];
-                    await botApi.sendMessage(chatId, reactionsReset, getBackKeyboard());
+                    await botApi.sendMessage(chatId, reactionsReset, getCloseKeyboard());
                     return;
                 }
                 const emojis = splitEmojis(args.trim());
                 if (emojis.length === 0) {
-                    await botApi.sendMessage(chatId, reactionsInvalid);
+                    await botApi.sendMessage(chatId, reactionsInvalid, getCloseKeyboard());
                     return;
                 }
                 perChatReactions[chatId] = emojis.join('');
                 await botApi.sendMessage(chatId,
-                    `${reactionsUpdated}🎯 *Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:* ${emojis.join(' ')}`,
+                    `${reactionsUpdated}🎯 <b>Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:</b> ${emojis.join(' ')}`,
                     getBackKeyboard()
                 );
                 return;
@@ -354,15 +446,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/pause') {
                 trackCommand('pause');
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
                     return;
                 }
                 pausedChats.add(chatId);
-                await botApi.sendMessage(chatId, pausedMessage);
+                await botApi.sendMessage(chatId, pausedMessage, getCloseKeyboard());
                 return;
             }
 
@@ -370,19 +462,19 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/resume') {
                 trackCommand('resume');
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage);
+                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage);
+                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
                     return;
                 }
                 if (!pausedChats.has(chatId)) {
-                    await botApi.sendMessage(chatId, notPausedMessage);
+                    await botApi.sendMessage(chatId, notPausedMessage, getCloseKeyboard());
                     return;
                 }
                 pausedChats.delete(chatId);
-                await botApi.sendMessage(chatId, resumedMessage);
+                await botApi.sendMessage(chatId, resumedMessage, getCloseKeyboard());
                 return;
             }
 
@@ -398,18 +490,19 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const globalLevel = RandomLevel;
                         const globalChance = (10 - globalLevel) * 10;
                         await botApi.sendMessage(chatId,
-                            `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ*\n\n` +
-                            `📊 Cᴜʀʀᴇɴᴛ: \`${globalLevel}\` — Rᴇᴀᴄᴛ ~${globalChance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
-                            `💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ɴᴇᴠᴇʀ\n\n` +
-                            `⚠️ Tᴏ ᴏᴠᴇʀʀɪᴅᴇ ɪɴ ᴀ ɢʀᴏᴜᴘ, ᴜsᴇ \`/randomlevel <0-10>\` ᴛʜᴇʀᴇ.\n` +
-                            `📌 Aᴅᴍɪɴs ᴏɴʟʏ ɪɴ ɢʀᴏᴜᴘs.`
+                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
+                            `💡 <code>0</code> = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | <code>10</code> = ɴᴇᴠᴇʀ\n\n` +
+                            `⚠️ Tᴏ ᴏᴠᴇʀʀɪᴅᴇ ɪɴ ᴀ ɢʀᴏᴜᴘ, ᴜsᴇ <code>/randomlevel &lt;0-10&gt;</code> ᴛʜᴇʀᴇ.\n` +
+                            `📌 Aᴅᴍɪɴs ᴏɴʟʏ ɪɴ ɢʀᴏᴜᴘs.`,
+                            getCloseKeyboard()
                         );
                         return;
                     }
 
                     // Group: require admin permission
                     if (!await isGroupAdmin(botApi, chatId, userId)) {
-                        await botApi.sendMessage(chatId, onlyAdminMessage);
+                        await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
                         return;
                     }
 
@@ -421,10 +514,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
                         const currentChance = (10 - current) * 10;
                         await botApi.sendMessage(chatId,
-                            `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:*\n\n` +
-                            `📊 Cᴜʀʀᴇɴᴛ: \`${current}\` (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
-                            `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: \`${RandomLevel}\`\n\n` +
-                            `💡 Usᴇ \`/randomlevel <0-10>\` ᴛᴏ ᴄʜᴀɴɢᴇ.`
+                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: <code>${current}</code> (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
+                            `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: <code>${RandomLevel}</code>\n\n` +
+                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> ᴛᴏ ᴄʜᴀɴɢᴇ.`,
+                            getCloseKeyboard()
                         );
                         return;
                     }
@@ -433,9 +527,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const level = parseInt(trimmedArgs, 10);
                     if (isNaN(level) || level < 0 || level > 10) {
                         await botApi.sendMessage(chatId,
-                            `❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ \`0\` ᴀɴᴅ \`10\`.\n\n` +
-                            `📌 Usᴀɢᴇ: \`/randomlevel <0-10>\`\n` +
-                            `💡 \`0\` = ᴀʟᴡᴀʏs ʀᴇᴀᴄᴛ | \`10\` = ɴᴇᴠᴇʀ ʀᴇᴀᴄᴛ`
+                            `❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ <code>0</code> ᴀɴᴅ <code>10</code>.\n\n` +
+                            `📌 Usᴀɢᴇ: <code>/randomlevel &lt;0-10&gt;</code>\n` +
+                            `💡 <code>0</code> = ᴀʟᴡᴀʏs ʀᴇᴀᴄᴛ | <code>10</code> = ɴᴇᴠᴇʀ ʀᴇᴀᴄᴛ`,
+                            getCloseKeyboard()
                         );
                         return;
                     }
@@ -444,15 +539,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     perChatRandomLevel[chatId] = level;
                     const chance = (10 - level) * 10;
                     await botApi.sendMessage(chatId,
-                        `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!* 📊\n\n` +
-                        `🎯 Lᴇᴠᴇʟ: \`${level}\` — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
-                        `💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ɴᴇᴠᴇʀ\n` +
-                        `🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`
+                        `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
+                        `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
+                        `💡 <code>0</code> = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | <code>10</code> = ɴᴇᴠᴇʀ\n` +
+                        `🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`,
+                        getCloseKeyboard()
                     );
                 } catch (error) {
                     log.error('[/randomlevel]', error.message);
                     try {
-                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`);
+                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`, getCloseKeyboard());
                     } catch {}
                 }
                 return;
@@ -461,7 +557,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             // /donate
             if (cmd === '/donate') {
                 trackCommand('donate');
-                await botApi.sendMessage(chatId, donateMessage, getBackKeyboard());
+                const caption = withAd(donateMessage);
+                if (botPhoto) {
+                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                } else {
+                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                }
                 return;
             }
 
@@ -469,33 +570,33 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/broadcast') {
                 trackCommand('broadcast');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/broadcast <message>`');
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: <code>/broadcast &lt;message&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const now = Date.now();
                 if (now - lastBroadcastTime < BROADCAST_COOLDOWN) {
                     const remaining = Math.ceil((BROADCAST_COOLDOWN - (now - lastBroadcastTime)) / 1000);
-                    await botApi.sendMessage(chatId, `⏳ Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s Bᴇғᴏʀᴇ Nᴇxᴛ Bʀᴏᴀᴅᴄᴀsᴛ.`);
+                    await botApi.sendMessage(chatId, `⏳ Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s Bᴇғᴏʀᴇ Nᴇxᴛ Bʀᴏᴀᴅᴄᴀsᴛ.`, getCloseKeyboard());
                     return;
                 }
                 lastBroadcastTime = now;
-                await botApi.sendMessage(chatId, broadcastStarted);
+                await botApi.sendMessage(chatId, broadcastStarted, getCloseKeyboard());
                 const allChats = new Set(stats.uniqueChats);
                 if (userId) allChats.add(userId);
                 let success = 0, failed = 0;
                 for (const cid of allChats) {
                     try {
-                        await botApi.sendMessage(cid, `📢 *Bʀᴏᴀᴅᴄᴀsᴛ:*\n\n${args.trim()}`);
+                        await botApi.sendMessage(cid, `📢 <b>Bʀᴏᴀᴅᴄᴀsᴛ:</b>\n\n${args.trim()}`);
                         success++;
                     } catch {
                         failed++;
                     }
                 }
-                await botApi.sendMessage(chatId, broadcastDone(success, failed));
+                await botApi.sendMessage(chatId, broadcastDone(success, failed), getCloseKeyboard());
                 return;
             }
 
@@ -503,19 +604,19 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/log') {
                 trackCommand('log');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (reactionLog.length === 0) {
-                    await botApi.sendMessage(chatId, '📋 Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ Is Eᴍᴘᴛʏ.');
+                    await botApi.sendMessage(chatId, '📋 Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ Is Eᴍᴘᴛʏ.', getCloseKeyboard());
                     return;
                 }
                 const lines = reactionLog.slice(-10).reverse().map((e, i) => {
-                    const time = new Date(e.timestamp).toLocaleTimeString();
+                    const time = formatIST(e.timestamp);
                     const name = chatNames[e.chatId] || e.chatId;
                     return `${i + 1}. ${e.emoji} → ${name} (${time})`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `📋 *Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:*\n\n${lines}`);
+                await botApi.sendMessage(chatId, `📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`, getCloseKeyboard());
                 return;
             }
 
@@ -523,16 +624,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/leave' || cmd === '/remove') {
                 trackCommand(cmd === '/leave' ? 'leave' : 'remove');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/leave <chat_id>`');
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: <code>/leave &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const targetChatId = args.trim();
                 if (!/^-?\d+$/.test(targetChatId)) {
-                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ A Nᴜᴍᴇʀɪᴄ Vᴀʟᴜᴇ.');
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ A Nᴜᴍᴇʀɪᴄ Vᴀʟᴜᴇ.', getCloseKeyboard());
                     return;
                 }
                 try {
@@ -542,9 +643,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     delete perChatRandomLevel[targetChatId];
                     pausedChats.delete(Number(targetChatId));
                     restrictedChatsRuntime.delete(Number(targetChatId));
-                    await botApi.sendMessage(chatId, `✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ \`${targetChatId}\`.`);
+                    await botApi.sendMessage(chatId, `✅ Bᴏᴛ Hᴀs Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ \`${targetChatId}\`:\n${error.message}`);
+                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
                 }
                 return;
             }
@@ -553,11 +654,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/chats') {
                 trackCommand('chats');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (stats.uniqueChats.size === 0) {
-                    await botApi.sendMessage(chatId, '📭 Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.');
+                    await botApi.sendMessage(chatId, '📭 Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs.', getCloseKeyboard());
                     return;
                 }
                 const chatLines = Array.from(stats.uniqueChats).map((cid, i) => {
@@ -566,7 +667,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const restricted = restrictedChatsRuntime.has(cid) || RestrictedChats.includes(cid) ? ' 🚫' : '';
                     return `${i + 1}. ${name} (${cid})${paused}${restricted}`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `💬 *Aᴄᴛɪᴠᴇ Cʜᴀᴛs (${stats.uniqueChats.size}):*\n\n${chatLines}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ`);
+                await botApi.sendMessage(chatId, `💬 <b>Aᴄᴛɪᴠᴇ Cʜᴀᴛs (${stats.uniqueChats.size}):</b>\n\n${chatLines}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ`, getCloseKeyboard());
                 return;
             }
 
@@ -574,7 +675,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/setwebhook') {
                 trackCommand('setwebhook');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
@@ -582,25 +683,25 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     try {
                         const info = await botApi.getWebhookInfo();
                         const wh = info.result;
-                        const status = wh.url ? `🔗 *URL:* ${wh.url}` : '❌ Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ';
-                        const pending = wh.pending_update_count > 0 ? `\n⏳ *Pᴇɴᴅɪɴɢ:* ${wh.pending_update_count}` : '';
-                        const error = wh.last_error_message ? `\n⚠️ *Eʀʀᴏʀ:* ${wh.last_error_message}` : '';
-                        await botApi.sendMessage(chatId, `📡 *Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:*\n\n${status}${pending}${error}`);
+                        const status = wh.url ? `🔗 <b>URL:</b> ${wh.url}` : '❌ Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ';
+                        const pending = wh.pending_update_count > 0 ? `\n⏳ <b>Pᴇɴᴅɪɴɢ:</b> ${wh.pending_update_count}` : '';
+                        const error = wh.last_error_message ? `\n⚠️ <b>Eʀʀᴏʀ:</b> ${wh.last_error_message}` : '';
+                        await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
                     } catch (error) {
-                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`);
+                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`, getCloseKeyboard());
                     }
                     return;
                 }
                 const webhookUrl = args.trim();
                 if (!webhookUrl.startsWith('https://')) {
-                    await botApi.sendMessage(chatId, '❌ Wᴇʙʜᴏᴏᴋ URL Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ `https://`');
+                    await botApi.sendMessage(chatId, '❌ Wᴇʙʜᴏᴏᴋ URL Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ <code>https://</code>', getCloseKeyboard());
                     return;
                 }
                 try {
                     await botApi.setWebhook(webhookUrl, webhookSecret || '');
-                    await botApi.sendMessage(chatId, `✅ Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`);
+                    await botApi.sendMessage(chatId, `✅ Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`);
+                    await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`, getCloseKeyboard());
                 }
                 return;
             }
@@ -609,20 +710,20 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/restrict') {
                 trackCommand('restrict');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/restrict <chat_id>`');
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: <code>/restrict &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const restrictId = Number(args.trim());
                 if (!restrictId) {
-                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.');
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
                     return;
                 }
                 restrictedChatsRuntime.add(restrictId);
-                await botApi.sendMessage(chatId, `🚫 Cʜᴀᴛ \`${restrictId}\` Rᴇsᴛʀɪᴄᴛᴇᴅ. Bᴏᴛ Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ.`);
+                await botApi.sendMessage(chatId, `🚫 Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. Bᴏᴛ Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ.`, getCloseKeyboard());
                 return;
             }
 
@@ -630,25 +731,149 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/unrestrict') {
                 trackCommand('unrestrict');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage);
+                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: `/unrestrict <chat_id>`');
+                    await botApi.sendMessage(chatId, '📝 Usᴀɢᴇ: <code>/unrestrict &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const unrestrictId = Number(args.trim());
                 if (!unrestrictId) {
-                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.');
+                    await botApi.sendMessage(chatId, '❌ Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
                     return;
                 }
                 if (!restrictedChatsRuntime.has(unrestrictId)) {
-                    await botApi.sendMessage(chatId, 'ℹ️ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.');
+                    await botApi.sendMessage(chatId, 'ℹ️ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.', getCloseKeyboard());
                     return;
                 }
                 restrictedChatsRuntime.delete(unrestrictId);
-                await botApi.sendMessage(chatId, `✅ Cʜᴀᴛ \`${unrestrictId}\` Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`);
+                await botApi.sendMessage(chatId, `✅ Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`, getCloseKeyboard());
                 return;
+            }
+
+            // /welcome (group admins only — toggle welcome messages)
+            if (cmd === '/welcome') {
+                trackCommand('welcome');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    return;
+                }
+                if (welcomeEnabled.has(chatId)) {
+                    welcomeEnabled.delete(chatId);
+                    await botApi.sendMessage(chatId,
+                        `🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ɴᴏᴛ ʀᴇᴄᴇɪᴠᴇ ᴀ ɢʀᴇᴇᴛɪɴɢ ᴡʜᴇɴ ᴛʜᴇʏ ᴊᴏɪɴ.`,
+                        getCloseKeyboard()
+                    );
+                } else {
+                    welcomeEnabled.add(chatId);
+                    await botApi.sendMessage(chatId,
+                        `🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nNᴇᴡ ᴍᴇᴍʙᴇʀs ᴡɪʟʟ ʀᴇᴄᴇɪᴠᴇ ᴀ ɢʀᴇᴇᴛɪɴɢ ᴡʜᴇɴ ᴛʜᴇʏ ᴊᴏɪɴ.`,
+                        getCloseKeyboard()
+                    );
+                }
+                return;
+            }
+
+            // /goodbye (group admins only — toggle leave messages)
+            if (cmd === '/goodbye') {
+                trackCommand('goodbye');
+                if (!isGroupChat(chatType)) {
+                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    return;
+                }
+                if (!await isGroupAdmin(botApi, chatId, userId)) {
+                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    return;
+                }
+                if (leaveEnabled.has(chatId)) {
+                    leaveEnabled.delete(chatId);
+                    await botApi.sendMessage(chatId,
+                        `🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ɴᴏᴛ ʀᴇᴄᴇɪᴠᴇ ᴀ ғᴀʀᴇᴡᴇʟʟ ᴡʜᴇɴ ᴛʜᴇʏ ʟᴇᴀᴠᴇ.`,
+                        getCloseKeyboard()
+                    );
+                } else {
+                    leaveEnabled.add(chatId);
+                    await botApi.sendMessage(chatId,
+                        `🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ʀᴇᴄᴇɪᴠᴇ ᴀ ғᴀʀᴇᴡᴇʟʟ ᴡʜᴇɴ ᴛʜᴇʏ ʟᴇᴀᴠᴇ.`,
+                        getCloseKeyboard()
+                    );
+                }
+                return;
+            }
+        }
+
+        // ─── Welcome & Leave Messages ───
+        if (data.message) {
+            const msg = data.message;
+
+            // New members joined
+            if (msg.new_chat_members && msg.new_chat_members.length > 0 && welcomeEnabled.has(chatId)) {
+                const mentions = msg.new_chat_members
+                    .map(m => `<b>${m.first_name || m.username || 'Traveler'}</b>`)
+                    .join(', ');
+                const chatTitle = content.chat.title || 'this group';
+                const welcomeText =
+                    `🦊 Aʜᴀʜᴀ, Wᴇʟᴄᴏᴍᴇ, ${mentions}! 🎋\n` +
+                    `Yᴏᴜ'ᴠᴇ Sᴛᴇᴘᴘᴇᴅ Iɴᴛᴏ Tʜᴇ Sᴀᴄʀᴇᴅ Hᴀʟʟs Oғ <b>${chatTitle}</b>\n` +
+                    `Wʜᴇʀᴇ Eᴠᴇʀʏ Cʜᴀᴛ Sᴘᴀʀᴋʟᴇs Lɪᴋᴇ A Gʀᴀɴᴅ Fᴇsᴛɪᴠᴀʟ. ✨`;
+
+                const welcomeBtns = [
+                    [{ text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' }],
+                    [
+                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
+                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
+                    ]
+                ];
+
+                try {
+                    // Delete join notification
+                    await botApi.deleteMessage(chatId, msg.message_id);
+                } catch {}
+
+                try {
+                    if (botPhoto) {
+                        await botApi.sendPhoto(chatId, botPhoto, welcomeText, welcomeBtns);
+                    } else {
+                        await botApi.sendMessage(chatId, welcomeText, welcomeBtns);
+                    }
+                } catch {}
+            }
+
+            // Member left
+            if (msg.left_chat_member && leaveEnabled.has(chatId)) {
+                const user = msg.left_chat_member;
+                const userName = user.first_name || user.username || 'Traveler';
+                const chatTitle = content.chat.title || 'this group';
+                const leaveText =
+                    `👋 Fᴀʀᴇᴡᴇʟʟ, <b>${userName}</b>…\n` +
+                    `Yᴏᴜʀ Sᴘᴀʀᴋ Wɪʟʟ Aʟᴡᴀʏs Lɪɴɢᴇʀ Wɪᴛʜɪɴ <b>${chatTitle}</b>.\n\n` +
+                    `Mᴀʏ Tʜᴇ Eʟᴇᴄᴛʀᴏ Aʀᴄʜᴏɴ Gᴜɪᴅᴇ Yᴏᴜ Bᴀᴄᴋ Aɴʏᴛɪᴍᴇ.`;
+
+                const leaveBtns = [
+                    [{ text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' }],
+                    [
+                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
+                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
+                    ]
+                ];
+
+                try {
+                    // Delete leave notification
+                    await botApi.deleteMessage(chatId, msg.message_id);
+                } catch {}
+
+                try {
+                    if (botPhoto) {
+                        await botApi.sendPhoto(chatId, botPhoto, leaveText, leaveBtns);
+                    } else {
+                        await botApi.sendMessage(chatId, leaveText, leaveBtns);
+                    }
+                } catch {}
             }
         }
 

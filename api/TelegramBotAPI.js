@@ -61,7 +61,7 @@ export default class TelegramBotAPI {
         return this.callApi('sendMessage', {
             chat_id: chatId,
             text: text,
-            parse_mode: 'Markdown',
+            parse_mode: 'HTML',
             disable_web_page_preview: true,
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
         });
@@ -72,9 +72,45 @@ export default class TelegramBotAPI {
             chat_id: chatId,
             message_id: messageId,
             text: text,
-            parse_mode: 'Markdown',
+            parse_mode: 'HTML',
             disable_web_page_preview: true,
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
+    async sendPhoto(chatId, photo, caption, inlineKeyboard = null) {
+        return this.callApi('sendPhoto', {
+            chat_id: chatId,
+            photo: photo,
+            caption: caption,
+            parse_mode: 'HTML',
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
+    async editMessageMedia(chatId, messageId, media, inlineKeyboard = null) {
+        return this.callApi('editMessageMedia', {
+            chat_id: chatId,
+            message_id: messageId,
+            media: media,
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
+    async editMessageCaption(chatId, messageId, caption, inlineKeyboard = null) {
+        return this.callApi('editMessageCaption', {
+            chat_id: chatId,
+            message_id: messageId,
+            caption: caption,
+            parse_mode: 'HTML',
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+        });
+    }
+
+    async deleteMessage(chatId, messageId) {
+        return this.callApi('deleteMessage', {
+            chat_id: chatId,
+            message_id: messageId
         });
     }
 
