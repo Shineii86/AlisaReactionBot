@@ -24,12 +24,12 @@
 
 // ─── Advertisement Pool ──────────────────────────────────────
 const advertisements = [
-    '@MaximXEmojis — Expressive emojis for every mood. Join now and add flair to your conversations!',
-    '@MaximXStickers — Vibrant and diverse sticker packs to enhance your messaging experience.',
-    '@MaximXBots — Cutting-edge bots for fun, utility, and more. Elevate your Telegram experience!',
-    '@MaximXArts — Stunning wallpapers and digital art to revamp your device\'s look.',
-    '@MaximXIcons — Unique and stylish profile icons. Make your profile stand out!',
-    '@MaximXAnime — Curated anime recommendations and community discussions. Join us!',
+  "@MaximXEmojis - Dive into a collection of expressive emojis for every mood! Join now and add flair to your conversations.",
+  "@MaximXStickers - Discover vibrant and diverse sticker packs to enhance your messaging experience. Join us for a visual delight!",
+  "@MaximXBots - Engage with cutting-edge bots designed for fun, utility, and more. Join the bot revolution and elevate your Telegram experience!",
+  "@MaximXArts - Immerse yourself in a gallery of stunning wallpapers to revamp your device's look. Join for a daily dose of aesthetic inspiration.",
+  "@MaximXIcons - Upgrade your profile with unique and stylish icons. Join now and make your profile stand out!",
+  "@MaximXAnime - Dive into the world of anime with curated recommendations and community discussions. Join us and elevate your anime experience!"
 ];
 
 // ─── Public API ──────────────────────────────────────────────
@@ -55,7 +55,7 @@ export function getRandomAd() {
  */
 export function getAdFooter() {
     const ad = getRandomAd();
-    return `\n\n──────────\n📮 <b>Aᴅs:</b> <a href="https://t.me/QuinxAds">Ҩᴜɪɴx Aᴅs</a>\n<blockquote>${ad}</blockquote>`;
+    return `\n\n━━━━━━━━━━━\n📮 <b>Aᴅs:</b> <a href="https://t.me/QuinxAds">Ҩᴜɪɴx Aᴅs</a>\n<blockquote>${ad}</blockquote>`;
 }
 
 /**
