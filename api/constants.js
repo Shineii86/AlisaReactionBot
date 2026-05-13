@@ -57,7 +57,7 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 
 ────────────────
 
-🔒 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b> (Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Iғ Yᴏᴜ'ʀᴇ Nᴏᴛ Oɴᴇ)
+🔒 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
 🔹 <code>/pause</code> — Pᴀᴜsᴇ Mʏ Rᴇᴀᴄᴛɪᴏɴs. Yᴏᴜ'ʟʟ Mɪss Tʜᴇᴍ.
 🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ. Ахаха, Wᴇʟᴄᴏᴍᴇ Bᴀᴄᴋ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
@@ -67,7 +67,7 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 
 ────────────────
 
-👑 <b>Oᴡɴᴇʀ Oɴʟʏ:</b> (Tʜᴇʀᴇ Cᴀɴ Oɴʟʏ Bᴇ Oɴᴇ)
+👑 <b>Oᴡɴᴇʀ Oɴʟʏ:</b>
 🔹 <code>/broadcast &lt;msg&gt;</code> — Sᴘᴇᴀᴋ Tᴏ Aʟʟ Cʜᴀᴛs.
 🔹 <code>/leave &lt;chat_id&gt;</code> — Rᴇᴍᴏᴠᴇ Mᴇ. Yᴏᴜʀ Lᴏss.
 🔹 <code>/remove &lt;chat_id&gt;</code> — Aʟɪᴀs Fᴏʀ /leave.
@@ -84,17 +84,16 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 // ---- FEATURE: /about bot info + character lore ----
 export const aboutMessage = `🦊 <a href='https://t.me/AlisaReactionBot'>Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴs Bᴏᴛ</a> Cʀᴀғᴛᴇᴅ Bʏ <b><a href='https://t.me/Shineii86'>Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a></b> Usɪɴɢ <b>Nᴏᴅᴇ.js</b> & <b>Express</b> — Dᴇᴘʟᴏʏᴇᴅ Oɴ <b>Cʟᴏᴜᴅғʟᴀʀᴇ Wᴏʀᴋᴇʀs</b>, <b>Vᴇʀᴄᴇʟ</b> & <b>Dᴏᴄᴋᴇʀ</b>.
 
-<b>Tʜᴇ Sᴘɪʀɪᴛ Oғ Tʜɪs Bᴏᴛ Is Iɴғᴜsᴇᴅ Wɪᴛʜ Tʜᴇ Essᴇɴᴄᴇ Oғ Aʟɪsᴀ Mɪᴋʜᴀɪʟᴏᴠɴᴀ Kᴜᴊᴏᴜ</b>, Tʜᴇ Hᴀʟꜰ-Rᴜssɪᴀɴ, Hᴀʟꜰ-Jᴀᴘᴀɴᴇsᴇ Iᴄᴇ Qᴜᴇᴇɴ Wʜᴏsᴇ Sʜᴀʀᴘ Tᴏɴɢᴜᴇ Aɴᴅ Hɪᴅᴅᴇɴ Wᴀʀᴍᴛʜ Gᴏᴠᴇʀɴ Hᴇʀ Eᴠᴇʀʏ Wᴏʀᴅ. As Tʜᴇ Tsᴜɴᴅᴇʀᴇ Pʀɪᴅᴇ Oғ "Tᴏᴋɪᴅᴏᴋɪ Bᴏsᴏᴛᴛᴏ Rᴏssɪᴀ-ɢᴏ Dᴇ Dᴇʀᴇʀᴜ Tᴏɴᴀʀɪ Nᴏ Aʟʏᴀ-Sᴀɴ," Sʜᴇ Cᴀᴘᴛɪᴠᴀᴛᴇs Wɪᴛʜ Hᴇʀ Eʟᴇɢᴀɴᴛ Pʀɪᴅᴇ, Sʜᴀʀᴘ Wɪᴛ, Aɴᴅ Tʜᴏsᴇ Mᴏᴍᴇɴᴛs Wʜᴇɴ Rᴜssɪᴀɴ Sʟɪᴘs Tʜʀᴏᴜɢʜ Hᴇʀ Cᴏᴍᴘᴏsᴇᴅ Fᴀᴄᴀᴅᴇ—Qᴜᴀʟɪᴛɪᴇs Eᴍʙᴏᴅɪᴇᴅ Iɴ Tʜɪs Bᴏᴛ's Dᴇsɪɢɴ.
+<b>Tʜᴇ Sᴘɪʀɪᴛ Oғ Tʜɪs Bᴏᴛ Is Iɴғᴜsᴇᴅ Wɪᴛʜ Tʜᴇ Essᴇɴᴄᴇ Oғ Aʟɪsᴀ Mɪᴋʜᴀɪʟᴏᴠɴᴀ Kᴜᴊᴏᴜ</b>, Tʜᴇ Hᴀʟꜰ-Rᴜssɪᴀɴ, Hᴀʟꜰ-Jᴀᴘᴀɴᴇsᴇ Iᴄᴇ Ҩᴜᴇᴇɴ Wʜᴏsᴇ Sʜᴀʀᴘ Tᴏɴɢᴜᴇ Aɴᴅ Hɪᴅᴅᴇɴ Wᴀʀᴍᴛʜ Gᴏᴠᴇʀɴ Hᴇʀ Eᴠᴇʀʏ Wᴏʀᴅ. As Tʜᴇ Tsᴜɴᴅᴇʀᴇ Pʀɪᴅᴇ Oғ "Tᴏᴋɪᴅᴏᴋɪ Bᴏsᴏᴛᴛᴏ Rᴏssɪᴀ-ɢᴏ Dᴇ Dᴇʀᴇʀᴜ Tᴏɴᴀʀɪ Nᴏ Aʟʏᴀ-Sᴀɴ," Sʜᴇ Cᴀᴘᴛɪᴠᴀᴛᴇs Wɪᴛʜ Hᴇʀ Eʟᴇɢᴀɴᴛ Pʀɪᴅᴇ, Sʜᴀʀᴘ Wɪᴛ, Aɴᴅ Tʜᴏsᴇ Mᴏᴍᴇɴᴛs Wʜᴇɴ Rᴜssɪᴀɴ Sʟɪᴘs Tʜʀᴏᴜɢʜ Hᴇʀ Cᴏᴍᴘᴏsᴇᴅ Fᴀᴄᴀᴅᴇ—Ҩᴜᴀʟɪᴛɪᴇs Eᴍʙᴏᴅɪᴇᴅ Iɴ Tʜɪs Bᴏᴛ's Dᴇsɪɢɴ.
 
-Хмпф… N-Not Tʜᴀᴛ I Cᴀʀᴇ Iғ Yᴏᴜ Rᴇᴀᴅ Tʜɪs Fᴀʀ.
+Хмпф… N-Nᴏᴛ Tʜᴀᴛ I Cᴀʀᴇ Iғ Yᴏᴜ Rᴇᴀᴅ Tʜɪs Fᴀʀ.
 
 <b>» 🚀 Vᴇʀsɪᴏɴ:</b> v2.8.0
-<b>» 📡 Nᴇᴛᴡᴏʀᴋ:</b> <a href='https://t.me/QuinxNetwork'>Qᴜɪɴx Nᴇᴛᴡᴏʀᴋ</a>
+<b>» 📡 Nᴇᴛᴡᴏʀᴋ:</b> <a href='https://t.me/QuinxNetwork'>Ҩᴜɪɴx Nᴇᴛᴡᴏʀᴋ</a>
 <b>» 🔔 Mᴀɪɴ Cʜᴀɴɴᴇʟ:</b> <a href='https://t.me/MaximXBots'>Mᴀxɪᴍ 𝕏 Bᴏᴛs</a>
 <b>» 💬 Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ:</b> <a href='https://t.me/MaximXGroup'>Mᴀxɪᴍ 𝕏 Gʀᴏᴜᴘ</a>
 
 <b>Bᴏᴛ Cʀᴇᴅɪᴛs</b>
-<b>» 👑 Bᴏᴛ Oᴡɴᴇʀ:</b> <a href='https://t.me/Senpai86'>Zᴏʀᴏ Rᴏʀᴏɴᴏᴀ</a>
 <b>» 💀 Dᴇᴠᴇʟᴏᴘᴇʀ:</b> <a href='https://t.me/Shineii86'>Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>`
 
 // ══════════════════════════════════════════════════════════════
