@@ -55,7 +55,7 @@ export function getRandomAd() {
  */
 export function getAdFooter() {
     const ad = getRandomAd();
-    return `\n\n━━━━━━━━━━━\n📮 <b>Aᴅs:</b> <a href="https://t.me/QuinxAds">Ҩᴜɪɴx Aᴅs</a>\n<blockquote>${ad}</blockquote>`;
+    return `\n\n📮 <b>Aᴅs:</b> <a href="https://t.me/QuinxAds">Ҩᴜɪɴx Aᴅs</a>\n<blockquote>${ad}</blockquote>`;
 }
 
 /**
