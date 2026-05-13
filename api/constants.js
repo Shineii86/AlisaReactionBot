@@ -37,7 +37,7 @@ export const helpMessage = `📚 <b>Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢ�
 
 ────────────────
 
-👑 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
+🙂 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
 🔹 <code>/pause</code> — Pᴀᴜsᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
 🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs Iɴ Tʜɪs Cʜᴀᴛ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
@@ -55,13 +55,7 @@ export const helpMessage = `📚 <b>Hᴇʟᴘ — Cᴏᴍᴍᴀɴᴅs & Usᴀɢ�
 🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
 🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Uɴʀᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
 🔹 <code>/setwebhook &lt;url&gt;</code> — Sᴇᴛ Oʀ Vɪᴇᴡ Wᴇʙʜᴏᴏᴋ.
-🔹 <code>/log</code> — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.
-
-💡 <b>Pʀᴏ Tɪᴘs:</b>
-• Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
-• Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
-• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ <code>/pause</code> Aɴᴅ <code>/setreactions</code>.
-• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`
+🔹 <code>/log</code> — Vɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ.`
 
 // ─── About Messages ───────────────────────────────────────────
 export const aboutMessage = `🤖 <b>Aʙᴏᴜᴛ Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴ Bᴏᴛ</b>
@@ -97,7 +91,7 @@ Iғ Yᴏᴜ Eɴᴊᴏʏ Usɪɴɢ Aʟɪsᴀ, Cᴏɴsɪᴅᴇʀ Sᴜᴘᴘᴏʀᴛ
 
 ∇ <b>Tᴏɴ Pᴀʏᴍᴇɴᴛ Vɪᴀ Tᴏɴᴋᴇᴇᴘᴇʀ</b>   
 - <b>Aᴅᴅʀᴇss:</b> <code>UQBmK_-2A-gHnhx0hmWdFeQc8X7iZ0O_UkxQbQGU2uA6OwmX</code>
-<i>(Accepts both TON and USDT on TON network)</i>
+<i>(Aᴄᴄᴇᴘᴛs Bᴏᴛʜ Tᴏɴ Aɴᴅ Usᴅᴛ Oɴ Tᴏɴ Nᴇᴛᴡᴏʀᴋ)</i>
 
 🇮🇳 <b>Iɴʀ PʜᴏɴᴇPᴇ</b>
 - <b>Uᴘɪ Iᴅ:</b> Dᴍ Aᴛ <a href="https://t.me/Shineii86">Sʜɪɴᴇɪ Nᴏᴜᴢᴇɴ</a>
@@ -108,7 +102,7 @@ Sᴇɴᴅ Sᴛᴀʀs Dɪʀᴇᴄᴛʟʏ Tᴏ <a href="https://t.me/Shineii86">S�
 ────────────────
 
 Eᴠᴇɴ A Sᴍᴀʟʟ Cᴏɴᴛʀɪʙᴜᴛɪᴏɴ Mᴇᴀɴs A Lᴏᴛ.
-Sᴘᴀsɪʙᴏ Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ! 🙏`
+Tʜᴀɴᴋs Fᴏʀ Yᴏᴜʀ Sᴜᴘᴘᴏʀᴛ! 🙏`
 
 // ─── Stats Header Messages ───────────────────────────────────────────
 export const statsHeader = `📊 <b>Aʟɪsᴀ Bᴏᴛ Sᴛᴀᴛs</b>\n\n`
@@ -120,13 +114,13 @@ export const reactionsUpdated = `✅ Rᴇᴀᴄᴛɪᴏɴs Uᴘᴅᴀᴛᴇᴅ F
 export const reactionsReset = `🔄 Rᴇᴀᴄᴛɪᴏɴs Rᴇsᴇᴛ Tᴏ Dᴇғᴀᴜʟᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.`
 
 // ─── Invalid Reaction Messages ───────────────────────────────────────────
-export const reactionsInvalid = `❌ Iɴᴠᴀʟɪᴅ Eᴍᴏᴊɪ Lɪsᴛ. Sᴇɴᴅ Eᴍᴏᴊɪs Sᴇᴘᴀʀᴀᴛᴇᴅ Bʏ Sᴘᴀᴄᴇs.\n\nExample: /setreactions 👍 ❤ 🔥 🎉 👏`
+export const reactionsInvalid = `📵 Iɴᴠᴀʟɪᴅ Eᴍᴏᴊɪ Lɪsᴛ. Sᴇɴᴅ Eᴍᴏᴊɪs Sᴇᴘᴀʀᴀᴛᴇᴅ Bʏ Sᴘᴀᴄᴇs.\n\nExample: /setreactions 👍 ❤ 🔥 🎉 👏`
 
 // ─── Paused Reaction Messages ───────────────────────────────────────────
-export const pausedMessage = `⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>ᴘᴀᴜsᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.\nUsᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.`
+export const pausedMessage = `⏸️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>Pᴀᴜsᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.\nUsᴇ /resume Tᴏ Rᴇsᴜᴍᴇ.`
 
 // ─── Resume Reaction Messages ───────────────────────────────────────────
-export const resumedMessage = `▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>ʀᴇsᴜᴍᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.`
+export const resumedMessage = `▶️ Aᴜᴛᴏ-Rᴇᴀᴄᴛɪᴏɴs <b>Rᴇsᴜᴍᴇᴅ</b> Iɴ Tʜɪs Cʜᴀᴛ.`
 
 // ─── Not Passed Messages ───────────────────────────────────────────
 export const notPausedMessage = `ℹ️ Rᴇᴀᴄᴛɪᴏɴs Aʀᴇ Nᴏᴛ Pᴀᴜsᴇᴅ Iɴ Tʜɪs Cʜᴀᴛ.`
@@ -136,7 +130,7 @@ export const broadcastStarted = `📡 Bʀᴏᴀᴅᴄᴀsᴛɪɴɢ...`
 
 // ─── Broadcast Done Messages ───────────────────────────────────────────
 export const broadcastDone = (success, failed) =>
-    `✅ <b>Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!</b>\n\n📨 Sᴇɴᴛ: ${success}\n❌ Fᴀɪʟᴇᴅ: ${failed}`
+    `✅ <b>Bʀᴏᴀᴅᴄᴀsᴛ Cᴏᴍᴘʟᴇᴛᴇ!</b>\n\n🚀 Sᴇɴᴛ: ${success}\n📵 Fᴀɪʟᴇᴅ: ${failed}`
 
 // ─── Only Owner Messages ───────────────────────────────────────────
 export const onlyOwnerMessage = `👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Oɴʟʏ Aᴠᴀɪʟᴀʙʟᴇ Tᴏ Tʜᴇ Bᴏᴛ Oᴡɴᴇʀ.`
