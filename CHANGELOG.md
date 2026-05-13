@@ -4,6 +4,29 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.6.1] — 2026-05-14
+
+### 🐛 Bug Fixes
+
+- **Fixed `/randomlevel` command** — Resolved multiple issues causing the command to not work correctly:
+  - Command now works in private chats (shows global default info instead of blocking with "group only" error)
+  - Added `isNaN` guard for `RandomLevel` initialization — invalid `RANDOM_LEVEL` env var no longer causes the bot to skip all group reactions (`Math.random() <= NaN` was always `false`)
+  - Fixed auto-reaction threshold logic: changed `Math.random() <= threshold` to `Math.random() < threshold` so level 10 (`0` threshold) truly means "never react" (previously `Math.random()` could return exactly `0`, bypassing the threshold)
+  - Added try-catch error handling around the command handler — Telegram API errors are now logged and surfaced to the user instead of being silently swallowed by the outer webhook catch block
+  - Cleaner response messages: show current reaction percentage, clearer usage hints
+
+### 🔧 Changes
+
+- `RandomLevel` is now validated at startup in both `index.js` and `worker.js` — falls back to `0` if the env var is missing, non-numeric, or out of range (0–10)
+- `/randomlevel` in DMs now displays the global default level with an explanation that per-chat overrides require group admin access
+- `/randomlevel` without args now also shows the reaction percentage alongside the level number
+
+### 📝 Docs
+
+- **CHANGELOG.md** — v2.6.1 entry added
+
+---
+
 ## [v2.6.0] — 2026-05-12
 
 ### 🗑️ Removed

@@ -33,7 +33,10 @@ if (!botToken || !botUsername) {
 
 const Reactions = splitEmojis(process.env.EMOJI_LIST);
 const RestrictedChats = getChatIds(process.env.RESTRICTED_CHATS);
-const RandomLevel = parseInt(process.env.RANDOM_LEVEL || '0', 10);
+const RandomLevel = (() => {
+    const parsed = parseInt(process.env.RANDOM_LEVEL || '0', 10);
+    return (isNaN(parsed) || parsed < 0 || parsed > 10) ? 0 : parsed;
+})();
 const ownerId = process.env.OWNER_ID || '';
 const webhookSecret = process.env.WEBHOOK_SECRET || crypto.randomUUID();
 

@@ -32,7 +32,10 @@ function getConfig(env) {
             botUsername: env.BOT_USERNAME,
             reactions: splitEmojis(env.EMOJI_LIST),
             restrictedChats: getChatIds(env.RESTRICTED_CHATS),
-            randomLevel: parseInt(env.RANDOM_LEVEL || '0', 10),
+            randomLevel: (() => {
+                const parsed = parseInt(env.RANDOM_LEVEL || '0', 10);
+                return (isNaN(parsed) || parsed < 0 || parsed > 10) ? 0 : parsed;
+            })(),
             ownerId: env.OWNER_ID || '',
             webhookSecret: webhookSecret,
             botApi: new TelegramBotAPI(env.BOT_TOKEN)

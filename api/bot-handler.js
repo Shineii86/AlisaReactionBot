@@ -195,6 +195,11 @@ function getBackKeyboard() {
  */
 export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret) {
 
+    // Guard against NaN RandomLevel from invalid env var
+    if (isNaN(RandomLevel) || RandomLevel < 0 || RandomLevel > 10) {
+        RandomLevel = 0;
+    }
+
     // ─── Callback Query ───
     if (data.callback_query) {
         const cq = data.callback_query;
@@ -381,34 +386,75 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
-            // /randomlevel <0-10> (group admins only)
+            // /randomlevel <0-10> (group admins only for override; shows info in DMs)
             if (cmd === '/randomlevel') {
                 trackCommand('randomlevel');
-                if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage);
-                    return;
+                try {
+                    const trimmedArgs = args?.trim();
+                    const isGroup = isGroupChat(chatType);
+
+                    // In private chats, show global default info (no override possible)
+                    if (!isGroup) {
+                        const globalLevel = RandomLevel;
+                        const globalChance = (10 - globalLevel) * 10;
+                        await botApi.sendMessage(chatId,
+                            `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ*\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: \`${globalLevel}\` — Rᴇᴀᴄᴛ ~${globalChance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
+                            `💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ɴᴇᴠᴇʀ\n\n` +
+                            `⚠️ Tᴏ ᴏᴠᴇʀʀɪᴅᴇ ɪɴ ᴀ ɢʀᴏᴜᴘ, ᴜsᴇ \`/randomlevel <0-10>\` ᴛʜᴇʀᴇ.\n` +
+                            `📌 Aᴅᴍɪɴs ᴏɴʟʏ ɪɴ ɢʀᴏᴜᴘs.`
+                        );
+                        return;
+                    }
+
+                    // Group: require admin permission
+                    if (!await isGroupAdmin(botApi, chatId, userId)) {
+                        await botApi.sendMessage(chatId, onlyAdminMessage);
+                        return;
+                    }
+
+                    // No args → show current level for this chat
+                    if (!trimmedArgs) {
+                        const current = perChatRandomLevel[chatId] !== undefined
+                            ? perChatRandomLevel[chatId]
+                            : RandomLevel;
+                        const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
+                        const currentChance = (10 - current) * 10;
+                        await botApi.sendMessage(chatId,
+                            `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:*\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: \`${current}\` (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
+                            `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: \`${RandomLevel}\`\n\n` +
+                            `💡 Usᴇ \`/randomlevel <0-10>\` ᴛᴏ ᴄʜᴀɴɢᴇ.`
+                        );
+                        return;
+                    }
+
+                    // Validate the level value
+                    const level = parseInt(trimmedArgs, 10);
+                    if (isNaN(level) || level < 0 || level > 10) {
+                        await botApi.sendMessage(chatId,
+                            `❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ \`0\` ᴀɴᴅ \`10\`.\n\n` +
+                            `📌 Usᴀɢᴇ: \`/randomlevel <0-10>\`\n` +
+                            `💡 \`0\` = ᴀʟᴡᴀʏs ʀᴇᴀᴄᴛ | \`10\` = ɴᴇᴠᴇʀ ʀᴇᴀᴄᴛ`
+                        );
+                        return;
+                    }
+
+                    // Set per-chat override
+                    perChatRandomLevel[chatId] = level;
+                    const chance = (10 - level) * 10;
+                    await botApi.sendMessage(chatId,
+                        `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!* 📊\n\n` +
+                        `🎯 Lᴇᴠᴇʟ: \`${level}\` — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
+                        `💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ɴᴇᴠᴇʀ\n` +
+                        `🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`
+                    );
+                } catch (error) {
+                    log.error('[/randomlevel]', error.message);
+                    try {
+                        await botApi.sendMessage(chatId, `❌ Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`);
+                    } catch {}
                 }
-                if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage);
-                    return;
-                }
-                const level = parseInt(args?.trim(), 10);
-                if (args?.trim() === '' || args === undefined) {
-                    // Show current level
-                    const current = perChatRandomLevel[chatId] !== undefined
-                        ? perChatRandomLevel[chatId]
-                        : RandomLevel;
-                    const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
-                    await botApi.sendMessage(chatId, `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:*\n\n📊 Cᴜʀʀᴇɴᴛ: \`${current}\` (${source})\n📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: \`${RandomLevel}\`\n\n💡 Usᴇ \`/randomlevel <0-10>\` ᴛᴏ ᴄʜᴀɴɢᴇ.`);
-                    return;
-                }
-                if (isNaN(level) || level < 0 || level > 10) {
-                    await botApi.sendMessage(chatId, '❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ Bᴇᴛᴡᴇᴇɴ `0` (ᴀʟᴡᴀʏs) ᴀɴᴅ `10` (ɴᴇᴠᴇʀ).\n\n📌 Usᴀɢᴇ: `/randomlevel <0-10>`');
-                    return;
-                }
-                perChatRandomLevel[chatId] = level;
-                const chance = (10 - level) * 10;
-                await botApi.sendMessage(chatId, `🎲 *Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!* 📊\n\n🎯 Lᴇᴠᴇʟ: \`${level}\` — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n💡 \`0\` = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | \`10\` = ᴠᴇʀʏ ʀᴀʀᴇ\n🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`);
                 return;
             }
 
@@ -621,8 +667,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             const chatRandomLevel = perChatRandomLevel[chatId] !== undefined
                 ? perChatRandomLevel[chatId]
                 : RandomLevel;
-            const threshold = 1 - (chatRandomLevel / 10);
-            if (Math.random() <= threshold) {
+            const threshold = (10 - chatRandomLevel) / 10;
+            if (Math.random() < threshold) {
                 try {
                     await botApi.setMessageReaction(chatId, message_id, reaction);
                     stats.reactionsSent++;
