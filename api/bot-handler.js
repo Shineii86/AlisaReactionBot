@@ -251,11 +251,17 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         const messageId = cq.message?.message_id;
 
         try {
-            // Helper: edit message caption (for photo messages) or text
+            // Helper: edit message — handles both photo and text messages
             const editMsg = async (text, keyboard) => {
-                try {
-                    await botApi.editMessageCaption(chatId, messageId, text, keyboard);
-                } catch {
+                if (botPhoto) {
+                    // Photo message — try caption edit, fallback to new message if too long
+                    try {
+                        await botApi.editMessageCaption(chatId, messageId, text, keyboard);
+                    } catch {
+                        await botApi.sendMessage(chatId, text, keyboard);
+                    }
+                } else {
+                    // Text message — edit directly
                     await botApi.editMessageText(chatId, messageId, text, keyboard);
                 }
             };
@@ -277,15 +283,27 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const name = cq.message?.chat?.type === 'private'
                         ? (cq.from?.first_name || cq.message?.chat?.title)
                         : cq.message?.chat?.title;
-                    if (botPhoto) {
-                        await botApi.editMessageMedia(chatId, messageId, {
-                            type: 'photo',
-                            media: botPhoto,
-                            caption: startMessage.replace('UserName', name),
-                            parse_mode: 'HTML'
-                        }, getStartKeyboard(botUsername));
+                    const caption = startMessage.replace('UserName', name);
+                    const keyboard = getStartKeyboard(botUsername);
+                    // Check if current message is a photo message
+                    const hasPhoto = cq.message?.photo;
+                    if (hasPhoto) {
+                        try {
+                            await botApi.editMessageMedia(chatId, messageId, {
+                                type: 'photo',
+                                media: botPhoto,
+                                caption: caption,
+                                parse_mode: 'HTML'
+                            }, keyboard);
+                        } catch {
+                            await botApi.editMessageCaption(chatId, messageId, caption, keyboard);
+                        }
+                    } else if (botPhoto) {
+                        // Current message is text but we want photo — send new photo
+                        await botApi.deleteMessage(chatId, messageId).catch(() => {});
+                        await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
                     } else {
-                        await botApi.editMessageText(chatId, messageId, startMessage.replace('UserName', name), getStartKeyboard(botUsername));
+                        await botApi.editMessageText(chatId, messageId, caption, keyboard);
                     }
                     break;
                 }
