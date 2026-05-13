@@ -30,20 +30,20 @@ const stats = {
     startTime: Date.now(),
 };
 
-const reactionLog = [];          // Last 50 reactions: [{chatId, emoji, timestamp}]
-const pausedChats = new Set();   // Chat IDs where reactions are paused
-const perChatReactions = {};     // chatId → emoji string (custom per-chat)
-const restrictedChatsRuntime = new Set(); // Runtime-restricted chat IDs
+const reactionLog = [];          // Last 50 Reactions: [{chatId, emoji, timestamp}]
+const pausedChats = new Set();   // Chat IDs Where Reactions Are Paused
+const perChatReactions = {};     // chatId → Emoji String (Custom Per-Chat)
+const restrictedChatsRuntime = new Set(); // Runtime-restricted Chat IDs
 const rateLimitMap = {};         // chatId → { count, resetAt }
-const chatNames = {};            // chatId → chat title (cached)
-const perChatRandomLevel = {};   // chatId → random level override (0-10)
-const welcomeEnabled = new Set(); // Chat IDs where welcome messages are enabled
-const leaveEnabled = new Set();   // Chat IDs where leave messages are enabled
+const chatNames = {};            // chatId → Chat Title (Cached)
+const perChatRandomLevel = {};   // chatId → Random Level Override (0-10)
+const welcomeEnabled = new Set(); // Chat IDs Where Welcome Messages Are Enabled
+const leaveEnabled = new Set();   // Chat IDs Where Leave Messages Are Enabled
 
 const LOG_MAX = 50;
-const RATE_LIMIT_MAX = 30;       // max reactions per minute per chat
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const BROADCAST_COOLDOWN = 60000; // 1 minute between broadcasts
+const RATE_LIMIT_MAX = 30;       // Max Reactions Per Minute Per Chat
+const RATE_LIMIT_WINDOW = 60000; // 1 Minute
+const BROADCAST_COOLDOWN = 60000; // 1 Minute Between Broadcasts
 let lastBroadcastTime = 0;
 
 // ─── Helpers ───
@@ -162,7 +162,7 @@ function getStatsMessage() {
 
     return `${statsHeader}📨 <b>Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:</b> ${stats.messagesProcessed.toLocaleString()}
 💫 <b>Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:</b> ${stats.reactionsSent.toLocaleString()}
-💬 <b>Uɴɪqᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()}
+💬 <b>Uɴɪҩᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()}
 ⏸️ <b>Pᴀᴜsᴇᴅ Cʜᴀᴛs:</b> ${pausedChats.size.toLocaleString()}
 🚫 <b>Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:</b> ${restrictedChatsRuntime.size.toLocaleString()}
 🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:</b> ${Object.keys(perChatRandomLevel).length.toLocaleString()}
@@ -194,8 +194,7 @@ function getStartKeyboard(botUsername) {
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
         ],
         [
-            { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' },
-            { text: 'Sᴏᴜʀᴄᴇ Cᴏᴅᴇ ☁️', url: 'https://github.com/Shineii86/AlisaReactionBot' },
+            { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' },
         ],
     ];
 }
@@ -207,8 +206,8 @@ function getBackKeyboard() {
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
         ],
         [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
-            { text: '✖️ Cʟᴏsᴇ', callback_data: 'cb_close' }
+            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
         ]
     ];
 }
@@ -216,8 +215,8 @@ function getBackKeyboard() {
 function getCloseKeyboard() {
     return [
         [
-            { text: '⬅️ Bᴀᴄᴋ Tᴏ Mᴇɴᴜ', callback_data: 'cb_menu' },
-            { text: '✖️ Cʟᴏsᴇ', callback_data: 'cb_close' }
+            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
         ]
     ];
 }
@@ -509,10 +508,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const globalChance = (10 - globalLevel) * 10;
                         await botApi.sendMessage(chatId,
                             `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
-                            `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
+                            `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
                             `💡 <code>0</code> = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | <code>10</code> = ɴᴇᴠᴇʀ\n\n` +
-                            `⚠️ Tᴏ ᴏᴠᴇʀʀɪᴅᴇ ɪɴ ᴀ ɢʀᴏᴜᴘ, ᴜsᴇ <code>/randomlevel &lt;0-10&gt;</code> ᴛʜᴇʀᴇ.\n` +
-                            `📌 Aᴅᴍɪɴs ᴏɴʟʏ ɪɴ ɢʀᴏᴜᴘs.`,
+                            `⚠️ Tᴏ Oᴠᴇʀʀɪᴅᴇ Iɴ A Gʀᴏᴜᴘ, Usᴇ <code>/randomlevel &lt;0-10&gt;</code> Tʜᴇʀᴇ.\n` +
+                            `📌 Aᴅᴍɪɴs Oɴʟʏ Iɴ Gʀᴏᴜᴘs.`,
                             getCloseKeyboard()
                         );
                         return;
@@ -535,7 +534,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
                             `📊 Cᴜʀʀᴇɴᴛ: <code>${current}</code> (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
                             `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: <code>${RandomLevel}</code>\n\n` +
-                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> ᴛᴏ ᴄʜᴀɴɢᴇ.`,
+                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> Tᴏ Cʜᴀɴɢᴇ.`,
                             getCloseKeyboard()
                         );
                         return;
@@ -545,9 +544,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const level = parseInt(trimmedArgs, 10);
                     if (isNaN(level) || level < 0 || level > 10) {
                         await botApi.sendMessage(chatId,
-                            `❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ <code>0</code> ᴀɴᴅ <code>10</code>.\n\n` +
+                            `❌ Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ <code>0</code> Aɴᴅ <code>10</code>.\n\n` +
                             `📌 Usᴀɢᴇ: <code>/randomlevel &lt;0-10&gt;</code>\n` +
-                            `💡 <code>0</code> = ᴀʟᴡᴀʏs ʀᴇᴀᴄᴛ | <code>10</code> = ɴᴇᴠᴇʀ ʀᴇᴀᴄᴛ`,
+                            `💡 <code>0</code> = Aʟᴡᴀʏs Rᴇᴀᴄᴛ | <code>10</code> = Nᴇᴠᴇʀ Rᴇᴀᴄᴛ`,
                             getCloseKeyboard()
                         );
                         return;
@@ -558,9 +557,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const chance = (10 - level) * 10;
                     await botApi.sendMessage(chatId,
                         `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
-                        `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% ᴏғ ᴛʜᴇ ᴛɪᴍᴇ\n\n` +
-                        `💡 <code>0</code> = ᴇᴠᴇʀʏ ᴍᴇssᴀɢᴇ | <code>10</code> = ɴᴇᴠᴇʀ\n` +
-                        `🔄 Rᴇsᴇᴛs ᴏɴ ʀᴇsᴛᴀʀᴛ.`,
+                        `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
+                        `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n` +
+                        `🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ.`,
                         getCloseKeyboard()
                     );
                 } catch (error) {
@@ -712,7 +711,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 const webhookUrl = args.trim();
                 if (!webhookUrl.startsWith('https://')) {
-                    await botApi.sendMessage(chatId, '❌ Wᴇʙʜᴏᴏᴋ URL Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ <code>https://</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '❌ Wᴇʙʜᴏᴏᴋ Uʀʟ Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ <code>https://</code>', getCloseKeyboard());
                     return;
                 }
                 try {
@@ -784,13 +783,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 if (welcomeEnabled.has(chatId)) {
                     welcomeEnabled.delete(chatId);
                     await botApi.sendMessage(chatId,
-                        `🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ɴᴏᴛ ʀᴇᴄᴇɪᴠᴇ ᴀ ɢʀᴇᴇᴛɪɴɢ ᴡʜᴇɴ ᴛʜᴇʏ ᴊᴏɪɴ.`,
+                        `🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs Wɪʟʟ Nᴏᴛ Rᴇᴄᴇɪᴠᴇ A Gʀᴇᴇᴛɪɴɢ Wʜᴇɴ Tʜᴇʏ Jᴏɪɴ.`,
                         getCloseKeyboard()
                     );
                 } else {
                     welcomeEnabled.add(chatId);
                     await botApi.sendMessage(chatId,
-                        `🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nNᴇᴡ ᴍᴇᴍʙᴇʀs ᴡɪʟʟ ʀᴇᴄᴇɪᴠᴇ ᴀ ɢʀᴇᴇᴛɪɴɢ ᴡʜᴇɴ ᴛʜᴇʏ ᴊᴏɪɴ.`,
+                        `🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nNᴇᴡ Mᴇᴍʙᴇʀs Wɪʟʟ Rᴇᴄᴇɪᴠᴇ A Gʀᴇᴇᴛɪɴɢ Wʜᴇɴ Tʜᴇʏ Jᴏɪɴ.`,
                         getCloseKeyboard()
                     );
                 }
@@ -811,13 +810,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 if (leaveEnabled.has(chatId)) {
                     leaveEnabled.delete(chatId);
                     await botApi.sendMessage(chatId,
-                        `🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ɴᴏᴛ ʀᴇᴄᴇɪᴠᴇ ᴀ ғᴀʀᴇᴡᴇʟʟ ᴡʜᴇɴ ᴛʜᴇʏ ʟᴇᴀᴠᴇ.`,
+                        `🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs Wɪʟʟ Nᴏᴛ Rᴇᴄᴇɪᴠᴇ A Fᴀʀᴇᴡᴇʟʟ Wʜᴇɴ Tʜᴇʏ Lᴇᴀᴠᴇ.`,
                         getCloseKeyboard()
                     );
                 } else {
                     leaveEnabled.add(chatId);
                     await botApi.sendMessage(chatId,
-                        `🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs ᴡɪʟʟ ʀᴇᴄᴇɪᴠᴇ ᴀ ғᴀʀᴇᴡᴇʟʟ ᴡʜᴇɴ ᴛʜᴇʏ ʟᴇᴀᴠᴇ.`,
+                        `🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nMᴇᴍʙᴇʀs Wɪʟʟ Rᴇᴄᴇɪᴠᴇ A Fᴀʀᴇᴡᴇʟʟ Wʜᴇɴ Tʜᴇʏ Lᴇᴀᴠᴇ.`,
                         getCloseKeyboard()
                     );
                 }
@@ -841,7 +840,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     `Wʜᴇʀᴇ Eᴠᴇʀʏ Cʜᴀᴛ Sᴘᴀʀᴋʟᴇs Lɪᴋᴇ A Gʀᴀɴᴅ Fᴇsᴛɪᴠᴀʟ. ✨`;
 
                 const welcomeBtns = [
-                    [{ text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' }],
+                    [
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' }
+                    ],
                     [
                         { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
                         { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
@@ -873,7 +874,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     `Mᴀʏ Tʜᴇ Eʟᴇᴄᴛʀᴏ Aʀᴄʜᴏɴ Gᴜɪᴅᴇ Yᴏᴜ Bᴀᴄᴋ Aɴʏᴛɪᴍᴇ.`;
 
                 const leaveBtns = [
-                    [{ text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ', url: 'https://t.me/Shineii86' }],
+                    [
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' }
+                    ],
                     [
                         { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
                         { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
