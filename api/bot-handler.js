@@ -230,6 +230,9 @@ function getHelpKeyboard(userId, ownerId) {
             { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
         ],
+        [
+            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions' },
+        ],
     ];
 
     // Show admin panel button only to the owner
