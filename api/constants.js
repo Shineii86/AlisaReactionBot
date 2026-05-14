@@ -63,7 +63,13 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
 🔹 <code>/randomlevel &lt;0-10&gt;</code> — Aᴅᴊᴜsᴛ Rᴇᴀᴄᴛɪᴏɴ Fʀᴇǫᴜᴇɴᴄʏ.
 🔹 <code>/welcome</code> — Tᴏɢɢʟᴇ Gʀᴇᴇᴛɪɴɢs Fᴏʀ Nᴇᴡ Mᴇᴍʙᴇʀs.
-🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Fᴀʀᴇᴡᴇʟʟs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.`
+🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Fᴀʀᴇᴡᴇʟʟs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.
+
+💡 <b>Pʀᴏ Tɪᴘs:</b>
+• Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
+• Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
+• Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ <code>/pause</code> Aɴᴅ <code>/setreactions</code>.
+• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`
 
 // ---- FEATURE: Admin panel — owner-only commands ----
 export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇʀ Oɴʟʏ</b>
