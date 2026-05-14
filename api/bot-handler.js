@@ -12,7 +12,7 @@
  *                   botUsername, RandomLevel, ownerId,
  *                   webhookSecret, botPhoto)
  *
- * @version 2.9.0
+ * @version 2.10.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -28,6 +28,7 @@ import {
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
+import { Store } from './store.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE
@@ -179,7 +180,7 @@ function getStatsMessage() {
 
     return `${statsHeader}📨 <b>Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:</b> ${stats.messagesProcessed.toLocaleString()}
 💫 <b>Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:</b> ${stats.reactionsSent.toLocaleString()}
-💬 <b>Uɴɪҩᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()}
+💬 <b>Uɴɪҩᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()} (ᴛʜɪs sᴇssɪᴏɴ) · ${Store.getChatCount().toLocaleString()} (ᴛᴏᴛᴀʟ)
 ⏸️ <b>Pᴀᴜsᴇᴅ Cʜᴀᴛs:</b> ${pausedChats.size.toLocaleString()}
 🚫 <b>Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:</b> ${restrictedChatsRuntime.size.toLocaleString()}
 🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:</b> ${Object.keys(perChatRandomLevel).length.toLocaleString()}
@@ -288,6 +289,9 @@ function getCloseKeyboard() {
  */
 export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
 
+    // Load persistent chat store (idempotent — only loads once)
+    Store.load();
+
     // Guard against NaN RandomLevel from invalid env var
     if (isNaN(RandomLevel) || RandomLevel < 0 || RandomLevel > 10) {
         RandomLevel = 0;
@@ -394,6 +398,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
         // Cache chat name
         chatNames[chatId] = content.chat.title || content.chat.first_name || String(chatId);
+
+        // Persist chat to disk
+        Store.updateChat(chatId, chatNames[chatId], chatType);
 
         // Track stats
         stats.messagesProcessed++;
@@ -726,6 +733,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     delete perChatRandomLevel[targetChatId];
                     pausedChats.delete(Number(targetChatId));
                     restrictedChatsRuntime.delete(Number(targetChatId));
+                    Store.removeChat(targetChatId);
                     await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
                 } catch (error) {
                     await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
@@ -740,17 +748,32 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     return;
                 }
-                if (stats.uniqueChats.size === 0) {
+                const allChats = Store.getAllChats();
+                if (allChats.length === 0) {
                     await botApi.sendMessage(chatId, '📭 Хмпф. Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs Yᴇᴛ.', getCloseKeyboard());
                     return;
                 }
-                const chatLines = Array.from(stats.uniqueChats).map((cid, i) => {
-                    const name = chatNames[cid] || `Chat ${cid}`;
-                    const paused = pausedChats.has(cid) ? ' ⏸️' : '';
-                    const restricted = restrictedChatsRuntime.has(cid) || RestrictedChats.includes(cid) ? ' 🚫' : '';
-                    return `${i + 1}. ${name} (${cid})${paused}${restricted}`;
+                // Sort: groups/supergroups first, then channels, then private
+                const typeOrder = { supergroup: 0, group: 1, channel: 2, private: 3, unknown: 4 };
+                allChats.sort((a, b) => (typeOrder[a.type] ?? 9) - (typeOrder[b.type] ?? 9));
+
+                const chatLines = allChats.map((c, i) => {
+                    const typeEmoji = { group: '👥', supergroup: '👥', channel: '📢', private: '💬' }[c.type] || '❓';
+                    const paused = pausedChats.has(c.id) ? ' ⏸️' : '';
+                    const restricted = restrictedChatsRuntime.has(c.id) || RestrictedChats.includes(c.id) ? ' 🚫' : '';
+                    const msgs = c.messageCount ? ` — ${c.messageCount} msgs` : '';
+                    return `${i + 1}. ${typeEmoji} ${c.title} (<code>${c.id}</code>)${paused}${restricted}${msgs}`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `💬 <b>Aᴄᴛɪᴠᴇ Cʜᴀᴛs (${stats.uniqueChats.size}):</b>\n\n${chatLines}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ`, getCloseKeyboard());
+
+                const groups = allChats.filter(c => c.type === 'group' || c.type === 'supergroup').length;
+                const channels = allChats.filter(c => c.type === 'channel').length;
+                const privates = allChats.filter(c => c.type === 'private').length;
+
+                const summary = `📊 ${groups} ɢʀᴏᴜᴘs · ${channels} ᴄʜᴀɴɴᴇʟs · ${privates} ᴘʀɪᴠᴀᴛᴇ`;
+                await botApi.sendMessage(chatId,
+                    `💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`,
+                    getCloseKeyboard()
+                );
                 return;
             }
 

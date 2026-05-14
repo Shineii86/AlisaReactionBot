@@ -176,4 +176,7 @@ dist
 # system files
 .DS_Store
 
+# persistent runtime data
+data/
+
 .vercel

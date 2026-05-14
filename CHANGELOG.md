@@ -4,6 +4,27 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.10.0] — 2026-05-14
+
+### ✨ Persistent Chat Tracking
+
+- **Added persistent chat storage** — Bot now remembers every chat it has interacted with across restarts.
+  - New `api/store.js` module — reads/writes `data/chats.json` for durable chat tracking.
+  - Tracks: chat ID, title, type (group/supergroup/channel/private), first seen, last seen, total message count.
+  - `/chats` command now shows **all historical chats** (not just current session), sorted by type with emoji indicators and message counts.
+  - `/stats` now displays both session and total persistent chat counts.
+  - `/leave` and `/remove` commands clean up the persistent store when the bot leaves a chat.
+
+### 🔧 Changes
+
+- `api/store.js` — New persistence module with load, save, updateChat, removeChat, getAllChats, getChatCount, getChatsByType, hasChat.
+- `api/bot-handler.js` — Integrated Store into chat tracking lifecycle. Updated `/chats`, `/stats`, `/leave`, `/remove` to use persistent data. Version bumped to v2.10.0.
+- `.gitignore` — Added `data/` directory to exclusions (runtime data, not source).
+- `package.json` — Version bumped to v2.10.0.
+- `CHANGELOG.md` — v2.10.0 entry added.
+
+---
+
 ## [v2.9.0] — 2026-05-14
 
 ### ✨ Owner Commands Separated from Help
