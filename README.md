@@ -8,8 +8,8 @@
 
 <br/>
 
-[![Cloudflare Workers](https://img.shields.io/badge/☁️_Deployed_on-Cloudflare_Workers-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
-[![Telegram Bot](https://img.shields.io/badge/🤖_Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/AlisaReactionBot)
+[![Cloudflare Workers](https://img.shields.io/badge/Deployed_on-Cloudflare_Workers-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/AlisaReactionBot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-008000.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![GitHub Release](https://img.shields.io/github/v/release/Shineii86/AlisaReactionBot?style=for-the-badge&color=blue)](https://github.com/Shineii86/AlisaReactionBot/releases)
 
