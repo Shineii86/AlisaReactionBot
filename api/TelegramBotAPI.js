@@ -10,7 +10,7 @@
  *
  * @exports TelegramBotAPI (default)
  *
- * @version 2.8.0
+ * @version 2.12.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

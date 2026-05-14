@@ -10,7 +10,7 @@
  *
  * @exports htmlContent (named)
  *
- * @version 2.8.0
+ * @version 2.12.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -92,7 +92,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/main/assets/banner1.png",
-    "softwareVersion": "2.8.0",
+    "softwareVersion": "2.12.0",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -706,7 +706,7 @@ export const htmlContent = `
       <span>© 2026 Alisa Reaction Bot · Хмпф</span>
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.8.0</span>
+        <span class="ft-ver">v2.12.0</span>
       </div>
     </div>
   </footer>

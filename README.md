@@ -567,7 +567,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.8.0** — Full character rewrite with Alisa Mikhailovna Kujou's personality, tsundere voice, and Russian emotional moments.
+**Latest: v2.12.0** — Batched saves with debounced writes, graceful shutdown with SIGTERM/SIGINT handlers, and full state persistence across restarts.
 
 ---
 

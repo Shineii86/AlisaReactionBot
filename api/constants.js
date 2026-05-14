@@ -100,7 +100,7 @@ export const aboutMessage = `🦊 <a href='https://t.me/AlisaReactionBot'>Aʟɪs
 
 Хмпф… N-Nᴏᴛ Tʜᴀᴛ I Cᴀʀᴇ Iғ Yᴏᴜ Rᴇᴀᴅ Tʜɪs Fᴀʀ.
 
-<b>» 🚀 Vᴇʀsɪᴏɴ:</b> v2.8.0
+<b>» 🚀 Vᴇʀsɪᴏɴ:</b> v2.12.0
 <b>» 📡 Nᴇᴛᴡᴏʀᴋ:</b> <a href='https://t.me/QuinxNetwork'>Ҩᴜɪɴx Nᴇᴛᴡᴏʀᴋ</a>
 <b>» 🔔 Mᴀɪɴ Cʜᴀɴɴᴇʟ:</b> <a href='https://t.me/MaximXBots'>Mᴀxɪᴍ 𝕏 Bᴏᴛs</a>
 <b>» 💬 Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ:</b> <a href='https://t.me/MaximXGroup'>Mᴀxɪᴍ 𝕏 Gʀᴏᴜᴘ</a>
