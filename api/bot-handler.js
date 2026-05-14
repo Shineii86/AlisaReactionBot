@@ -690,7 +690,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     restrictedChatsRuntime.delete(Number(targetChatId));
                     await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `❌ Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
+                    await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
                 }
                 return;
             }
@@ -759,16 +759,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usage: <code>/restrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/restrict &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const restrictId = Number(args.trim());
                 if (!restrictId) {
-                    await botApi.sendMessage(chatId, '❌ Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
                     return;
                 }
                 restrictedChatsRuntime.add(restrictId);
-                await botApi.sendMessage(chatId, `🚫 Хорошо. Chat <code>${restrictId}</code> Restricted. I Will Not React There.`, getCloseKeyboard());
+                await botApi.sendMessage(chatId, `🚫 Хорошо. Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. I Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ Tʜᴇʀᴇ.`, getCloseKeyboard());
                 return;
             }
 
@@ -780,12 +780,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usage: <code>/unrestrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/unrestrict &lt;chat_id&gt;</code>', getCloseKeyboard());
                     return;
                 }
                 const unrestrictId = Number(args.trim());
                 if (!unrestrictId) {
-                    await botApi.sendMessage(chatId, '❌ Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
                     return;
                 }
                 if (!restrictedChatsRuntime.has(unrestrictId)) {
@@ -793,7 +793,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 restrictedChatsRuntime.delete(unrestrictId);
-                await botApi.sendMessage(chatId, `✅ Хорошо. Chat <code>${unrestrictId}</code> Unrestricted.`, getCloseKeyboard());
+                await botApi.sendMessage(chatId, `✅ Хорошо. Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`, getCloseKeyboard());
                 return;
             }
 
