@@ -977,7 +977,7 @@ If the limit is hit, reactions are silently skipped until the next minute window
 
 ## How Stats Work
 
-The `/stats` command shows a snapshot of the bot's activity since the last restart.
+The `/stats` command shows a snapshot of the bot's activity. **Since v2.11.0**, stats persist across restarts — they show lifetime totals, not just the current session.
 
 ### What Each Stat Means
 
@@ -1270,15 +1270,18 @@ or
 
 | Data | In-Memory | Persistent |
 |---|:---:|:---:|
-| Chat list (IDs, names, types, counts) | ✅ | ✅ |
-| Stats counters (messages, reactions) | ✅ | ❌ |
-| Per-chat custom reactions | ✅ | ❌ |
-| Paused chats | ✅ | ❌ |
-| Runtime restrictions | ✅ | ❌ |
+| Chat registry (IDs, names, types, counts) | ✅ | ✅ |
+| Per-chat custom reactions (`/setreactions`) | ✅ | ✅ |
+| Paused chats (`/pause`) | ✅ | ✅ |
+| Runtime restrictions (`/restrict`) | ✅ | ✅ |
+| Welcome/leave toggles (`/welcome`, `/goodbye`) | ✅ | ✅ |
+| Stats counters (messages, reactions, commands) | ✅ | ✅ |
+| Per-chat random level overrides | ✅ | ❌ |
 | Reaction log (last 50) | ✅ | ❌ |
-| Welcome/leave toggle | ✅ | ❌ |
+| Chat names cache | ✅ | ❌ |
+| Rate limit state | ✅ | ❌ |
 
-> **Note:** Only chat tracking data is persisted. Command stats, pause states, and custom reactions remain in-memory by design — they're transient operational state, not user data.
+> **Note:** All operational state persists across restarts. Only transient caches (reaction log, rate limits, random level overrides) remain in-memory.
 
 ---
 
@@ -1433,15 +1436,18 @@ Yes. Add the bot as a channel admin with the "Post Messages" permission. It will
 ### What happens when the bot restarts?
 
 **Persistent data (survives restarts):**
-- Chat registry (IDs, names, types, message counts) — via Vercel KV or `data/chats.json`
+- Chat registry (IDs, names, types, message counts)
+- Per-chat custom reactions (`/setreactions`)
+- Paused chats (`/pause`)
+- Runtime restrictions (`/restrict`)
+- Welcome/leave toggles (`/welcome`, `/goodbye`)
+- Stats counters (messages processed, reactions sent, command usage)
 
 **In-memory data (resets on restart):**
-- Stats counters (messages processed, reactions sent)
-- Per-chat custom reactions (reset to default)
-- Paused chats (unpause)
-- Runtime restrictions (removed)
-- Reaction log (clears)
-- Chat names cache (clears)
+- Per-chat random level overrides (`/randomlevel`)
+- Reaction log (last 50 reactions)
+- Chat names cache
+- Rate limit state
 
 > **Note:** On Vercel without KV, ALL data resets on cold starts. Add Vercel KV for persistence. See [Persistent Chat Storage](#persistent-chat-storage).
 

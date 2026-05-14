@@ -4,16 +4,17 @@
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
- *   Persistent chat storage. Environment-aware:
+ *   Persistent state storage. Environment-aware:
  *   - Vercel: uses Vercel KV (Redis) via @vercel/kv
- *   - Local/Docker/Render: uses data/chats.json file
+ *   - Local/Docker/Render: uses data/state.json file
  *   - Fallback: in-memory (non-persistent)
  *
- * @exports
- *   Store — { load, save, updateChat, getAllChats, getChatCount,
- *             getChatsByType, removeChat, getStorageType }
+ *   Persists: chats, per-chat reactions, paused/restricted chats,
+ *   welcome/leave toggles, and global stats counters.
  *
- * @version 2.10.0
+ * @exports Store
+ *
+ * @version 2.11.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -29,17 +30,38 @@ import { log } from './helper.js';
 // ══════════════════════════════════════════════════════════════
 
 const isVercelKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-const KV_KEY = 'alisareactionbot:chats';
+const KV_KEY = 'alisareactionbot:state';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, '..', 'data');
-const CHATS_FILE = join(DATA_DIR, 'chats.json');
+const STATE_FILE = join(DATA_DIR, 'state.json');
 
 let storageType = 'memory';  // 'vercel-kv' | 'file' | 'memory'
-let kv = null;                // Lazy-loaded @vercel/kv client
-let chats = {};               // In-memory cache (shared across all backends)
+let kv = null;
 let loaded = false;
+
+// ══════════════════════════════════════════════════════════════
+// STATE — single source of truth
+// ══════════════════════════════════════════════════════════════
+
+let state = getDefaultState();
+
+function getDefaultState() {
+    return {
+        chats: {},                  // chatId → { id, title, type, firstSeen, lastSeen, messageCount }
+        reactions: {},              // chatId → emoji string (custom per-chat)
+        paused: [],                 // chat IDs with reactions paused
+        restricted: [],             // chat IDs with runtime restrictions
+        welcome: [],                // chat IDs with welcome messages enabled
+        goodbye: [],                // chat IDs with leave messages enabled
+        stats: {
+            messagesProcessed: 0,
+            reactionsSent: 0,
+            commandUsage: {},       // command name → count
+        },
+    };
+}
 
 // ══════════════════════════════════════════════════════════════
 // FILE STORAGE (Local / Docker / Render)
@@ -47,30 +69,28 @@ let loaded = false;
 
 function fileLoad() {
     try {
-        if (!existsSync(DATA_DIR)) {
-            mkdirSync(DATA_DIR, { recursive: true });
-        }
-        if (existsSync(CHATS_FILE)) {
-            const raw = readFileSync(CHATS_FILE, 'utf-8');
-            chats = JSON.parse(raw);
-            log.info(`[Store:File] Loaded ${Object.keys(chats).length} chat(s) from disk`);
+        if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+        if (existsSync(STATE_FILE)) {
+            const raw = readFileSync(STATE_FILE, 'utf-8');
+            const parsed = JSON.parse(raw);
+            // Merge with defaults to handle new fields added in future versions
+            state = { ...getDefaultState(), ...parsed, stats: { ...getDefaultState().stats, ...parsed.stats } };
+            log.info(`[Store:File] Loaded state: ${Object.keys(state.chats).length} chats`);
         } else {
-            chats = {};
+            state = getDefaultState();
             fileSave();
-            log.info('[Store:File] Created fresh chats.json');
+            log.info('[Store:File] Created fresh state.json');
         }
     } catch (error) {
         log.error('[Store:File] Failed to load:', error.message);
-        chats = {};
+        state = getDefaultState();
     }
 }
 
 function fileSave() {
     try {
-        if (!existsSync(DATA_DIR)) {
-            mkdirSync(DATA_DIR, { recursive: true });
-        }
-        writeFileSync(CHATS_FILE, JSON.stringify(chats, null, 2), 'utf-8');
+        if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+        writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
     } catch (error) {
         log.error('[Store:File] Failed to save:', error.message);
     }
@@ -100,36 +120,44 @@ async function kvLoad() {
     if (!kv) return;
     try {
         const data = await kv.get(KV_KEY);
-        chats = data || {};
-        log.info(`[Store:KV] Loaded ${Object.keys(chats).length} chat(s) from Redis`);
+        if (data) {
+            state = { ...getDefaultState(), ...data, stats: { ...getDefaultState().stats, ...data.stats } };
+            log.info(`[Store:KV] Loaded state: ${Object.keys(state.chats).length} chats`);
+        } else {
+            state = getDefaultState();
+            await kvSave();
+            log.info('[Store:KV] Created fresh state in Redis');
+        }
     } catch (error) {
         log.error('[Store:KV] Failed to load:', error.message);
-        chats = {};
+        state = getDefaultState();
     }
 }
 
 async function kvSave() {
     if (!kv) return;
     try {
-        await kv.set(KV_KEY, chats);
+        await kv.set(KV_KEY, state);
     } catch (error) {
         log.error('[Store:KV] Failed to save:', error.message);
     }
 }
 
 // ══════════════════════════════════════════════════════════════
-// UNIFIED STORE API
+// UNIFIED SAVE
 // ══════════════════════════════════════════════════════════════
 
-/**
- * Initialize the store. Auto-detects environment:
- * - Vercel KV env vars present → Redis
- * - Otherwise → file storage
- * Call once at startup (idempotent).
- */
+async function save() {
+    if (storageType === 'vercel-kv') await kvSave();
+    else if (storageType === 'file') fileSave();
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOAD (idempotent — only loads once)
+// ══════════════════════════════════════════════════════════════
+
 async function load() {
     if (loaded) return;
-
     if (isVercelKV) {
         storageType = 'vercel-kv';
         await kvLoad();
@@ -139,43 +167,28 @@ async function load() {
             fileLoad();
         } catch {
             storageType = 'memory';
-            chats = {};
-            log.warn('[Store] Falling back to in-memory storage (non-persistent)');
+            state = getDefaultState();
+            log.warn('[Store] Falling back to in-memory (non-persistent)');
         }
     }
-
     loaded = true;
     log.info(`[Store] Storage backend: ${storageType}`);
 }
 
-/**
- * Save chats to the active backend.
- */
-async function save() {
-    if (storageType === 'vercel-kv') {
-        await kvSave();
-    } else if (storageType === 'file') {
-        fileSave();
-    }
-}
+// ══════════════════════════════════════════════════════════════
+// CHATS
+// ══════════════════════════════════════════════════════════════
 
-/**
- * Record or update a chat interaction.
- * @param {number|string} chatId
- * @param {string} title
- * @param {string} type — 'private' | 'group' | 'supergroup' | 'channel'
- */
 async function updateChat(chatId, title, type) {
     const key = String(chatId);
     const now = Date.now();
-
-    if (chats[key]) {
-        chats[key].title = title || chats[key].title;
-        chats[key].type = type || chats[key].type;
-        chats[key].lastSeen = now;
-        chats[key].messageCount = (chats[key].messageCount || 0) + 1;
+    if (state.chats[key]) {
+        state.chats[key].title = title || state.chats[key].title;
+        state.chats[key].type = type || state.chats[key].type;
+        state.chats[key].lastSeen = now;
+        state.chats[key].messageCount = (state.chats[key].messageCount || 0) + 1;
     } else {
-        chats[key] = {
+        state.chats[key] = {
             id: Number(chatId),
             title: title || `Chat ${chatId}`,
             type: type || 'unknown',
@@ -184,81 +197,204 @@ async function updateChat(chatId, title, type) {
             messageCount: 1,
         };
     }
-
     await save();
 }
 
-/**
- * Remove a chat from the store.
- * @param {number|string} chatId
- * @returns {boolean} — true if removed
- */
 async function removeChat(chatId) {
     const key = String(chatId);
-    if (chats[key]) {
-        delete chats[key];
+    if (state.chats[key]) {
+        delete state.chats[key];
+        // Also clean up related data
+        delete state.reactions[key];
+        state.paused = state.paused.filter(id => String(id) !== key);
+        state.restricted = state.restricted.filter(id => String(id) !== key);
+        state.welcome = state.welcome.filter(id => String(id) !== key);
+        state.goodbye = state.goodbye.filter(id => String(id) !== key);
         await save();
         return true;
     }
     return false;
 }
 
-/**
- * Get all stored chats as an array.
- * @returns {Array<{ id, title, type, firstSeen, lastSeen, messageCount }>
- */
-function getAllChats() {
-    return Object.values(chats);
+function getAllChats() { return Object.values(state.chats); }
+function getChatCount() { return Object.keys(state.chats).length; }
+function getChatsByType(type) { return Object.values(state.chats).filter(c => c.type === type); }
+function hasChat(chatId) { return String(chatId) in state.chats; }
+
+// ══════════════════════════════════════════════════════════════
+// PER-CHAT REACTIONS
+// ══════════════════════════════════════════════════════════════
+
+function getReaction(chatId) { return state.reactions[String(chatId)] || null; }
+
+async function setReaction(chatId, emojiString) {
+    state.reactions[String(chatId)] = emojiString;
+    await save();
 }
 
-/**
- * Get total number of tracked chats.
- * @returns {number}
- */
-function getChatCount() {
-    return Object.keys(chats).length;
+async function deleteReaction(chatId) {
+    delete state.reactions[String(chatId)];
+    await save();
 }
 
-/**
- * Get chats filtered by type.
- * @param {string} type — 'private' | 'group' | 'supergroup' | 'channel'
- * @returns {Array}
- */
-function getChatsByType(type) {
-    return Object.values(chats).filter(c => c.type === type);
+// ══════════════════════════════════════════════════════════════
+// PAUSED CHATS
+// ══════════════════════════════════════════════════════════════
+
+function isPaused(chatId) { return state.paused.includes(Number(chatId)); }
+function getPausedChats() { return [...state.paused]; }
+function getPausedCount() { return state.paused.length; }
+
+async function pauseChat(chatId) {
+    const id = Number(chatId);
+    if (!state.paused.includes(id)) {
+        state.paused.push(id);
+        await save();
+    }
 }
 
-/**
- * Check if a chat exists in the store.
- * @param {number|string} chatId
- * @returns {boolean}
- */
-function hasChat(chatId) {
-    return String(chatId) in chats;
+async function resumeChat(chatId) {
+    const id = Number(chatId);
+    const idx = state.paused.indexOf(id);
+    if (idx !== -1) {
+        state.paused.splice(idx, 1);
+        await save();
+    }
 }
 
-/**
- * Get the active storage backend type.
- * @returns {string} — 'vercel-kv' | 'file' | 'memory'
- */
-function getStorageType() {
-    return storageType;
+// ══════════════════════════════════════════════════════════════
+// RESTRICTED CHATS (runtime)
+// ══════════════════════════════════════════════════════════════
+
+function isRestricted(chatId) { return state.restricted.includes(Number(chatId)); }
+function getRestrictedChats() { return [...state.restricted]; }
+function getRestrictedCount() { return state.restricted.length; }
+
+async function restrictChat(chatId) {
+    const id = Number(chatId);
+    if (!state.restricted.includes(id)) {
+        state.restricted.push(id);
+        await save();
+    }
 }
+
+async function unrestrictChat(chatId) {
+    const id = Number(chatId);
+    const idx = state.restricted.indexOf(id);
+    if (idx !== -1) {
+        state.restricted.splice(idx, 1);
+        await save();
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// WELCOME & GOODBYE TOGGLES
+// ══════════════════════════════════════════════════════════════
+
+function isWelcomeEnabled(chatId) { return state.welcome.includes(Number(chatId)); }
+function isGoodbyeEnabled(chatId) { return state.goodbye.includes(Number(chatId)); }
+function getWelcomeCount() { return state.welcome.length; }
+function getGoodbyeCount() { return state.goodbye.length; }
+
+async function toggleWelcome(chatId) {
+    const id = Number(chatId);
+    const idx = state.welcome.indexOf(id);
+    if (idx !== -1) {
+        state.welcome.splice(idx, 1);
+        await save();
+        return false; // disabled
+    } else {
+        state.welcome.push(id);
+        await save();
+        return true; // enabled
+    }
+}
+
+async function toggleGoodbye(chatId) {
+    const id = Number(chatId);
+    const idx = state.goodbye.indexOf(id);
+    if (idx !== -1) {
+        state.goodbye.splice(idx, 1);
+        await save();
+        return false;
+    } else {
+        state.goodbye.push(id);
+        await save();
+        return true;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════════════
+
+function getStats() { return state.stats; }
+
+async function trackMessage() {
+    state.stats.messagesProcessed++;
+    await save();
+}
+
+async function trackReaction() {
+    state.stats.reactionsSent++;
+    await save();
+}
+
+async function trackCommand(cmd) {
+    state.stats.commandUsage[cmd] = (state.stats.commandUsage[cmd] || 0) + 1;
+    await save();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════════════════
+
+function getStorageType() { return storageType; }
 
 // ══════════════════════════════════════════════════════════════
 // EXPORTS
 // ══════════════════════════════════════════════════════════════
 
 export const Store = {
+    // Lifecycle
     load,
     save,
+    getStorageType,
+    // Chats
     updateChat,
     removeChat,
     getAllChats,
     getChatCount,
     getChatsByType,
     hasChat,
-    getStorageType,
+    // Reactions
+    getReaction,
+    setReaction,
+    deleteReaction,
+    // Paused
+    isPaused,
+    getPausedChats,
+    getPausedCount,
+    pauseChat,
+    resumeChat,
+    // Restricted
+    isRestricted,
+    getRestrictedChats,
+    getRestrictedCount,
+    restrictChat,
+    unrestrictChat,
+    // Welcome / Goodbye
+    isWelcomeEnabled,
+    isGoodbyeEnabled,
+    getWelcomeCount,
+    getGoodbyeCount,
+    toggleWelcome,
+    toggleGoodbye,
+    // Stats
+    getStats,
+    trackMessage,
+    trackReaction,
+    trackCommand,
 };
 
 // ══════════════════════════════════════════════════════════════ END: store.js

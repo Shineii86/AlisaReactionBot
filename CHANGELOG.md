@@ -4,6 +4,28 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.11.0] — 2026-05-14
+
+### ✨ Full State Persistence
+
+- **All in-memory state now persists across restarts** via the Store (Vercel KV or file storage).
+  - **Per-chat custom reactions** (`/setreactions`) — survives restarts.
+  - **Paused chats** (`/pause`, `/resume`) — survives restarts.
+  - **Runtime restrictions** (`/restrict`, `/unrestrict`) — survives restarts.
+  - **Welcome/leave toggles** (`/welcome`, `/goodbye`) — survives restarts.
+  - **Stats counters** (messages processed, reactions sent, command usage) — survives restarts.
+  - `/stats` now shows global lifetime stats, not just current session.
+  - `/leave` and `/remove` clean up all related persistent data (reactions, paused, restricted, welcome, goodbye).
+
+### 🔧 Changes
+
+- `api/store.js` — Major rewrite. Single `state` object with sections for chats, reactions, paused, restricted, welcome, goodbye, stats. Added 20+ new methods: getReaction, setReaction, deleteReaction, isPaused, pauseChat, resumeChat, isRestricted, restrictChat, unrestrictChat, isWelcomeEnabled, isGoodbyeEnabled, toggleWelcome, toggleGoodbye, getStats, trackMessage, trackReaction, trackCommand. Version bumped to v2.11.0.
+- `api/bot-handler.js` — Removed all in-memory state (pausedChats, perChatReactions, restrictedChatsRuntime, welcomeEnabled, leaveEnabled, stats). Replaced with Store method calls throughout. All command handlers now use persistent store. Version bumped to v2.11.0.
+- `package.json` — Version bumped to v2.11.0.
+- `CHANGELOG.md` — v2.11.0 entry added.
+
+---
+
 ## [v2.10.0] — 2026-05-14
 
 ### ✨ Persistent Chat Tracking
