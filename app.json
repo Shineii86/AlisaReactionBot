@@ -15,8 +15,25 @@
         "description": "A string of emojis that the bot will use to react to messages.",
         "required": true
       },
+      "RANDOM_LEVEL": {
+        "description": "Reaction randomness for groups (0-10). 0 = always, 10 = rarely.",
+        "required": false,
+        "value": "0"
+      },
       "RESTRICTED_CHATS": {
         "description": "A list of chat IDs where the bot should not react to messages (Optional)",
+        "required": false
+      },
+      "OWNER_ID": {
+        "description": "Telegram user ID for owner-only commands (/broadcast, /log, /leave, /chats). Get from @userinfobot.",
+        "required": false
+      },
+      "WEBHOOK_SECRET": {
+        "description": "Secret token for webhook validation. Auto-generated if not set.",
+        "required": false
+      },
+      "BOT_PHOTO": {
+        "description": "Photo URL or Telegram file_id for bot messages (/start, /help, etc).",
         "required": false
       },
       "PORT": {
@@ -25,12 +42,9 @@
         "value": "3000"
       }
     },
-    "scripts": {
-      "postdeploy": "npm install && npm run build"
-    },
     "formation": {
       "web": {
         "quantity": 1
       }
     }
-  }  
+  }

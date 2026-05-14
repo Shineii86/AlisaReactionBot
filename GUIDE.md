@@ -143,7 +143,16 @@ npm install
 
 **Step 4: Configure wrangler.toml**
 
-The `wrangler.toml` file tells Cloudflare how to deploy your worker. You don't need to change anything in it for basic deployment.
+The `wrangler.toml` file tells Cloudflare how to deploy your worker. The default configuration works out of the box:
+
+```toml
+name = "alisareactionbot"
+main = "api/worker.js"
+compatibility_date = "2026-02-22"
+compatibility_flags = ["nodejs_compat"]
+```
+
+> **Note:** The `nodejs_compat` flag enables broader Node.js API compatibility on Cloudflare Workers. It's required for the bot to function correctly.
 
 **Step 5: Add secrets**
 
@@ -204,16 +213,27 @@ Click **Deploy**. Vercel gives you a URL like `https://your-project.vercel.app`.
 
 **Step 5: Set Up Persistent Storage (Optional)**
 
-By default, Vercel's serverless functions have ephemeral storage — chat data resets on every cold start. To make chat tracking persistent:
+By default, Vercel's serverless functions have ephemeral storage — chat data resets on every cold start. You have two options:
+
+**Option A: Upstash Redis (Free)**
+
+1. Sign up at [console.upstash.com](https://console.upstash.com) (free, no credit card)
+2. Create a Redis database — choose your region
+3. Copy the **REST URL** and **REST TOKEN** from the database details page
+4. In Vercel dashboard, go to **Settings** → **Environment Variables**
+5. Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+6. **Redeploy** your project
+
+**Option B: Vercel KV (Paid — starts at $8/month)**
 
 1. In your Vercel dashboard, go to **Storage** → **Create Database** → pick **KV (Redis)**
 2. Vercel automatically creates the database and injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` environment variables
 3. **Redeploy** your project
 
-That's it. The bot auto-detects Vercel KV and uses it for persistent chat storage. No code changes needed.
+The bot auto-detects whichever Redis is configured. Upstash takes priority over Vercel KV.
 
-> **Without KV:** The bot works fine, but `/chats` and `/stats` only show data from the current session (resets on cold starts).
-> **With KV:** All chat data persists across deployments and cold starts.
+> **Without Redis:** The bot works fine, but `/chats` and `/stats` only show data from the current session (resets on cold starts).
+> **With Redis:** All chat data persists across deployments and cold starts.
 
 ---
 
@@ -251,6 +271,8 @@ docker-compose up -d
 ```
 
 This builds the image and starts the container. The bot runs on port 3000.
+
+**Data Persistence:** The `docker-compose.yml` mounts `./data:/app/data` so chat data persists across `docker-compose down/up` cycles. The `data/state.json` file stores all persistent state (chats, reactions, pauses, stats).
 
 **Step 4: Check logs**
 
@@ -407,7 +429,16 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
 
-### Vercel KV Variables (Optional)
+### Upstash Redis Variables (Free — Recommended for Vercel)
+
+| Variable | What It Does | Default |
+|---|---|---|
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL | None |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | None |
+
+> Sign up free at [console.upstash.com](https://console.upstash.com), create a Redis database, copy the REST URL and token. 10,000 requests/day, 256MB storage. No credit card required.
+
+### Vercel KV Variables (Paid)
 
 These are auto-injected by Vercel when you create a KV store in the dashboard. You don't need to set them manually.
 
@@ -416,7 +447,7 @@ These are auto-injected by Vercel when you create a KV store in the dashboard. Y
 | `KV_REST_API_URL` | Vercel KV Redis connection URL | None (auto-set by Vercel) |
 | `KV_REST_API_TOKEN` | Vercel KV authentication token | None (auto-set by Vercel) |
 
-> **Note:** When both KV variables are present, the bot uses Vercel KV (Redis) for persistent chat storage. When absent, it falls back to local file storage (`data/chats.json`) on Docker/VPS, or in-memory on serverless platforms.
+> **Note:** When both Upstash and Vercel KV vars are present, Upstash takes priority. When absent, the bot falls back to local file storage (`data/state.json`) on Docker/VPS, or in-memory on serverless platforms.
 
 ### How EMOJI_LIST Works
 
@@ -759,7 +790,7 @@ Same as `/leave` — use whichever you prefer:
 
 ### /chats — List All Active Chats
 
-See every chat the bot has ever interacted with — **persisted across restarts** (when Vercel KV or file storage is active):
+See every chat the bot has ever interacted with — **persisted across restarts** (when Upstash Redis, Vercel KV, or file storage is active):
 
 ```
 /chats
@@ -792,7 +823,7 @@ The bot replies:
 
 **What's new in v2.10.0:**
 - `/chats` now shows **all historical chats**, not just the current session
-- Data persists across restarts (Vercel KV or `data/chats.json`)
+- Data persists across restarts (Upstash Redis, Vercel KV, or `data/state.json`)
 - Chats are sorted by type: groups first, then channels, then private
 - Each chat shows its total message count
 
@@ -962,7 +993,7 @@ This means:
 
 Each group can have its own set of emojis. When you use `/setreactions 😂 💀 🤣`, the bot remembers this for the current chat only. Other chats keep using the global `EMOJI_LIST`.
 
-Custom reactions are stored in memory and reset when the bot restarts.
+Custom reactions persist across restarts when a storage backend is available (file on Docker/Local, KV on Vercel). On Cloudflare Workers, they reset on each invocation.
 
 ### Rate Limiting
 
@@ -988,7 +1019,7 @@ The `/stats` command shows a snapshot of the bot's activity. **Since v2.11.0**, 
 | **Unique Chats** | How many different chats the bot has interacted with (session + total) |
 | **Paused Chats** | How many groups currently have reactions paused |
 | **Restricted Chats** | How many chats are restricted at runtime |
-| **Storage** | Active storage backend (`vercel-kv`, `file`, or `memory`) |
+| **Storage** | Active storage backend (`upstash`, `vercel-kv`, `file`, or `memory`) |
 | **Uptime** | Time since the bot last started |
 | **Started** | The exact time the bot started |
 
@@ -1019,7 +1050,7 @@ Shows which chats received the most reactions in the last 50 reactions:
 5. Test Group — 5
 ```
 
-> **Note:** All stats are in-memory. They reset when the bot restarts. This is by design — no persistent data means nothing to leak.
+> **Note:** Stats persist across restarts when a storage backend is available (file on Docker/Local, Upstash Redis on Vercel). On Cloudflare Workers, stats reset on each invocation. This is by design — no persistent data means nothing to leak.
 
 ---
 
@@ -1185,7 +1216,7 @@ Only group admins can toggle these features:
 /goodbye   →  Toggle leave messages
 ```
 
-Each toggle is per-group and resets on bot restart (in-memory state).
+Each toggle is per-group and persists across restarts when a storage backend is available (file on Docker/Local, Upstash Redis on Vercel). On Cloudflare Workers, resets on each invocation.
 
 ### Welcome Message Example
 
@@ -1225,10 +1256,12 @@ The storage system (`api/store.js`) is **environment-aware** — it auto-detects
 
 | Environment | Backend | Persistence | Setup |
 |---|---|---|---|
-| **Vercel + KV** | Vercel KV (Redis) | ✅ Survives cold starts | Create KV store in dashboard |
-| **Docker / Render / Local** | File (`data/chats.json`) | ✅ Survives restarts | None — automatic |
-| **Vercel (no KV)** | In-memory | ❌ Resets on cold start | Add KV for persistence |
-| **Cloudflare Workers** | In-memory | ❌ Resets on restart | Use D1 or KV for persistence |
+| **Docker / Local** | File (`data/state.json`) | ✅ Survives restarts | None — automatic (volume-mounted) |
+| **Render** | File (`data/state.json`) | ⚠️ Ephemeral on free tier | None — automatic |
+| **Vercel + Upstash** | Upstash Redis (**free**) | ✅ Survives cold starts | Create free DB at upstash.com |
+| **Vercel + KV** | Vercel KV (Redis, **paid**) | ✅ Survives cold starts | Create KV store in Vercel dashboard |
+| **Vercel (no Redis)** | In-memory | ❌ Resets on cold start | Add Upstash for free persistence |
+| **Cloudflare Workers** | In-memory | ❌ Resets on restart | By design — Workers have no filesystem |
 
 ### What Gets Stored
 
@@ -1245,25 +1278,37 @@ Each chat entry tracks:
 }
 ```
 
-### Setting Up Vercel KV
+### Setting Up Upstash Redis (Free)
+
+1. Go to [console.upstash.com](https://console.upstash.com) and sign up (free, no credit card)
+2. Click **Create Database** — choose a name and region
+3. Copy the **REST URL** and **REST TOKEN** from the database details page
+4. Add them as environment variables in your deployment platform:
+   - `UPSTASH_REDIS_REST_URL` — the REST URL
+   - `UPSTASH_REDIS_REST_TOKEN` — the REST TOKEN
+5. **Install the package:** `npm install @upstash/redis` (already in `optionalDependencies`)
+6. Redeploy — the bot auto-detects Upstash and switches to it
+
+> **Free tier:** 10,000 requests/day, 256MB storage. No credit card required.
+
+### Setting Up Vercel KV (Paid)
 
 1. Go to your Vercel project dashboard
 2. Click **Storage** → **Create Database** → **KV (Redis)**
 3. Vercel creates the store and injects `KV_REST_API_URL` + `KV_REST_API_TOKEN`
 4. Redeploy — the bot auto-detects KV and switches to it
 
+> **Note:** Vercel KV is a paid service (starts at $8/month). For free persistence, use Upstash Redis or Docker.
+
 ### Checking Storage Backend
 
 The `/stats` command shows which storage backend is active:
 
 ```
-💾 Sᴛᴏʀᴀɢᴇ: vercel-kv
-```
-
-or
-
-```
-💾 Sᴛᴏʀᴀɢᴇ: file
+💾 Sᴛᴏʀᴀɢᴇ: upstash      ← Upstash Redis (free, persistent)
+💾 Sᴛᴏʀᴀɢᴇ: vercel-kv    ← Vercel KV (paid, persistent)
+💾 Sᴛᴏʀᴀɢᴇ: file          ← Docker / Render / Local (persistent)
+💾 Sᴛᴏʀᴀɢᴇ: memory        ← Cloudflare Workers / Vercel without Redis (non-persistent)
 ```
 
 ### What's In-Memory vs Persistent
@@ -1281,7 +1326,7 @@ or
 | Chat names cache | ✅ | ❌ |
 | Rate limit state | ✅ | ❌ |
 
-> **Note:** All operational state persists across restarts. Only transient caches (reaction log, rate limits, random level overrides) remain in-memory.
+> **Note:** All operational state persists across restarts on Docker/Local (file), Render (file), and Vercel (Upstash or KV). On Cloudflare Workers, everything is in-memory. Only transient caches (reaction log, rate limits, random level overrides) remain in-memory on all platforms.
 
 ---
 
@@ -1419,7 +1464,7 @@ Common issues:
 
 No. The bot only stores counters and chat IDs. Messages are never saved, logged, or transmitted anywhere.
 
-**Since v2.10.0:** The bot persists a chat registry (ID, name, type, message count) to track which chats it has interacted with. On Vercel, this uses Vercel KV (Redis). On Docker/VPS, this uses a local `data/chats.json` file. No message content is ever stored — only metadata.
+**Since v2.10.0:** The bot persists a chat registry (ID, name, type, message count) to track which chats it has interacted with. On Docker/Local, this uses `data/state.json`. On Vercel, this uses Upstash Redis (free) or Vercel KV (paid). On Cloudflare Workers, data is in-memory only. No message content is ever stored — only metadata.
 
 ### Can I use multiple emoji lists for different groups?
 
@@ -1449,13 +1494,21 @@ Yes. Add the bot as a channel admin with the "Post Messages" permission. It will
 - Chat names cache
 - Rate limit state
 
-> **Note:** On Vercel without KV, ALL data resets on cold starts. Add Vercel KV for persistence. See [Persistent Chat Storage](#persistent-chat-storage).
+> **Note:** On Vercel without Redis, ALL data resets on cold starts. On Cloudflare Workers, ALL data resets on each invocation (Workers have no filesystem). Add Upstash Redis (free) for persistence on Vercel. See [Persistent Chat Storage](#persistent-chat-storage).
 
 This is by design for privacy.
 
 ### How much does it cost?
 
-Free. Cloudflare Workers free tier gives you 100,000 requests per day. Vercel's free tier includes serverless functions and KV storage (256 MB, 3000 requests/day). For most bots, this is more than enough.
+Free for most setups:
+- **Cloudflare Workers:** 100,000 requests/day — free
+- **Docker:** Self-hosted on any VPS — free
+- **Upstash Redis:** 10,000 requests/day, 256MB — free (for Vercel persistence)
+- **Render:** Free tier available (ephemeral disk)
+- **Railway:** Free trial with usage limits
+- **Vercel KV:** Paid (starts at $8/month) — only needed if you don't use Upstash
+
+For free persistent storage on Vercel, use Upstash Redis. For self-hosted, use Docker.
 
 ### Can I use this bot with multiple bot tokens?
 

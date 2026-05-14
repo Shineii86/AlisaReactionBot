@@ -13,11 +13,19 @@ services:
         sync: false
       - key: EMOJI_LIST
         sync: false
+      - key: RANDOM_LEVEL
+        value: "0"
       - key: RESTRICTED_CHATS
+        sync: false
+      - key: OWNER_ID
+        sync: false
+      - key: WEBHOOK_SECRET
+        sync: false
+      - key: BOT_PHOTO
         sync: false
       - key: PORT
         value: "3000"
       - key: NODE_ENV
         value: production
-    healthCheckPath: /
+    healthCheckPath: /health
     autoDeploy: false

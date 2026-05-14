@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "${EXPOSE_PORT:-3000}:3000"
+    volumes:
+      - ./data:/app/data
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - BOT_USERNAME=${BOT_USERNAME}

@@ -1,6 +1,7 @@
 name = "alisareactionbot"
-main = "src/index.js"
+main = "api/worker.js"
 compatibility_date = "2026-02-22"
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
 BOT_TOKEN = "12345678:PAST-YOUR-BOT-TOKEN-HERE"

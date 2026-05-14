@@ -6,6 +6,70 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.12.0] — 2026-05-14
 
+### ✨ New Features
+
+- **Added Upstash Redis support** — Free Redis storage for Vercel deployments (10,000 req/day, 256MB, no credit card). Drop-in alternative to paid Vercel KV.
+  - New `@upstash/redis` optional dependency in `package.json`.
+  - Store auto-detects: Upstash (free) > Vercel KV (paid) > File > Memory.
+  - Set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` env vars to enable.
+  - Sign up free at [console.upstash.com](https://console.upstash.com).
+
+### 🔧 Changes
+
+- **Removed false free tier claims for Vercel KV** — Corrected documentation across all files. Vercel KV (Redis) is a **paid service** (starts at $8/month), not free. For free persistent storage, use Upstash Redis or Docker.
+
+---
+
+## [v2.12.0] — 2026-05-14
+
+### 🐛 Bug Fixes
+
+- **Fixed Cloudflare Workers deployment crash** — `store.js` had static `import { readFileSync } from 'fs'` at the top level, which Cloudflare Workers cannot bundle. This caused `wrangler deploy` to fail with module resolution errors. Fixed by:
+  - Replaced static `fs`/`path`/`url` imports with dynamic `import()` inside a guarded `loadNodeModules()` function.
+  - Added `isNode` runtime detection — Node.js-specific code (file I/O, `process.env`, `__dirname`) only executes in Node.js environments.
+  - Cloudflare Workers now correctly falls back to in-memory storage without crashing.
+  - All other modules (`helper.js`, `ads.js`, `constants.js`, `TelegramBotAPI.js`, `landing.js`) are pure JS — no Node.js deps.
+
+- **Fixed example wrangler.toml wrong entry point** — `example.wrangler.toml` had `main = "src/index.js"` (non-existent path). Corrected to `main = "api/worker.js"`. Users copying the example file would get deployment failures.
+
+### 🔧 Changes
+
+- **Added `nodejs_compat` flag** — Added `compatibility_flags = ["nodejs_compat"]` to both `wrangler.toml` and `example.wrangler.toml` for broader Node.js API compatibility on Cloudflare Workers.
+- Store now gracefully detects runtime environment: Node.js → file/KV storage, Workers → in-memory.
+- `load()` is idempotent and environment-aware — works identically across all platforms.
+
+### 📦 Deployment Platform Status
+
+| Platform | Storage | Persistence | Config Needed |
+|---|---|---|---|
+| Docker | File (`data/state.json`) | ✅ Volume-mounted | None |
+| Local | File (`data/state.json`) | ✅ Disk | None |
+| Render | File (`data/state.json`) | ⚠️ Ephemeral on free tier | None |
+| Vercel | Upstash (free) / KV (paid) / in-memory | ✅ With Redis / ❌ Without | Upstash or KV env vars |
+| Cloudflare Workers | In-memory | ❌ Resets per instance | None |
+
+---
+
+## [v2.12.0] — 2026-05-14
+
+### 🐛 Bug Fixes
+
+- **Fixed start message not showing ads on menu navigation** — The `cb_menu` callback (Back to Menu button) was not wrapping the start message with `getAdFooter()`, so ads were missing when users navigated back to the start screen via inline buttons. Now all entry points to the start message consistently include the ad footer.
+
+### 🔧 Changes
+
+- **Storage clarification — Vercel KV is free** — Vercel KV (Redis) uses the **free Hobby tier** (3,000 req/day, 256MB storage, no credit card). It is kept as an optional dependency for serverless persistence. When `KV_REST_API_URL` and `KV_REST_API_TOKEN` are not set, the bot falls back to file storage (`data/state.json`) or in-memory (non-persistent).
+  - `@vercel/kv` remains in `optionalDependencies` — only installed when available.
+  - Docker/Render/Local: uses `data/state.json` (file storage, zero config).
+  - Vercel: uses KV when configured, otherwise in-memory fallback.
+  - Cloudflare Workers: in-memory only (no filesystem, no Store import).
+
+- **Docker data persistence** — Added volume mount (`./data:/app/data`) to `docker-compose.yml` so state persists across `docker-compose down/up` cycles, not just container restarts.
+
+---
+
+## [v2.12.0] — 2026-05-14
+
 ### ⚡ Performance — Batched Saves
 
 - **Writes are now debounced** — state changes accumulate in memory and flush to storage at most once every 5 seconds, instead of on every single event.

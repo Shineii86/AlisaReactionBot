@@ -352,7 +352,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const name = cq.message?.chat?.type === 'private'
                         ? (cq.from?.first_name || cq.message?.chat?.title)
                         : cq.message?.chat?.title;
-                    const caption = startMessage.replace('UserName', name);
+                    const caption = withAd(startMessage.replace('UserName', name));
                     const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
                     // Check if current message is a photo message
                     const hasPhoto = cq.message?.photo;

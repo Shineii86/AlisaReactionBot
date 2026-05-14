@@ -77,7 +77,7 @@ export const htmlContent = `
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Alisa Reaction Bot",
-    "description": "Automated Telegram reaction bot inspired by Alisa Mikhailovna Kujou. Sub-100ms latency, edge-deployed serverless architecture, per-chat customization, and zero persistent data.",
+    "description": "Automated Telegram reaction bot inspired by Alisa Mikhailovna Kujou. Sub-100ms latency, edge-deployed serverless architecture, per-chat customization, and privacy-first design.",
     "url": "https://alisareactionbot.vercel.app",
     "applicationCategory": "CommunicationApplication",
     "operatingSystem": "Cloudflare Workers, Vercel, Docker",
@@ -601,7 +601,7 @@ export const htmlContent = `
         <div class="feat-card reveal">
           <div class="feat-icon c2"><i data-lucide="shield-check"></i></div>
           <h3>Neural Shield</h3>
-          <p>Zero-trust architecture with no persistent logs. Your data never touches a database.</p>
+          <p>Privacy-first architecture. Only metadata is stored — never message content. Your chats stay private.</p>
           <span class="feat-tag">zero-log</span>
         </div>
         <div class="feat-card reveal">

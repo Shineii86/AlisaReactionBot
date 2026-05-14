@@ -112,7 +112,7 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Webhook Secret Validation** — Rejects spoofed requests (auto-generated if not set)
 - **Owner-Only Commands** — Broadcast, log, leave, chats, restrict, webhook restricted to owner
 - **Admin Permission Checks** — `/setreactions`, `/pause`, `/resume` require group admin rights
-- **Zero Persistent Data** — No database, no logs on disk, nothing to leak
+- **No Message Storage** — Only metadata (chat IDs, counters) is persisted, never message content
 - **Request Size Limit** — Rejects payloads over 1MB
 - **Broadcast Cooldown** — 60-second cooldown between broadcasts
 
@@ -135,8 +135,9 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Multi-Platform** — Cloudflare Workers, Vercel, Docker, Railway, Render
 - **Zero Cold Starts** — Edge-optimized for instant responses
 - **One-Click Deploy** — Deploy buttons for every platform
-- **Free Tier Friendly** — Works on free tiers
+- **Free Tier Friendly** — Works on free tiers (Docker for persistent storage)
 - **Webhook Setup** — Set webhook directly from Telegram via `/setwebhook`
+- **Persistent Storage** — File-based (Docker/Local), Upstash Redis free (Vercel), in-memory (Workers)
 
 </td>
 </tr>
@@ -255,7 +256,7 @@ The `/stats` command shows:
 - The last 50 reactions are stored in a rolling buffer
 - Top chats counts reactions (not messages) from that buffer
 - Chat names are cached from the last message in each chat
-- **Everything resets on restart** — no persistent storage (privacy by design)
+- **Stats persist** across restarts on Docker/Local (file) and Vercel (KV). On Cloudflare Workers, stats reset per invocation.
 
 ---
 
@@ -301,6 +302,8 @@ npm install
 npx wrangler deploy
 ```
 
+> **Note:** The `wrangler.toml` includes `compatibility_flags = ["nodejs_compat"]` for Node.js API compatibility. Storage is in-memory only on Workers (no filesystem).
+
 ### ▲ Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Shineii86/AlisaReactionBot)
@@ -317,6 +320,8 @@ cd AlisaReactionBot
 cp .env.example .env    # Edit with your config
 docker-compose up -d
 ```
+
+> **Data persists** across restarts via `./data:/app/data` volume mount. State stored in `data/state.json`.
 
 ### 🚂 Railway / Render
 
@@ -361,6 +366,26 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
+
+### Redis Variables (Optional — for persistent storage on serverless)
+
+**Option 1: Upstash Redis (Free — 10,000 req/day, 256MB)**
+
+| Variable | Description | Required |
+|:---|:---|:---:|
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL | ❌ |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | ❌ |
+
+> Sign up free at [console.upstash.com](https://console.upstash.com), create a Redis database, copy the REST URL and token.
+
+**Option 2: Vercel KV (Paid — starts at $8/month)**
+
+| Variable | Description | Required |
+|:---|:---|:---:|
+| `KV_REST_API_URL` | Vercel KV Redis connection URL | ❌ (auto-set) |
+| `KV_REST_API_TOKEN` | Vercel KV authentication token | ❌ (auto-set) |
+
+> Without any Redis vars, Docker/Local uses file storage (`data/state.json`). Vercel and Cloudflare Workers fall back to in-memory (resets on cold starts).
 
 ### 🎚️ Random Level Explained
 
@@ -420,7 +445,7 @@ Incoming webhook payloads larger than **1MB** are rejected with `413 Payload Too
 
 The owner can restrict chats at runtime using `/restrict <chat_id>`. These restrictions:
 - Work alongside env-based `RESTRICTED_CHATS`
-- Persist in memory until restart
+- Persist across restarts (file/KV storage)
 - Are shown in `/chats` and `/stats`
 - Can be removed with `/unrestrict <chat_id>`
 - Are cleaned up automatically when using `/leave`
@@ -435,12 +460,14 @@ AlisaReactionBot/
 │   ├── index.js              # Express server (Docker/Vercel/Local)
 │   ├── worker.js             # Cloudflare Worker entry point
 │   ├── bot-handler.js        # Core logic — commands, reactions, stats
+│   ├── store.js              # Persistent state storage (file/KV/memory)
 │   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
 │   └── ads.js                # AdLab — centralized ad management library
 ├── assets/                   # Logo and banner images
+├── data/                     # Runtime state (auto-created, gitignored)
 ├── .env.example              # Environment variable template
 ├── .gitignore
 ├── package.json              # Dependencies (express, dotenv)
@@ -474,21 +501,22 @@ AlisaReactionBot/
 
 **Memory Model:**
 
-| State | Type | Purpose |
-|:---|:---|:---|
-| `stats.messagesProcessed` | Counter | Total messages seen |
-| `stats.reactionsSent` | Counter | Total reactions placed |
-| `stats.uniqueChats` | Set | All chat IDs |
-| `stats.commandUsage` | Object | Command name → count |
-| `reactionLog[]` | Array (last 50) | Recent reactions |
-| `pausedChats` | Set | Paused chat IDs |
-| `perChatReactions` | Object | Custom emoji per chat |
-| `restrictedChatsRuntime` | Set | Runtime-restricted chat IDs |
-| `rateLimitMap` | Object | Per-chat rate limit windows |
-| `chatNames` | Object | Chat ID → display name |
-| `lastBroadcastTime` | Timestamp | Cooldown tracking |
+| State | Type | Persistent | Purpose |
+|:---|:---|:---:|:---|
+| `stats.messagesProcessed` | Counter | ✅ | Total messages seen |
+| `stats.reactionsSent` | Counter | ✅ | Total reactions placed |
+| `chats` | Object | ✅ | Chat registry (ID, name, type, count) |
+| `reactions` | Object | ✅ | Custom emoji per chat |
+| `paused` | Array | ✅ | Paused chat IDs |
+| `restricted` | Array | ✅ | Runtime-restricted chat IDs |
+| `welcome` / `goodbye` | Array | ✅ | Toggle states per chat |
+| `stats.commandUsage` | Object | ✅ | Command name → count |
+| `reactionLog[]` | Array (last 50) | ❌ | Recent reactions |
+| `rateLimitMap` | Object | ❌ | Per-chat rate limit windows |
+| `chatNames` | Object | ❌ | Chat ID → display name |
+| `perChatRandomLevel` | Object | ❌ | Per-chat random overrides |
 
-> All state is in-memory. Resets on restart. No database, no disk, no leaks.
+> **Persistence:** State marked ✅ persists to file (Docker/Local) or Upstash Redis (Vercel, free). On Cloudflare Workers, all state is in-memory. No message content is ever stored — only metadata.
 
 ---
 

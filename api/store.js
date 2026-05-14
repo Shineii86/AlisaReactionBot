@@ -5,9 +5,10 @@
  *
  * @description
  *   Persistent state storage. Environment-aware:
- *   - Vercel: uses Vercel KV (Redis) via @vercel/kv
+ *   - Upstash Redis (free): when UPSTASH_REDIS_REST_URL is set
+ *   - Vercel KV (paid): when KV_REST_API_URL is set
  *   - Local/Docker/Render: uses data/state.json file
- *   - Fallback: in-memory (non-persistent)
+ *   - Cloudflare Workers / Fallback: in-memory (non-persistent)
  *
  *   Persists: chats, per-chat reactions, paused/restricted chats,
  *   welcome/leave toggles, and global stats counters.
@@ -20,25 +21,57 @@
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { log } from './helper.js';
 
 // ══════════════════════════════════════════════════════════════
 // ENVIRONMENT DETECTION
 // ══════════════════════════════════════════════════════════════
 
-const isVercelKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+// Detect Node.js vs Cloudflare Workers / other runtimes
+const isNode = typeof process !== 'undefined'
+    && typeof process.versions === 'object'
+    && !!process.versions.node;
+
+// Lazy-loaded Node.js fs module (avoids top-level import that breaks Workers bundler)
+let fs = null;
+let path = null;
+let DATA_DIR = null;
+let STATE_FILE = null;
+
+async function loadNodeModules() {
+    if (fs) return true;
+    if (!isNode) return false;
+    try {
+        [fs, path] = await Promise.all([import('fs'), import('path')]);
+        const { fileURLToPath } = await import('url');
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        DATA_DIR = path.join(__dirname, '..', 'data');
+        STATE_FILE = path.join(DATA_DIR, 'state.json');
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// Redis detection (Upstash free tier > Vercel KV paid)
+let isUpstash = false;
+let isVercelKV = false;
 const KV_KEY = 'alisareactionbot:state';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const DATA_DIR = join(__dirname, '..', 'data');
-const STATE_FILE = join(DATA_DIR, 'state.json');
+function detectRedis() {
+    isUpstash = isNode
+        && typeof process.env !== 'undefined'
+        && !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 
-let storageType = 'memory';  // 'vercel-kv' | 'file' | 'memory'
-let kv = null;
+    isVercelKV = !isUpstash
+        && isNode
+        && typeof process.env !== 'undefined'
+        && !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+let storageType = 'memory';  // 'upstash' | 'vercel-kv' | 'file' | 'memory'
+let redis = null;
 let loaded = false;
 
 // ══════════════════════════════════════════════════════════════
@@ -64,16 +97,16 @@ function getDefaultState() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// FILE STORAGE (Local / Docker / Render)
+// FILE STORAGE (Local / Docker / Render — Node.js only)
 // ══════════════════════════════════════════════════════════════
 
 function fileLoad() {
+    if (!fs || !STATE_FILE) return false;
     try {
-        if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-        if (existsSync(STATE_FILE)) {
-            const raw = readFileSync(STATE_FILE, 'utf-8');
+        if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+        if (fs.existsSync(STATE_FILE)) {
+            const raw = fs.readFileSync(STATE_FILE, 'utf-8');
             const parsed = JSON.parse(raw);
-            // Merge with defaults to handle new fields added in future versions
             state = { ...getDefaultState(), ...parsed, stats: { ...getDefaultState().stats, ...parsed.stats } };
             log.info(`[Store:File] Loaded state: ${Object.keys(state.chats).length} chats`);
         } else {
@@ -81,30 +114,85 @@ function fileLoad() {
             fileSave();
             log.info('[Store:File] Created fresh state.json');
         }
+        return true;
     } catch (error) {
         log.error('[Store:File] Failed to load:', error.message);
         state = getDefaultState();
+        return false;
     }
 }
 
 function fileSave() {
+    if (!fs || !STATE_FILE) return;
     try {
-        if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-        writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
+        if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+        fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
     } catch (error) {
         log.error('[Store:File] Failed to save:', error.message);
     }
 }
 
 // ══════════════════════════════════════════════════════════════
-// VERCEL KV STORAGE (Redis)
+// UPSTASH REDIS STORAGE (Free tier — 10,000 req/day, 256MB)
+// Requires: npm install @upstash/redis
+// Env vars: UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
+// Get them free at: https://console.upstash.com
 // ══════════════════════════════════════════════════════════════
 
-async function kvInit() {
-    if (kv) return;
+async function upstashInit() {
+    if (redis) return;
+    try {
+        const { Redis } = await import('@upstash/redis');
+        redis = new Redis({
+            url: process.env.UPSTASH_REDIS_REST_URL,
+            token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        });
+        log.info('[Store:Upstash] Redis client initialized');
+    } catch (error) {
+        log.error('[Store:Upstash] Failed to initialize:', error.message);
+        log.error('[Store:Upstash] Run: npm install @upstash/redis');
+        storageType = 'memory';
+    }
+}
+
+async function upstashLoad() {
+    await upstashInit();
+    if (!redis) return;
+    try {
+        const data = await redis.get(KV_KEY);
+        if (data) {
+            state = { ...getDefaultState(), ...data, stats: { ...getDefaultState().stats, ...data.stats } };
+            log.info(`[Store:Upstash] Loaded state: ${Object.keys(state.chats).length} chats`);
+        } else {
+            state = getDefaultState();
+            await upstashSave();
+            log.info('[Store:Upstash] Created fresh state in Redis');
+        }
+    } catch (error) {
+        log.error('[Store:Upstash] Failed to load:', error.message);
+        state = getDefaultState();
+    }
+}
+
+async function upstashSave() {
+    if (!redis) return;
+    try {
+        await redis.set(KV_KEY, state);
+    } catch (error) {
+        log.error('[Store:Upstash] Failed to save:', error.message);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// VERCEL KV STORAGE (Paid — requires Vercel KV database)
+// Optional: set KV_REST_API_URL + KV_REST_API_TOKEN to enable
+// ══════════════════════════════════════════════════════════════
+
+async function vercelKVInit() {
+    if (redis) return;
     try {
         const { createClient } = await import('@vercel/kv');
-        kv = createClient({
+        redis = createClient({
             url: process.env.KV_REST_API_URL,
             token: process.env.KV_REST_API_TOKEN,
         });
@@ -115,18 +203,18 @@ async function kvInit() {
     }
 }
 
-async function kvLoad() {
-    await kvInit();
-    if (!kv) return;
+async function vercelKVLoad() {
+    await vercelKVInit();
+    if (!redis) return;
     try {
-        const data = await kv.get(KV_KEY);
+        const data = await redis.get(KV_KEY);
         if (data) {
             state = { ...getDefaultState(), ...data, stats: { ...getDefaultState().stats, ...data.stats } };
             log.info(`[Store:KV] Loaded state: ${Object.keys(state.chats).length} chats`);
         } else {
             state = getDefaultState();
-            await kvSave();
-            log.info('[Store:KV] Created fresh state in Redis');
+            await vercelKVSave();
+            log.info('[Store:KV] Created fresh state in KV');
         }
     } catch (error) {
         log.error('[Store:KV] Failed to load:', error.message);
@@ -134,10 +222,10 @@ async function kvLoad() {
     }
 }
 
-async function kvSave() {
-    if (!kv) return;
+async function vercelKVSave() {
+    if (!redis) return;
     try {
-        await kv.set(KV_KEY, state);
+        await redis.set(KV_KEY, state);
     } catch (error) {
         log.error('[Store:KV] Failed to save:', error.message);
     }
@@ -162,7 +250,8 @@ function scheduleSave() {
         saveTimer = null;
         if (!dirty) return;
         dirty = false;
-        if (storageType === 'vercel-kv') await kvSave();
+        if (storageType === 'upstash') await upstashSave();
+        else if (storageType === 'vercel-kv') await vercelKVSave();
         else if (storageType === 'file') fileSave();
     }, SAVE_DEBOUNCE_MS);
 }
@@ -177,7 +266,8 @@ async function flush() {
         saveTimer = null;
     }
     dirty = false;
-    if (storageType === 'vercel-kv') await kvSave();
+    if (storageType === 'upstash') await upstashSave();
+    else if (storageType === 'vercel-kv') await vercelKVSave();
     else if (storageType === 'file') fileSave();
     log.info('[Store] Flushed to disk');
 }
@@ -188,17 +278,28 @@ async function flush() {
 
 async function load() {
     if (loaded) return;
-    if (isVercelKV) {
+
+    // Detect available Redis backend
+    detectRedis();
+
+    if (isUpstash) {
+        // Upstash Redis (free tier — 10,000 req/day, 256MB)
+        storageType = 'upstash';
+        await upstashLoad();
+    } else if (isVercelKV) {
+        // Vercel KV (paid)
         storageType = 'vercel-kv';
-        await kvLoad();
+        await vercelKVLoad();
     } else {
-        try {
+        // Try file storage (Node.js only)
+        const hasFS = await loadNodeModules();
+        if (hasFS && fileLoad()) {
             storageType = 'file';
-            fileLoad();
-        } catch {
+        } else {
+            // Cloudflare Workers / other runtimes: in-memory only
             storageType = 'memory';
             state = getDefaultState();
-            log.warn('[Store] Falling back to in-memory (non-persistent)');
+            log.info('[Store] Using in-memory storage (no filesystem available)');
         }
     }
     loaded = true;
@@ -234,7 +335,6 @@ async function removeChat(chatId) {
     const key = String(chatId);
     if (state.chats[key]) {
         delete state.chats[key];
-        // Also clean up related data
         delete state.reactions[key];
         state.paused = state.paused.filter(id => String(id) !== key);
         state.restricted = state.restricted.filter(id => String(id) !== key);
@@ -332,11 +432,11 @@ async function toggleWelcome(chatId) {
     if (idx !== -1) {
         state.welcome.splice(idx, 1);
         scheduleSave();
-        return false; // disabled
+        return false;
     } else {
         state.welcome.push(id);
         scheduleSave();
-        return true; // enabled
+        return true;
     }
 }
 
