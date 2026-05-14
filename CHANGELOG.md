@@ -9,19 +9,28 @@ All notable changes to Alisa Reaction Bot are documented here.
 ### ✨ Persistent Chat Tracking
 
 - **Added persistent chat storage** — Bot now remembers every chat it has interacted with across restarts.
-  - New `api/store.js` module — reads/writes `data/chats.json` for durable chat tracking.
+  - **Environment-aware storage**: auto-detects Vercel KV (Redis) or falls back to local file storage (`data/chats.json`).
+  - New `api/store.js` module with unified API: load, save, updateChat, removeChat, getAllChats, getChatCount, getChatsByType, hasChat.
   - Tracks: chat ID, title, type (group/supergroup/channel/private), first seen, last seen, total message count.
-  - `/chats` command now shows **all historical chats** (not just current session), sorted by type with emoji indicators and message counts.
-  - `/stats` now displays both session and total persistent chat counts.
+  - `/chats` command now shows **all historical chats** (not just current session), sorted by type with emoji indicators (👥📢💬) and message counts.
+  - `/stats` now displays both session and total persistent chat counts, plus active storage backend.
   - `/leave` and `/remove` commands clean up the persistent store when the bot leaves a chat.
 
 ### 🔧 Changes
 
-- `api/store.js` — New persistence module with load, save, updateChat, removeChat, getAllChats, getChatCount, getChatsByType, hasChat.
-- `api/bot-handler.js` — Integrated Store into chat tracking lifecycle. Updated `/chats`, `/stats`, `/leave`, `/remove` to use persistent data. Version bumped to v2.10.0.
+- `api/store.js` — New environment-aware persistence module. Uses `@vercel/kv` (Redis) when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set; otherwise uses local `data/chats.json`.
+- `api/bot-handler.js` — Integrated Store into chat tracking lifecycle (async). Updated `/chats`, `/stats`, `/leave`, `/remove` to use persistent data. Version bumped to v2.10.0.
+- `.env.example` — Added Vercel KV environment variable documentation.
 - `.gitignore` — Added `data/` directory to exclusions (runtime data, not source).
-- `package.json` — Version bumped to v2.10.0.
+- `package.json` — Added `@vercel/kv` as optional dependency. Version bumped to v2.10.0.
 - `CHANGELOG.md` — v2.10.0 entry added.
+
+### 📦 Vercel Setup
+
+To enable persistent storage on Vercel:
+1. Go to your project dashboard → **Storage** → **Create Database** → **KV (Redis)**
+2. Vercel auto-injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`
+3. Redeploy — done
 
 ---
 

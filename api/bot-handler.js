@@ -180,7 +180,8 @@ function getStatsMessage() {
 
     return `${statsHeader}📨 <b>Mᴇssᴀɢᴇs Pʀᴏᴄᴇssᴇᴅ:</b> ${stats.messagesProcessed.toLocaleString()}
 💫 <b>Rᴇᴀᴄᴛɪᴏɴs Sᴇɴᴛ:</b> ${stats.reactionsSent.toLocaleString()}
-💬 <b>Uɴɪҩᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()} (ᴛʜɪs sᴇssɪᴏɴ) · ${Store.getChatCount().toLocaleString()} (ᴛᴏᴛᴀʟ)
+💬 <b>Uɴɪҩᴜᴇ Cʜᴀᴛs:</b> ${stats.uniqueChats.size.toLocaleString()} (sᴇssɪᴏɴ) · ${Store.getChatCount().toLocaleString()} (ᴛᴏᴛᴀʟ)
+💾 <b>Sᴛᴏʀᴀɢᴇ:</b> ${Store.getStorageType()}
 ⏸️ <b>Pᴀᴜsᴇᴅ Cʜᴀᴛs:</b> ${pausedChats.size.toLocaleString()}
 🚫 <b>Rᴇsᴛʀɪᴄᴛᴇᴅ Cʜᴀᴛs:</b> ${restrictedChatsRuntime.size.toLocaleString()}
 🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Oᴠᴇʀʀɪᴅᴇs:</b> ${Object.keys(perChatRandomLevel).length.toLocaleString()}
@@ -290,7 +291,7 @@ function getCloseKeyboard() {
 export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
 
     // Load persistent chat store (idempotent — only loads once)
-    Store.load();
+    await Store.load();
 
     // Guard against NaN RandomLevel from invalid env var
     if (isNaN(RandomLevel) || RandomLevel < 0 || RandomLevel > 10) {
@@ -400,7 +401,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         chatNames[chatId] = content.chat.title || content.chat.first_name || String(chatId);
 
         // Persist chat to disk
-        Store.updateChat(chatId, chatNames[chatId], chatType);
+        await Store.updateChat(chatId, chatNames[chatId], chatType);
 
         // Track stats
         stats.messagesProcessed++;
@@ -733,7 +734,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     delete perChatRandomLevel[targetChatId];
                     pausedChats.delete(Number(targetChatId));
                     restrictedChatsRuntime.delete(Number(targetChatId));
-                    Store.removeChat(targetChatId);
+                    await Store.removeChat(targetChatId);
                     await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
                 } catch (error) {
                     await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());

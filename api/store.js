@@ -4,12 +4,14 @@
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
- *   Persistent chat storage. Tracks every chat the bot has
- *   interacted with across restarts. Writes to data/chats.json.
+ *   Persistent chat storage. Environment-aware:
+ *   - Vercel: uses Vercel KV (Redis) via @vercel/kv
+ *   - Local/Docker/Render: uses data/chats.json file
+ *   - Fallback: in-memory (non-persistent)
  *
  * @exports
  *   Store — { load, save, updateChat, getAllChats, getChatCount,
- *             getChatsByType, removeChat }
+ *             getChatsByType, removeChat, getStorageType }
  *
  * @version 2.10.0
  * @author  Shinei Nouzen
@@ -22,21 +24,28 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { log } from './helper.js';
 
+// ══════════════════════════════════════════════════════════════
+// ENVIRONMENT DETECTION
+// ══════════════════════════════════════════════════════════════
+
+const isVercelKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+const KV_KEY = 'alisareactionbot:chats';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, '..', 'data');
 const CHATS_FILE = join(DATA_DIR, 'chats.json');
 
+let storageType = 'memory';  // 'vercel-kv' | 'file' | 'memory'
+let kv = null;                // Lazy-loaded @vercel/kv client
+let chats = {};               // In-memory cache (shared across all backends)
+let loaded = false;
+
 // ══════════════════════════════════════════════════════════════
-// PERSISTENT CHAT STORE
+// FILE STORAGE (Local / Docker / Render)
 // ══════════════════════════════════════════════════════════════
 
-let chats = {};  // chatId (string) → { id, title, type, firstSeen, lastSeen, messageCount }
-
-/**
- * Load chats from disk. Creates data/ and chats.json if missing.
- */
-function load() {
+function fileLoad() {
     try {
         if (!existsSync(DATA_DIR)) {
             mkdirSync(DATA_DIR, { recursive: true });
@@ -44,29 +53,109 @@ function load() {
         if (existsSync(CHATS_FILE)) {
             const raw = readFileSync(CHATS_FILE, 'utf-8');
             chats = JSON.parse(raw);
-            log.info(`[Store] Loaded ${Object.keys(chats).length} chat(s) from disk`);
+            log.info(`[Store:File] Loaded ${Object.keys(chats).length} chat(s) from disk`);
         } else {
             chats = {};
-            save();
-            log.info('[Store] Created fresh chats.json');
+            fileSave();
+            log.info('[Store:File] Created fresh chats.json');
         }
     } catch (error) {
-        log.error('[Store] Failed to load chats.json:', error.message);
+        log.error('[Store:File] Failed to load:', error.message);
         chats = {};
     }
 }
 
-/**
- * Write chats to disk (sync, atomic enough for single-process bots).
- */
-function save() {
+function fileSave() {
     try {
         if (!existsSync(DATA_DIR)) {
             mkdirSync(DATA_DIR, { recursive: true });
         }
         writeFileSync(CHATS_FILE, JSON.stringify(chats, null, 2), 'utf-8');
     } catch (error) {
-        log.error('[Store] Failed to save chats.json:', error.message);
+        log.error('[Store:File] Failed to save:', error.message);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// VERCEL KV STORAGE (Redis)
+// ══════════════════════════════════════════════════════════════
+
+async function kvInit() {
+    if (kv) return;
+    try {
+        const { createClient } = await import('@vercel/kv');
+        kv = createClient({
+            url: process.env.KV_REST_API_URL,
+            token: process.env.KV_REST_API_TOKEN,
+        });
+        log.info('[Store:KV] Vercel KV client initialized');
+    } catch (error) {
+        log.error('[Store:KV] Failed to initialize:', error.message);
+        storageType = 'memory';
+    }
+}
+
+async function kvLoad() {
+    await kvInit();
+    if (!kv) return;
+    try {
+        const data = await kv.get(KV_KEY);
+        chats = data || {};
+        log.info(`[Store:KV] Loaded ${Object.keys(chats).length} chat(s) from Redis`);
+    } catch (error) {
+        log.error('[Store:KV] Failed to load:', error.message);
+        chats = {};
+    }
+}
+
+async function kvSave() {
+    if (!kv) return;
+    try {
+        await kv.set(KV_KEY, chats);
+    } catch (error) {
+        log.error('[Store:KV] Failed to save:', error.message);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// UNIFIED STORE API
+// ══════════════════════════════════════════════════════════════
+
+/**
+ * Initialize the store. Auto-detects environment:
+ * - Vercel KV env vars present → Redis
+ * - Otherwise → file storage
+ * Call once at startup (idempotent).
+ */
+async function load() {
+    if (loaded) return;
+
+    if (isVercelKV) {
+        storageType = 'vercel-kv';
+        await kvLoad();
+    } else {
+        try {
+            storageType = 'file';
+            fileLoad();
+        } catch {
+            storageType = 'memory';
+            chats = {};
+            log.warn('[Store] Falling back to in-memory storage (non-persistent)');
+        }
+    }
+
+    loaded = true;
+    log.info(`[Store] Storage backend: ${storageType}`);
+}
+
+/**
+ * Save chats to the active backend.
+ */
+async function save() {
+    if (storageType === 'vercel-kv') {
+        await kvSave();
+    } else if (storageType === 'file') {
+        fileSave();
     }
 }
 
@@ -76,7 +165,7 @@ function save() {
  * @param {string} title
  * @param {string} type — 'private' | 'group' | 'supergroup' | 'channel'
  */
-function updateChat(chatId, title, type) {
+async function updateChat(chatId, title, type) {
     const key = String(chatId);
     const now = Date.now();
 
@@ -96,7 +185,7 @@ function updateChat(chatId, title, type) {
         };
     }
 
-    save();
+    await save();
 }
 
 /**
@@ -104,11 +193,11 @@ function updateChat(chatId, title, type) {
  * @param {number|string} chatId
  * @returns {boolean} — true if removed
  */
-function removeChat(chatId) {
+async function removeChat(chatId) {
     const key = String(chatId);
     if (chats[key]) {
         delete chats[key];
-        save();
+        await save();
         return true;
     }
     return false;
@@ -148,6 +237,14 @@ function hasChat(chatId) {
     return String(chatId) in chats;
 }
 
+/**
+ * Get the active storage backend type.
+ * @returns {string} — 'vercel-kv' | 'file' | 'memory'
+ */
+function getStorageType() {
+    return storageType;
+}
+
 // ══════════════════════════════════════════════════════════════
 // EXPORTS
 // ══════════════════════════════════════════════════════════════
@@ -161,6 +258,7 @@ export const Store = {
     getChatCount,
     getChatsByType,
     hasChat,
+    getStorageType,
 };
 
 // ══════════════════════════════════════════════════════════════ END: store.js
