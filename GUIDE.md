@@ -17,15 +17,16 @@
 9. [Environment Variables Explained](#environment-variables-explained)
 10. [Using the Bot](#using-the-bot)
 11. [Admin Commands (Group Owners)](#admin-commands-group-owners)
-12. [Owner Commands](#owner-commands)
+12. [Admin Panel & Owner Commands](#admin-panel--owner-commands)
 13. [How Reactions Work](#how-reactions-work)
 15. [How Stats Work](#how-stats-work)
-16. [How Broadcast Works](#how-broadcast-works)
+16. [How Broadcast Works](#how-broadcast-work)
 17. [Ad Library (AdLab)](#ad-library-adlab)
 18. [Photo Support](#photo-support)
 19. [Close Button](#close-button)
 20. [Welcome & Leave Messages](#welcome--leave-messages)
-21. [Security Features](#security-features)
+21. [Persistent Chat Storage](#persistent-chat-storage)
+22. [Security Features](#security-features)
 18. [Troubleshooting](#troubleshooting)
 19. [Frequently Asked Questions](#frequently-asked-questions)
 
@@ -200,6 +201,19 @@ In the Vercel dashboard, go to **Settings** → **Environment Variables** and ad
 **Step 4: Deploy**
 
 Click **Deploy**. Vercel gives you a URL like `https://your-project.vercel.app`.
+
+**Step 5: Set Up Persistent Storage (Optional)**
+
+By default, Vercel's serverless functions have ephemeral storage — chat data resets on every cold start. To make chat tracking persistent:
+
+1. In your Vercel dashboard, go to **Storage** → **Create Database** → pick **KV (Redis)**
+2. Vercel automatically creates the database and injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` environment variables
+3. **Redeploy** your project
+
+That's it. The bot auto-detects Vercel KV and uses it for persistent chat storage. No code changes needed.
+
+> **Without KV:** The bot works fine, but `/chats` and `/stats` only show data from the current session (resets on cold starts).
+> **With KV:** All chat data persists across deployments and cold starts.
 
 ---
 
@@ -392,6 +406,17 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
+
+### Vercel KV Variables (Optional)
+
+These are auto-injected by Vercel when you create a KV store in the dashboard. You don't need to set them manually.
+
+| Variable | What It Does | Default |
+|---|---|---|
+| `KV_REST_API_URL` | Vercel KV Redis connection URL | None (auto-set by Vercel) |
+| `KV_REST_API_TOKEN` | Vercel KV authentication token | None (auto-set by Vercel) |
+
+> **Note:** When both KV variables are present, the bot uses Vercel KV (Redis) for persistent chat storage. When absent, it falls back to local file storage (`data/chats.json`) on Docker/VPS, or in-memory on serverless platforms.
 
 ### How EMOJI_LIST Works
 
@@ -635,9 +660,37 @@ Shows the current level and whether it's custom or global:
 
 ---
 
-## Owner Commands
+## Admin Panel & Owner Commands
 
 These commands only work for the user whose ID matches `OWNER_ID`. They work in **any chat** — private, group, or channel.
+
+### How the Admin Panel Works
+
+Owner-only commands are **separated from the public `/help` menu**. Regular users and group admins only see public and admin group commands in `/help`.
+
+The owner gets an extra **𝘤Pᴀɴᴇʟ** button on the `/start` and `/help` screens. Tapping it reveals the admin panel with all owner-only commands.
+
+**For regular users /group admins:** `/help` shows public + group admin commands only.
+**For the bot owner:** `/help` shows public + group admin commands + a `𝘤Pᴀɴᴇʟ` button that opens the owner command panel.
+
+```
+👑 Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇʀ Oɴʟʏ
+
+Хмпф. Yᴏᴜ Kɴᴏᴡ Wʜᴏ Tʜɪs Is Fᴏʀ.
+
+🔹 /broadcast <msg> — Speak To All Chats.
+🔹 /leave <chat_id> — Remove Me. Your Loss.
+🔹 /remove <chat_id> — Alias For /leave.
+🔹 /chats — View All Active Chats.
+🔹 /restrict <chat_id> — Restrict A Chat.
+🔹 /unrestrict <chat_id> — Lift The Restriction.
+🔹 /setwebhook <url> — Configure Webhook.
+🔹 /log — Review Reaction History.
+
+Nobody Else Should See This. You Know That, Right?
+```
+
+> **Security:** The `𝘤Pᴀɴᴇʟ` button is rendered server-side — it only appears when the callback user ID matches `OWNER_ID`. Non-owners who somehow trigger the callback see a rejection message.
 
 ### /broadcast — Message All Chats
 
@@ -691,7 +744,7 @@ Bot is not a member of this chat
 ```
 
 **What it cleans up:**
-- Removes from active chats list
+- Removes from active chats list (in-memory + persistent store)
 - Removes per-chat custom reactions
 - Removes pause state
 - Removes runtime restrictions
@@ -706,7 +759,7 @@ Same as `/leave` — use whichever you prefer:
 
 ### /chats — List All Active Chats
 
-See every chat the bot is currently in, with status indicators:
+See every chat the bot has ever interacted with — **persisted across restarts** (when Vercel KV or file storage is active):
 
 ```
 /chats
@@ -715,21 +768,33 @@ See every chat the bot is currently in, with status indicators:
 The bot replies:
 
 ```
-💬 Aᴄᴛɪᴠᴇ Cʜᴀᴛs (42):
+💬 Aʟʟ Cʜᴀᴛs (42):
 
-1. Anime Lovers Group (-1001234567890)
-2. Dev Chat (-1009876543210) ⏸️
-3. My Channel (-100111222333) 🚫
-4. Friends Group (-100444555666)
+1. 👥 Anime Lovers Group (-1001234567890) — 1,247 msgs
+2. 👥 Dev Chat (-1009876543210) ⏸️ — 312 msgs
+3. 📢 My Channel (-100111222333) 🚫 — 89 msgs
+4. 💬 Private Chat (123456789) — 56 msgs
 ...
 
-⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ
+📊 25 ɢʀᴏᴜᴘs · 5 ᴄʜᴀɴɴᴇʟs · 12 ᴘʀɪᴠᴀᴛᴇ
+
+⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs
 ```
 
 **Indicators:**
+- 👥 — Group or supergroup
+- 📢 — Channel
+- 💬 — Private chat
 - No indicator → Active (reacting normally)
 - ⏸️ → Paused (admin used `/pause`)
 - 🚫 → Restricted (owner used `/restrict` or in `RESTRICTED_CHATS`)
+- `— X msgs` → Total messages processed in that chat
+
+**What's new in v2.10.0:**
+- `/chats` now shows **all historical chats**, not just the current session
+- Data persists across restarts (Vercel KV or `data/chats.json`)
+- Chats are sorted by type: groups first, then channels, then private
+- Each chat shows its total message count
 
 ### /restrict — Restrict a Chat
 
@@ -920,9 +985,10 @@ The `/stats` command shows a snapshot of the bot's activity since the last resta
 |---|---|
 | **Messages Processed** | Every message the bot has seen (commands + regular messages) |
 | **Reactions Sent** | Every successful reaction placed on a message |
-| **Unique Chats** | How many different chats the bot has interacted with |
+| **Unique Chats** | How many different chats the bot has interacted with (session + total) |
 | **Paused Chats** | How many groups currently have reactions paused |
 | **Restricted Chats** | How many chats are restricted at runtime |
+| **Storage** | Active storage backend (`vercel-kv`, `file`, or `memory`) |
 | **Uptime** | Time since the bot last started |
 | **Started** | The exact time the bot started |
 
@@ -1149,6 +1215,73 @@ My Group Wɪʟʟ Mᴀɴᴀɢᴇ Wɪᴛʜᴏᴜᴛ Yᴏᴜ.
 
 ---
 
+## Persistent Chat Storage
+
+Starting from v2.10.0, the bot can remember every chat it has interacted with across restarts. This powers the `/chats` command with full historical data and the `/stats` command with total chat counts.
+
+### How It Works
+
+The storage system (`api/store.js`) is **environment-aware** — it auto-detects the best available backend:
+
+| Environment | Backend | Persistence | Setup |
+|---|---|---|---|
+| **Vercel + KV** | Vercel KV (Redis) | ✅ Survives cold starts | Create KV store in dashboard |
+| **Docker / Render / Local** | File (`data/chats.json`) | ✅ Survives restarts | None — automatic |
+| **Vercel (no KV)** | In-memory | ❌ Resets on cold start | Add KV for persistence |
+| **Cloudflare Workers** | In-memory | ❌ Resets on restart | Use D1 or KV for persistence |
+
+### What Gets Stored
+
+Each chat entry tracks:
+
+```json
+{
+  "id": -1001234567890,
+  "title": "Anime Lovers Group",
+  "type": "supergroup",
+  "firstSeen": 1715645200000,
+  "lastSeen": 1715648800000,
+  "messageCount": 1247
+}
+```
+
+### Setting Up Vercel KV
+
+1. Go to your Vercel project dashboard
+2. Click **Storage** → **Create Database** → **KV (Redis)**
+3. Vercel creates the store and injects `KV_REST_API_URL` + `KV_REST_API_TOKEN`
+4. Redeploy — the bot auto-detects KV and switches to it
+
+### Checking Storage Backend
+
+The `/stats` command shows which storage backend is active:
+
+```
+💾 Sᴛᴏʀᴀɢᴇ: vercel-kv
+```
+
+or
+
+```
+💾 Sᴛᴏʀᴀɢᴇ: file
+```
+
+### What's In-Memory vs Persistent
+
+| Data | In-Memory | Persistent |
+|---|:---:|:---:|
+| Chat list (IDs, names, types, counts) | ✅ | ✅ |
+| Stats counters (messages, reactions) | ✅ | ❌ |
+| Per-chat custom reactions | ✅ | ❌ |
+| Paused chats | ✅ | ❌ |
+| Runtime restrictions | ✅ | ❌ |
+| Reaction log (last 50) | ✅ | ❌ |
+| Welcome/leave toggle | ✅ | ❌ |
+
+> **Note:** Only chat tracking data is persisted. Command stats, pause states, and custom reactions remain in-memory by design — they're transient operational state, not user data.
+
+---
+
 ## Security Features
 
 ### Webhook Secret
@@ -1281,7 +1414,9 @@ Common issues:
 
 ### Does the bot store my messages?
 
-No. The bot only stores counters and chat IDs in memory. Messages are never saved, logged, or transmitted anywhere. When the bot restarts, all state is lost.
+No. The bot only stores counters and chat IDs. Messages are never saved, logged, or transmitted anywhere.
+
+**Since v2.10.0:** The bot persists a chat registry (ID, name, type, message count) to track which chats it has interacted with. On Vercel, this uses Vercel KV (Redis). On Docker/VPS, this uses a local `data/chats.json` file. No message content is ever stored — only metadata.
 
 ### Can I use multiple emoji lists for different groups?
 
@@ -1297,19 +1432,24 @@ Yes. Add the bot as a channel admin with the "Post Messages" permission. It will
 
 ### What happens when the bot restarts?
 
-All in-memory state is lost:
-- Stats counters reset to 0
-- Per-chat custom reactions reset to default
-- Paused chats unpause
-- Runtime restrictions are removed
-- Reaction log clears
-- Chat names cache clears
+**Persistent data (survives restarts):**
+- Chat registry (IDs, names, types, message counts) — via Vercel KV or `data/chats.json`
+
+**In-memory data (resets on restart):**
+- Stats counters (messages processed, reactions sent)
+- Per-chat custom reactions (reset to default)
+- Paused chats (unpause)
+- Runtime restrictions (removed)
+- Reaction log (clears)
+- Chat names cache (clears)
+
+> **Note:** On Vercel without KV, ALL data resets on cold starts. Add Vercel KV for persistence. See [Persistent Chat Storage](#persistent-chat-storage).
 
 This is by design for privacy.
 
 ### How much does it cost?
 
-Free. Cloudflare Workers free tier gives you 100,000 requests per day. Each Telegram update is one request. For most bots, this is more than enough.
+Free. Cloudflare Workers free tier gives you 100,000 requests per day. Vercel's free tier includes serverless functions and KV storage (256 MB, 3000 requests/day). For most bots, this is more than enough.
 
 ### Can I use this bot with multiple bot tokens?
 
