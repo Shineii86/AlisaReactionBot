@@ -210,6 +210,9 @@ function getStartKeyboard(botUsername, userId, ownerId) {
             { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate' },
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
         ],
+        [
+            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions' },
+        ],
     ];
 
     // Show admin panel button only to the owner
@@ -332,6 +335,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 case 'cb_donate':
                     await editMsg(withAd(donateMessage), getBackKeyboard());
                     break;
+                case 'cb_reactions': {
+                    const reactions = getReactionsForChat(chatId, Reactions).join(' ');
+                    const isCustom = Store.getReaction(chatId) ? `\n\n<i>✨ Хорошᴏ. Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>` : `\n\n<i>📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.</i>`;
+                    await editMsg(withAd(`🚀 <b>Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${reactions}${isCustom}`), getBackKeyboard());
+                    break;
+                }
                 case '!admin':
                     if (!isOwner(callbackUserId, ownerId)) {
                         await botApi.answerCallbackQuery(cq.id, '👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Fᴏʀ Tʜᴇ Oᴡɴᴇʀ. Дурак.', true);
