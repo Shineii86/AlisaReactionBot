@@ -14,7 +14,7 @@
  *   broadcastStarted, broadcastDone, onlyOwnerMessage,
  *   onlyAdminMessage, groupOnlyMessage, pingMessage
  *
- * @version 2.8.0
+ * @version 2.9.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -42,7 +42,7 @@ Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ. Aɴᴅ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ R�
 // HELP MESSAGE
 // ══════════════════════════════════════════════════════════════
 
-// ---- FEATURE: /help command list ----
+// ---- FEATURE: /help command list (public commands only) ----
 export const helpMessage = `📚 <b>Cᴏᴍᴍᴀɴᴅs — Pᴀʏ Aᴛᴛᴇɴᴛɪᴏɴ</b>
 
 Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
@@ -63,11 +63,13 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
 🔹 <code>/randomlevel &lt;0-10&gt;</code> — Aᴅᴊᴜsᴛ Rᴇᴀᴄᴛɪᴏɴ Fʀᴇǫᴜᴇɴᴄʏ.
 🔹 <code>/welcome</code> — Tᴏɢɢʟᴇ Gʀᴇᴇᴛɪɴɢs Fᴏʀ Nᴇᴡ Mᴇᴍʙᴇʀs.
-🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Fᴀʀᴇᴡᴇʟʟs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.
+🔹 <code>/goodbye</code> — Tᴏɢɢʟᴇ Fᴀʀᴇᴡᴇʟʟs Wʜᴇɴ Mᴇᴍʙᴇʀs Lᴇᴀᴠᴇ.`
 
-────────────────
+// ---- FEATURE: Admin panel — owner-only commands ----
+export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇʀ Oɴʟʏ</b>
 
-👑 <b>Oᴡɴᴇʀ Oɴʟʏ:</b>
+Хмпф. Yᴏᴜ Kɴᴏᴡ Wʜᴏ Tʜɪs Is Fᴏʀ.
+
 🔹 <code>/broadcast &lt;msg&gt;</code> — Sᴘᴇᴀᴋ Tᴏ Aʟʟ Cʜᴀᴛs.
 🔹 <code>/leave &lt;chat_id&gt;</code> — Rᴇᴍᴏᴠᴇ Mᴇ. Yᴏᴜʀ Lᴏss.
 🔹 <code>/remove &lt;chat_id&gt;</code> — Aʟɪᴀs Fᴏʀ /leave.
@@ -75,7 +77,11 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
 🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Lɪғᴛ Tʜᴇ Rᴇsᴛʀɪᴄᴛɪᴏɴ.
 🔹 <code>/setwebhook &lt;url&gt;</code> — Cᴏɴғɪɢᴜʀᴇ Wᴇʙʜᴏᴏᴋ.
-🔹 <code>/log</code> — Rᴇᴠɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Hɪsᴛᴏʀʏ.`
+🔹 <code>/log</code> — Rᴇᴠɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Hɪsᴛᴏʀʏ.
+
+────────────────
+
+<i>Nᴏʙᴏᴅʏ Eʟsᴇ Sʜᴏᴜʟᴅ Sᴇᴇ Tʜɪs. Yᴏᴜ Kɴᴏᴡ Tʜᴀᴛ, Rɪɢʜᴛ?</i>`
 
 // ══════════════════════════════════════════════════════════════
 // ABOUT MESSAGE

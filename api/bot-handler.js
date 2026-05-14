@@ -12,7 +12,7 @@
  *                   botUsername, RandomLevel, ownerId,
  *                   webhookSecret, botPhoto)
  *
- * @version 2.8.0
+ * @version 2.9.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -23,7 +23,8 @@ import {
     reactionsUpdated, reactionsReset, reactionsInvalid,
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
-    onlyAdminMessage, groupOnlyMessage, pingMessage
+    onlyAdminMessage, groupOnlyMessage, pingMessage,
+    adminPanelMessage
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
@@ -199,8 +200,8 @@ ${cmdLines}${topChatsText}
 
 // ─── Keyboards ───
 
-function getStartKeyboard(botUsername) {
-    return [
+function getStartKeyboard(botUsername, userId, ownerId) {
+    const keyboard = [
         [
             { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ', url: `https://t.me/${botUsername}?startchannel=botstart` },
             { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart` },
@@ -213,10 +214,35 @@ function getStartKeyboard(botUsername) {
             { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate' },
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
         ],
+    ];
+
+    // Show admin panel button only to the owner
+    if (ownerId && userId && String(userId) === String(ownerId)) {
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin' }]);
+    }
+
+    keyboard.push([{ text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' }]);
+    return keyboard;
+}
+
+function getHelpKeyboard(userId, ownerId) {
+    const keyboard = [
         [
-            { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' },
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
         ],
     ];
+
+    // Show admin panel button only to the owner
+    if (ownerId && userId && String(userId) === String(ownerId)) {
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin' }]);
+    }
+
+    keyboard.push([
+        { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+        { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
+    ]);
+    return keyboard;
 }
 
 function getBackKeyboard() {
@@ -291,9 +317,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
             };
 
+            // Retrieve owner ID dynamically for admin panel visibility
+            const callbackUserId = cq.from?.id;
+
             switch (cq.data) {
                 case 'cb_help':
-                    await editMsg(withAd(helpMessage), getBackKeyboard());
+                    await editMsg(withAd(helpMessage), getHelpKeyboard(callbackUserId, ownerId));
                     break;
                 case 'cb_about':
                     await editMsg(withAd(aboutMessage), getBackKeyboard());
@@ -304,12 +333,19 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 case 'cb_donate':
                     await editMsg(withAd(donateMessage), getBackKeyboard());
                     break;
+                case '!admin':
+                    if (!isOwner(callbackUserId, ownerId)) {
+                        await botApi.answerCallbackQuery(cq.id, '👑 Tʜɪs Cᴏᴍᴍᴀɴᴅ Is Fᴏʀ Tʜᴇ Oᴡɴᴇʀ. Дурак.', true);
+                        return;
+                    }
+                    await editMsg(withAd(adminPanelMessage), getCloseKeyboard());
+                    break;
                 case 'cb_menu': {
                     const name = cq.message?.chat?.type === 'private'
                         ? (cq.from?.first_name || cq.message?.chat?.title)
                         : cq.message?.chat?.title;
                     const caption = startMessage.replace('UserName', name);
-                    const keyboard = getStartKeyboard(botUsername);
+                    const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
                     // Check if current message is a photo message
                     const hasPhoto = cq.message?.photo;
                     if (hasPhoto) {
@@ -377,10 +413,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     ? (content.from?.first_name || content.chat.title)
                     : content.chat.title;
                 const caption = withAd(startMessage.replace('UserName', displayName));
+                const keyboard = getStartKeyboard(botUsername, userId, ownerId);
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getStartKeyboard(botUsername));
+                    await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
                 } else {
-                    await botApi.sendMessage(chatId, caption, getStartKeyboard(botUsername));
+                    await botApi.sendMessage(chatId, caption, keyboard);
                 }
                 return;
             }
@@ -389,10 +426,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/help') {
                 trackCommand('help');
                 const caption = withAd(helpMessage);
+                const keyboard = getHelpKeyboard(userId, ownerId);
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                    await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
                 } else {
-                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                    await botApi.sendMessage(chatId, caption, keyboard);
                 }
                 return;
             }
@@ -447,7 +485,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/reactions') {
                 trackCommand('reactions');
                 const reactions = getReactionsForChat(chatId, Reactions).join(' ');
-                const isCustom = perChatReactions[chatId] ? '\n\n<i>✨ Хорошо. Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>' : '\n\n<i>📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.</i>';
+                const isCustom = perChatReactions[chatId] ? `\n\n<i>✨ Хорошо. Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>` : `\n\n<i>📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.</i>`;
                 const caption = withAd(`🚀 <b>Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${reactions}${isCustom}`);
                 if (botPhoto) {
                     await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());

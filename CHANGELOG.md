@@ -4,6 +4,25 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.9.0] — 2026-05-14
+
+### ✨ Owner Commands Separated from Help
+
+- **Separated owner-only commands from the public `/help` command** — Owner commands are no longer visible to regular users in the help menu.
+  - Removed owner command section (`/broadcast`, `/leave`, `/remove`, `/chats`, `/restrict`, `/unrestrict`, `/setwebhook`, `/log`) from `helpMessage`.
+  - Created new `adminPanelMessage` constant with all owner-only commands, styled as a dedicated admin panel.
+  - Added `𝘤Pᴀɴᴇʟ` inline button that appears **only for the bot owner** (dynamically checked via `OWNER_ID`).
+  - New callback handler `!admin` — displays the admin panel with owner-only commands. Non-owners get a rejection notice.
+
+### 🔧 Changes
+
+- `api/constants.js` — Split `helpMessage` into public commands + new `adminPanelMessage` export. Version bumped to v2.9.0.
+- `api/bot-handler.js` — Added `!admin` callback handler with owner verification. Updated `getStartKeyboard()` and `getHelpKeyboard()` to accept `userId`/`ownerId` for conditional admin button rendering. Updated `/start`, `/help`, `cb_help`, and `cb_menu` to pass owner context. Fixed pre-existing syntax error: unescaped apostrophe in single-quoted string (line 488 — `Tʜᴇʏ'ʀᴇ` broke string delimiter). Version bumped to v2.9.0.
+- `package.json` — Version bumped to v2.9.0.
+- `CHANGELOG.md` — v2.9.0 entry added.
+
+---
+
 ## [v2.8.0] — 2026-05-14
 
 ### ✨ Character Rewrite — Alisa Mikhailovna Kujou Voice
