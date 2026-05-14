@@ -85,8 +85,8 @@ function formatIST(date) {
     return `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm} Isᴛ`;
 }
 
-function trackCommand(cmd) {
-    Store.trackCommand(cmd);
+async function trackCommand(cmd) {
+    await Store.trackCommand(cmd);
 }
 
 function isOwner(userId, ownerId) {
