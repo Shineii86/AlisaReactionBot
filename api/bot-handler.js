@@ -203,7 +203,7 @@ function getStartKeyboard(botUsername, userId, ownerId) {
             { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart` },
         ],
         [
-            { text: '📚 Hᴇʟᴘ', callback_data: 'cb_help' },
+            { text: '📚 Hᴇʟᴘ', callback_data: 'cb_help', style: 'primary' },
             { text: 'Aʙᴏᴜᴛ 🤖', callback_data: 'cb_about' },
         ],
         [
@@ -211,16 +211,16 @@ function getStartKeyboard(botUsername, userId, ownerId) {
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
         ],
         [
-            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions' },
+            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
         ],
     ];
 
     // Show admin panel button only to the owner
     if (ownerId && userId && String(userId) === String(ownerId)) {
-        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin' }]);
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'primary' }]);
     }
 
-    keyboard.push([{ text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' }]);
+    keyboard.push([{ text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }]);
     return keyboard;
 }
 
@@ -231,18 +231,18 @@ function getHelpKeyboard(userId, ownerId) {
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
         ],
         [
-            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions' },
+            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
         ],
     ];
 
     // Show admin panel button only to the owner
     if (ownerId && userId && String(userId) === String(ownerId)) {
-        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin' }]);
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'primary' }]);
     }
 
     keyboard.push([
         { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
-        { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
+        { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
     ]);
     return keyboard;
 }
@@ -255,7 +255,7 @@ function getBackKeyboard() {
         ],
         [
             { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
-            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
+            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
         ]
     ];
 }
@@ -264,7 +264,7 @@ function getCloseKeyboard() {
     return [
         [
             { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
-            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close' }
+            { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
         ]
     ];
 }
