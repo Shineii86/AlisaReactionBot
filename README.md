@@ -1,14 +1,11 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/refs/heads/main/assets/logo2.png" width="200" height="200" style="border-radius: 24px;" />
-
-# 𝐀𝐋𝐈𝐒𝐀 𝐑𝐄𝐀𝐂𝐓𝐈𝐎𝐍 𝐁𝐎𝐓
-
-### *Automated Telegram Reactions — Edge-Deployed, Zero-Log, Infinite Scale*
+<img src="https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=𝗔𝗹𝗶𝘀𝗮%20𝗥𝗲𝗮𝗰𝘁𝗶𝗼𝗻%20𝗕𝗼𝘁&fontAlignY=30&fontSize=70&desc=Меня%20зовут%20Алиса%20Михайловна%20Кудзё.%20Приятно%20познакомиться.&descSize=20" />
 
 <br/>
 
 [![Cloudflare Workers](https://img.shields.io/badge/Deployed_on-Cloudflare_Workers-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
+[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 [![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/AlisaReactionBot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-008000.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![GitHub Release](https://img.shields.io/github/v/release/Shineii86/AlisaReactionBot?style=for-the-badge&color=blue)](https://github.com/Shineii86/AlisaReactionBot/releases)
@@ -28,8 +25,8 @@
 
 ## 📖 Table of Contents
 
-- [What Is Alisa?](#-what-is-alisa)
-- [Who Is Alisa Mikhailovna Kujou?](#-who-is-alisa-mikhailovna-kujou)
+- [🤖 What Is Alisa?](#-what-is-alisa)
+- [🦊 Who Is Alisa Mikhailovna Kujou?](#-who-is-alisa-mikhailovna-kujou)
 - [✨ Features](#-features)
 - [🎮 Commands](#-commands)
 - [📊 How Stats Work](#-how-stats-work)
@@ -65,7 +62,7 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 
 ## 🦊 Who Is Alisa Mikhailovna Kujou?
 
-<img src="https://raw.githubusercontent.com/Shineii86/AlisaReactionBot/refs/heads/main/assets/logo2.png" width="120" height="120" style="border-radius: 16px;" align="right" />
+<img src="assets/alisa1.png" width="250" height="800" style="border-radius: 10px;" align="right" />
 
 **Alisa Mikhailovna Kujou** (アリサ・ミハイロヴナ・九条) is the female lead of *"Tokidoki Bosotto Russia-go de Dereru Tonari no Alya-san"* (Alya Sometimes Hides Her Feelings in Russian), a romantic comedy light novel and anime series.
 
@@ -74,13 +71,15 @@ Add Alisa to any chat, and she quietly drops fitting reactions when the mood fee
 | **Full Name** | Alisa Mikhailovna Kujou (Алиса Михайловна Кудзё) |
 | **Aliases** | Alya, The Ice Queen |
 | **Heritage** | Half-Russian, Half-Japanese |
-| **Family** | Masachika Kuze (love interest), Maria Kujou (older sister) |
+| **Family** | Maria Kujou (Older Sister) |
 | **Role** | Student Council Treasurer |
 | **Personality** | Tsundere — proud, elegant, and sharp-tongued on the surface, but secretly caring and easily flustered |
 | **Signature Trait** | Speaks her true feelings in Russian, believing no one around her can understand |
 | **Common Phrases** | Хмпф (hmph), Хорошо (okay), Дурак (idiot), Спасибо (thank you), До свидания (goodbye) |
 
 ### Why Alisa?
+
+<img src="assets/logo2.png" width="250" height="800" style="border-radius: 10px;" align="left" />
 
 The character's defining trait — **hiding emotions behind a language barrier** — perfectly mirrors this bot's behavior: silently reacting to messages with the right emoji at the right time. Just like Alisa watches from a distance and slips in her true feelings in Russian, this bot observes your chats and drops reactions that say more than words.
 
@@ -600,24 +599,35 @@ See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 ---
 
 ## 📄 License
+```json
+This project is licensed under the *MIT License*.
+Feel free to use, remix, and share it with proper credits.
+```
 
 MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
+## 💕 Loved My Work?
+🚨 [Follow me on GitHub](https://github.com/Shineii86/Shineii86)
+
+⭐ [Give a star to this Project](https://github.com/Shineii86/AlisaReactionBot)
+
+<a href="https://github.com/Shineii86/AlisaReactionBot">
+<img src="assets/banner3.png" alt="Banner">
+</a>
+
+## ☎️ Contact
+
 <div align="center">
+  
+  *For inquiries or collaborations*
+     
+[![Telegram Badge](https://img.shields.io/badge/-Telegram-2CA5E0?style=flat&logo=Telegram&logoColor=white)](https://telegram.me/Shineii86 "Contact on Telegram")
+[![Instagram Badge](https://img.shields.io/badge/-Instagram-C13584?style=flat&logo=Instagram&logoColor=white)](https://instagram.com/ikx7.a "Follow on Instagram")
+[![Pinterest Badge](https://img.shields.io/badge/-Pinterest-E60023?style=flat&logo=Pinterest&logoColor=white)](https://pinterest.com/ikx7a "Follow on Pinterest")
+[![Gmail Badge](https://img.shields.io/badge/-Gmail-D14836?style=flat&logo=Gmail&logoColor=white)](mailto:ikx7a@hotmail.com "Send an Email")
 
-**⭐ Star this repo if you find it useful!**
-
-[![GitHub Stars](https://img.shields.io/github/stars/Shineii86/AlisaReactionBot?style=social)](https://github.com/Shineii86/AlisaReactionBot/stargazers)
-
-<br/>
-
-[![Telegram](https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Shineii86)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Shineii86)
-[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/ikx7.a)
-[![Gmail](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ikx7a@hotmail.com)
-
-<sub>© 2026 Shinei Nouzen — All Rights Reserved</sub>
+  <sup><b>Copyright © 2026 <a href="https://telegram.me/Shineii86">Shinei Nouzen</a> All Rights Reserved</b></sup>
 
 </div>
