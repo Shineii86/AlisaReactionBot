@@ -21,6 +21,7 @@ import TelegramBotAPI from './TelegramBotAPI.js';
 import { htmlContent } from './landing.js';
 import { splitEmojis, getChatIds, log } from './helper.js';
 import { onUpdate } from './bot-handler.js';
+import { Store } from './store.js';
 
 // dotenv only needed for local/Docker — Vercel/Render inject env vars natively
 if (!process.env.VERCEL) {
@@ -107,6 +108,28 @@ app.use((err, req, res, next) => {
         return res.status(413).send('Payload too large');
     }
     next(err);
+});
+
+// ─── Initialize Persistent Store ───
+Store.load();
+
+// ─── Graceful Shutdown ───
+async function shutdown(signal) {
+    log.info(`[Shutdown] ${signal} received — flushing state...`);
+    try {
+        await Store.flush();
+        log.info('[Shutdown] State flushed. Goodbye.');
+    } catch (error) {
+        log.error('[Shutdown] Flush failed:', error.message);
+    }
+    process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('uncaughtException', (error) => {
+    log.error('[Fatal] Uncaught exception:', error.message);
+    shutdown('uncaughtException');
 });
 
 // ─── Start Server (Docker/Render/Local) ───

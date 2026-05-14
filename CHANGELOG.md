@@ -4,6 +4,34 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.12.0] — 2026-05-14
+
+### ⚡ Performance — Batched Saves
+
+- **Writes are now debounced** — state changes accumulate in memory and flush to storage at most once every 5 seconds, instead of on every single event.
+  - Reduces Vercel KV writes dramatically (from hundreds/minute to ~12/minute max).
+  - Reduces disk I/O for file-based deployments.
+  - `scheduleSave()` marks state dirty and schedules a delayed write.
+  - `flush()` does an immediate write — used on shutdown and critical moments.
+
+### 🛡️ Robustness — Graceful Shutdown
+
+- **SIGTERM/SIGINT handlers** — bot now flushes all pending state to storage before exiting.
+  - Prevents data loss when Vercel kills a function or Docker stops the container.
+  - `uncaughtException` handler also triggers a flush before crash-exit.
+  - Store initialized at startup in `index.js` (in addition to bot-handler's idempotent load).
+
+### 🔧 Changes
+
+- `api/store.js` — Replaced direct `save()` with `scheduleSave()` (debounced, 5s window). Added `flush()` for immediate write on shutdown. Exported `flush`. Version bumped to v2.12.0.
+- `api/index.js` — Added Store import, `Store.load()` at startup, SIGTERM/SIGINT/uncaughtException handlers with `Store.flush()`. Version bumped to v2.12.0.
+- `api/bot-handler.js` — Version bumped to v2.12.0.
+- `api/constants.js` — Version bumped to v2.12.0.
+- `package.json` — Version bumped to v2.12.0.
+- `CHANGELOG.md` — v2.12.0 entry added.
+
+---
+
 ## [v2.11.0] — 2026-05-14
 
 ### ✨ Full State Persistence

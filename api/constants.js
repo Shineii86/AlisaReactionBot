@@ -14,7 +14,7 @@
  *   broadcastStarted, broadcastDone, onlyOwnerMessage,
  *   onlyAdminMessage, groupOnlyMessage, pingMessage
  *
- * @version 2.11.0
+ * @version 2.12.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

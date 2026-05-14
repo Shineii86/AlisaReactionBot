@@ -14,7 +14,7 @@
  *
  * @exports Store
  *
- * @version 2.11.0
+ * @version 2.12.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -144,12 +144,42 @@ async function kvSave() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// UNIFIED SAVE
+// UNIFIED SAVE — batched to reduce write frequency
 // ══════════════════════════════════════════════════════════════
 
-async function save() {
+const SAVE_DEBOUNCE_MS = 5000;  // Batch writes: max once per 5 seconds
+let dirty = false;
+let saveTimer = null;
+
+/**
+ * Schedule a save. Marks state as dirty and debounces writes.
+ * Actual write happens after SAVE_DEBOUNCE_MS of inactivity.
+ */
+function scheduleSave() {
+    dirty = true;
+    if (saveTimer) return;
+    saveTimer = setTimeout(async () => {
+        saveTimer = null;
+        if (!dirty) return;
+        dirty = false;
+        if (storageType === 'vercel-kv') await kvSave();
+        else if (storageType === 'file') fileSave();
+    }, SAVE_DEBOUNCE_MS);
+}
+
+/**
+ * Immediate save — used on shutdown / critical moments.
+ * Flushes any pending debounced write.
+ */
+async function flush() {
+    if (saveTimer) {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+    }
+    dirty = false;
     if (storageType === 'vercel-kv') await kvSave();
     else if (storageType === 'file') fileSave();
+    log.info('[Store] Flushed to disk');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -197,7 +227,7 @@ async function updateChat(chatId, title, type) {
             messageCount: 1,
         };
     }
-    await save();
+    scheduleSave();
 }
 
 async function removeChat(chatId) {
@@ -210,7 +240,7 @@ async function removeChat(chatId) {
         state.restricted = state.restricted.filter(id => String(id) !== key);
         state.welcome = state.welcome.filter(id => String(id) !== key);
         state.goodbye = state.goodbye.filter(id => String(id) !== key);
-        await save();
+        scheduleSave();
         return true;
     }
     return false;
@@ -229,12 +259,12 @@ function getReaction(chatId) { return state.reactions[String(chatId)] || null; }
 
 async function setReaction(chatId, emojiString) {
     state.reactions[String(chatId)] = emojiString;
-    await save();
+    scheduleSave();
 }
 
 async function deleteReaction(chatId) {
     delete state.reactions[String(chatId)];
-    await save();
+    scheduleSave();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -249,7 +279,7 @@ async function pauseChat(chatId) {
     const id = Number(chatId);
     if (!state.paused.includes(id)) {
         state.paused.push(id);
-        await save();
+        scheduleSave();
     }
 }
 
@@ -258,7 +288,7 @@ async function resumeChat(chatId) {
     const idx = state.paused.indexOf(id);
     if (idx !== -1) {
         state.paused.splice(idx, 1);
-        await save();
+        scheduleSave();
     }
 }
 
@@ -274,7 +304,7 @@ async function restrictChat(chatId) {
     const id = Number(chatId);
     if (!state.restricted.includes(id)) {
         state.restricted.push(id);
-        await save();
+        scheduleSave();
     }
 }
 
@@ -283,7 +313,7 @@ async function unrestrictChat(chatId) {
     const idx = state.restricted.indexOf(id);
     if (idx !== -1) {
         state.restricted.splice(idx, 1);
-        await save();
+        scheduleSave();
     }
 }
 
@@ -301,11 +331,11 @@ async function toggleWelcome(chatId) {
     const idx = state.welcome.indexOf(id);
     if (idx !== -1) {
         state.welcome.splice(idx, 1);
-        await save();
+        scheduleSave();
         return false; // disabled
     } else {
         state.welcome.push(id);
-        await save();
+        scheduleSave();
         return true; // enabled
     }
 }
@@ -315,11 +345,11 @@ async function toggleGoodbye(chatId) {
     const idx = state.goodbye.indexOf(id);
     if (idx !== -1) {
         state.goodbye.splice(idx, 1);
-        await save();
+        scheduleSave();
         return false;
     } else {
         state.goodbye.push(id);
-        await save();
+        scheduleSave();
         return true;
     }
 }
@@ -332,17 +362,17 @@ function getStats() { return state.stats; }
 
 async function trackMessage() {
     state.stats.messagesProcessed++;
-    await save();
+    scheduleSave();
 }
 
 async function trackReaction() {
     state.stats.reactionsSent++;
-    await save();
+    scheduleSave();
 }
 
 async function trackCommand(cmd) {
     state.stats.commandUsage[cmd] = (state.stats.commandUsage[cmd] || 0) + 1;
-    await save();
+    scheduleSave();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -358,7 +388,7 @@ function getStorageType() { return storageType; }
 export const Store = {
     // Lifecycle
     load,
-    save,
+    flush,
     getStorageType,
     // Chats
     updateChat,
