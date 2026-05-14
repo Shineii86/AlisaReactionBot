@@ -199,25 +199,22 @@ ${cmdLines}${topChatsText}
 function getStartKeyboard(botUsername, userId, ownerId) {
     const keyboard = [
         [
-            { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ', url: `https://t.me/${botUsername}?startchannel=botstart` },
-            { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart` },
+            { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ', url: `https://t.me/${botUsername}?startchannel=botstart`, style: 'success' },
+            { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart`, style: 'success' },
         ],
         [
             { text: '📚 Hᴇʟᴘ', callback_data: 'cb_help', style: 'primary' },
-            { text: 'Aʙᴏᴜᴛ 🤖', callback_data: 'cb_about' },
+            { text: 'Aʙᴏᴜᴛ 🤖', callback_data: 'cb_about', style: 'primary' },
         ],
         [
-            { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate' },
-            { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats' },
-        ],
-        [
-            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
+            { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate', style: 'primary' },
+            { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats', style: 'primary' },
         ],
     ];
 
     // Show admin panel button only to the owner
     if (ownerId && userId && String(userId) === String(ownerId)) {
-        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'primary' }]);
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'success' }]);
     }
 
     keyboard.push([{ text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }]);
@@ -227,8 +224,8 @@ function getStartKeyboard(botUsername, userId, ownerId) {
 function getHelpKeyboard(userId, ownerId) {
     const keyboard = [
         [
-            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
-            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
         ],
         [
             { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
@@ -237,7 +234,7 @@ function getHelpKeyboard(userId, ownerId) {
 
     // Show admin panel button only to the owner
     if (ownerId && userId && String(userId) === String(ownerId)) {
-        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'primary' }]);
+        keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'success' }]);
     }
 
     keyboard.push([
@@ -250,11 +247,11 @@ function getHelpKeyboard(userId, ownerId) {
 function getBackKeyboard() {
     return [
         [
-            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots' },
-            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup' },
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'success' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'success' },
         ],
         [
-            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu', style: 'primary' },
             { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
         ]
     ];
@@ -263,7 +260,7 @@ function getBackKeyboard() {
 function getCloseKeyboard() {
     return [
         [
-            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+            { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu', style: 'primary' },
             { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
         ]
     ];
@@ -934,11 +931,14 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                 const welcomeBtns = [
                     [
-                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' }
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86', style: 'success' }
                     ],
                     [
-                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
-                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
+                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers', style: 'primary' },
+                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots', style: 'primary' }
+                    ],
+                    [
+                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }
                     ]
                 ];
 
@@ -968,11 +968,14 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                 const leaveBtns = [
                     [
-                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' }
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86', style: 'success' }
                     ],
                     [
-                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers' },
-                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots' }
+                        { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers', style: 'primary' },
+                        { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots', style: 'primary' }
+                    ],
+                    [
+                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }
                     ]
                 ];
 
