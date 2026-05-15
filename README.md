@@ -172,6 +172,17 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Photo Support** — Uses `BOT_PHOTO` when set
 
 </td>
+<td>
+
+### 🔌 Plugin System
+- **Extensible Architecture** — Add features without touching core code
+- **Auto-Discovery** — Drop `.js` files in `plugins/`, restart, done
+- **Built-in Plugins** — AniNews, AniList, Kitsu, Manga (4 plugins)
+- **Runtime Toggle** — Enable/disable plugins via `/plugins toggle`
+- **Cover Art** — Manga & anime series show cover images
+- **Isolated Errors** — One plugin crashing doesn't affect others
+
+</td>
 </tr>
 </table>
 
@@ -217,6 +228,30 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 | `/setwebhook <url>` | Set webhook URL via Telegram |
 | `/setwebhook` | View current webhook status and errors |
 | `/log` | View the last 10 reactions sent |
+
+### 🔌 Plugins
+
+| Command | Description |
+|:---|:---|
+| `/animenews` | Latest anime news from 7 sources |
+| `/anisearch <query>` | Search anime news |
+| `/anitags` | List news tags |
+| `/anilist <query>` | Search anime (AniList) |
+| `/anilistmanga <query>` | Search manga (AniList) |
+| `/anichar <query>` | Search characters (AniList) |
+| `/anitrending` | Trending anime (AniList) |
+| `/aniseason` | Current seasonal anime |
+| `/kitsu <query>` | Search anime (Kitsu) |
+| `/kitsumanga <query>` | Search manga (Kitsu) |
+| `/kitsutrending` | Trending anime (Kitsu) |
+| `/kitcategories` | Browse categories (Kitsu) |
+| `/manga <query>` | Search manga, manhwa & webtoons |
+| `/mangapopular` | Popular series |
+| `/mangatop` | Top rated series |
+| `/mangarandom` | Random discovery with cover art |
+| `/mangaschedule [day]` | Release schedule |
+| `/mangagenres` | Browse genres |
+| `/plugins` | List all installed plugins |
 
 ---
 
@@ -459,12 +494,19 @@ AlisaReactionBot/
 │   ├── index.js              # Express server (Docker/Vercel/Local)
 │   ├── worker.js             # Cloudflare Worker entry point
 │   ├── bot-handler.js        # Core logic — commands, reactions, stats
+│   ├── plugin-loader.js      # Plugin system — auto-discovery & routing
 │   ├── store.js              # Persistent state storage (file/KV/memory)
 │   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
 │   └── ads.js                # AdLab — centralized ad management library
+├── plugins/                  # Plugin directory — drop .js files here
+│   ├── _example.js           # Plugin template (skipped by loader)
+│   ├── anilist.js            # AniList — anime, manga, characters
+│   ├── aninews.js            # AniNews — anime news from 7 sources
+│   ├── kitsu.js              # Kitsu — anime & manga search
+│   └── manga.js              # Manga — manga, manhwa, webtoons
 ├── assets/                   # Logo and banner images
 ├── data/                     # Runtime state (auto-created, gitignored)
 ├── .env.example              # Environment variable template
@@ -514,6 +556,8 @@ AlisaReactionBot/
 | `rateLimitMap` | Object | ❌ | Per-chat rate limit windows |
 | `chatNames` | Object | ❌ | Chat ID → display name |
 | `perChatRandomLevel` | Object | ❌ | Per-chat random overrides |
+| `lastBotMessage` | Object | ❌ | Per-chat last bot message ID (cleanup) |
+| `disabledPlugins` | Set | ❌ | Runtime-disabled plugin names |
 
 > **Persistence:** State marked ✅ persists to file (Docker/Local) or Upstash Redis (Vercel, free). On Cloudflare Workers, all state is in-memory. No message content is ever stored — only metadata.
 
@@ -594,7 +638,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.12.0** — Batched saves with debounced writes, graceful shutdown with SIGTERM/SIGINT handlers, and full state persistence across restarts.
+**Latest: v2.12.0** — Plugin system, auto-cleanup on commands, callback edit fix, batched saves, graceful shutdown, and full state persistence.
 
 ---
 

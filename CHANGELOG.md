@@ -58,7 +58,9 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### 📝 Docs
 
+- **README.md** — Updated features (plugin system), commands table (18 plugin commands), project structure (plugin-loader.js, plugins/), architecture memory model, latest version description.
 - **GUIDE.md** — Added full Plugin System section covering: how it works, built-in plugins list, managing plugins, installing/removing, removing the system completely, creating plugins, context object, external APIs, photos, error handling, naming conventions, and tips.
+- **landing.js** — Added Plugin System feature card with puzzle icon, version badge with plugin tag.
 
 ### ✨ Improvements
 

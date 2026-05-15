@@ -616,6 +616,12 @@ export const htmlContent = `
           <p>Deploy on Cloudflare Workers, Vercel, or Docker. Same codebase, zero cold starts everywhere.</p>
           <span class="feat-tag">multi-platform</span>
         </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon c1"><i data-lucide="puzzle"></i></div>
+          <h3>Plugin System</h3>
+          <p>Extensible architecture — drop .js files to add anime news, manga search, and more. Core code stays untouched.</p>
+          <span class="feat-tag">extensible</span>
+        </div>
       </div>
     </div>
   </section>
@@ -707,6 +713,7 @@ export const htmlContent = `
       <div class="ft-right">
         <span>Built with ❤️ by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
         <span class="ft-ver">v2.12.0</span>
+        <span class="ft-badge">🔌 Plugin System</span>
       </div>
     </div>
   </footer>
