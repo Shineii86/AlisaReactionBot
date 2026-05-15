@@ -4,6 +4,27 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.14.0] — 2026-05-15
+
+### 🗑️ Removed
+
+- **Removed `style` property from all inline keyboard buttons** — The `style` field (`success`, `primary`, `danger`) was present on every button definition but was not being applied by the Telegram Bot API. Stripped from all keyboard functions (`getStartKeyboard`, `getHelpKeyboard`, `getBackKeyboard`, `getCloseKeyboard`) and welcome/leave button definitions.
+
+- **Removed premium custom emoji support from inline keyboard buttons** — The `icon_custom_emoji_id` enrichment for buttons (via `enrichKeyboard()` and `withPremium()`) did not work reliably with the Telegram Bot API. Removed all related code:
+  - Deleted `api/emoji-map.js` — emoji-to-custom-emoji-ID mapping (1068 entries, now dead code)
+  - Removed `firstEmoji()` — extracted first emoji from button text
+  - Removed `enrichKeyboard()` — added `icon_custom_emoji_id` to buttons
+  - Removed `withPremium()` — combined text and keyboard emoji enrichment
+  - Removed premium emoji wrapper from `botApi` proxy in `onUpdate()` — `sendMessage` and `editMessageText` now call the Telegram API directly without transformation
+  - Removed `applyCustomEmojis()` from `helper.js` — converted Unicode emojis to `<tg-emoji>` tags (unused after wrapper removal)
+  - Removed `getCustomEmojiId` import from `emoji-map.js`
+
+### 🔧 Changes
+
+- Version bumped to v2.14.0 across all files (`package.json`, `package-lock.json`, all API modules, landing page, JSON-LD).
+
+---
+
 ## [v2.13.0] — 2026-05-15
 
 ### 🗑️ Removed

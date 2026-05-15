@@ -12,7 +12,7 @@
  *                   botUsername, RandomLevel, ownerId,
  *                   webhookSecret, botPhoto)
  *
- * @version 2.13.0
+ * @version 2.14.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -1104,14 +1104,14 @@ export async function onUpdate(data, botApiRaw, Reactions, RestrictedChats, botU
 
                 const welcomeBtns = [
                     [
-                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86', style: 'success' }
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' , style: 'success'}
                     ],
                     [
                         { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers', style: 'primary' },
                         { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots', style: 'primary' }
                     ],
                     [
-                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }
+                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' , style: 'danger'}
                     ]
                 ];
 
@@ -1137,14 +1137,14 @@ export async function onUpdate(data, botApiRaw, Reactions, RestrictedChats, botU
 
                 const leaveBtns = [
                     [
-                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86', style: 'success' }
+                        { text: '🧑‍💻 Dᴇᴠᴇʟᴏᴘᴇʀ ✨', url: 'https://t.me/Shineii86' , style: 'success'}
                     ],
                     [
                         { text: '⭐ Sᴛɪᴄᴋᴇʀs', url: 'https://t.me/MaximXStickers', style: 'primary' },
                         { text: 'Bᴏᴛs 🤖', url: 'https://t.me/MaximXBots', style: 'primary' }
                     ],
                     [
-                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close', style: 'danger' }
+                        { text: '💥 Cʟᴏsᴇ Mᴇɴᴜ ✨', callback_data: 'cb_close' , style: 'danger'}
                     ]
                 ];
 

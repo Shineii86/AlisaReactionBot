@@ -8,7 +8,7 @@
  *   env validation, health checks, and the landing page.
  *   Parallel implementation of index.js for the Workers runtime.
  *
- * @version 2.13.0
+ * @version 2.14.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
