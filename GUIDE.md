@@ -25,8 +25,9 @@
 18. [Photo Support](#photo-support)
 19. [Close Button](#close-button)
 20. [Welcome & Leave Messages](#welcome--leave-messages)
-21. [Persistent Chat Storage](#persistent-chat-storage)
-22. [Security Features](#security-features)
+21. [Plugin System](#plugin-system)
+22. [Persistent Chat Storage](#persistent-chat-storage)
+23. [Security Features](#security-features)
 18. [Troubleshooting](#troubleshooting)
 19. [Frequently Asked Questions](#frequently-asked-questions)
 
@@ -1243,6 +1244,252 @@ My Group Wɪʟʟ Mᴀɴᴀɢᴇ Wɪᴛʜᴏᴜᴛ Yᴏᴜ.
 👋 Wᴇʟᴄᴏᴍᴇ Eɴᴀʙʟᴇᴅ: 5
 🚪 Gᴏᴏᴅʙʏᴇ Eɴᴀʙʟᴇᴅ: 3
 ```
+
+---
+
+## Plugin System
+
+The bot supports **plugins** — self-contained `.js` files that add new commands and features without touching the core code. Drop a file in the `plugins/` folder, restart the bot, and it works.
+
+### How It Works
+
+1. The bot scans the `plugins/` directory on startup
+2. Each `.js` file that exports a valid plugin interface is loaded
+3. Commands and callback handlers are registered automatically
+4. Core bot code is never modified
+
+### Built-in Plugins
+
+| Plugin | Commands | Source |
+|---|---|---|
+| **AniNews** | `/animenews`, `/anisearch`, `/anitags` | [AniNewsAPI](https://github.com/Shineii86/AniNewsAPI) |
+| **AniList** | `/anilist`, `/anilistmanga`, `/anichar`, `/anitrending`, `/aniseason` | [AniList GraphQL](https://anilist.co) |
+| **Kitsu** | `/kitsu`, `/kitsumanga`, `/kitsutrending`, `/kitcategories` | [Kitsu API](https://kitsu.io) |
+| **Manga** | `/manga`, `/mangapopular`, `/mangatop`, `/mangarandom`, `/mangaschedule`, `/mangagenres` | [ShineiAPI](https://github.com/Shineii86/ShineiAPI) |
+
+### Managing Plugins
+
+**List all plugins:**
+
+```
+/plugins
+```
+
+Shows all installed plugins with their status, version, and commands:
+
+```
+╔═══════════════════════
+║ 🔌 Pʟᴜɢɪɴs
+╟─── 4/4 ᴀᴄᴛɪᴠᴇ
+╚═══════════════════════
+
+┌─✅ aninews v1.0.0
+├─ Latest anime news from 7 sources
+├─ Cᴍᴅs: /animenews, /anisearch, /anitags
+└─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+┌─✅ manga v1.0.0
+├─ Search manga, manhwa & webtoons
+├─ Cᴍᴅs: /manga, /mangapopular, /mangatop...
+└─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+```
+
+**Enable or disable a plugin (owner only):**
+
+```
+/plugins toggle manga
+```
+
+The plugin stays in the folder but its commands are disabled until re-enabled.
+
+### Installing a Plugin
+
+1. Copy the `.js` file into the `plugins/` directory
+2. Restart the bot
+3. The plugin auto-loads — no config needed
+
+```
+plugins/
+├── _example.js     ← template (skipped by loader)
+├── aninews.js      ← auto-loaded
+├── manga.js        ← auto-loaded
+└── your-plugin.js  ← auto-loaded
+```
+
+### Removing a Plugin
+
+**Option 1: Disable without deleting**
+
+Prefix the filename with `_`:
+
+```
+mv plugins/manga.js plugins/_manga.js
+```
+
+Files starting with `_` are skipped by the loader. Rename back to re-enable.
+
+**Option 2: Delete completely**
+
+```
+rm plugins/manga.js
+```
+
+Restart the bot — the plugin is gone.
+
+**Option 3: Runtime toggle (owner only)**
+
+```
+/plugins toggle manga
+```
+
+Disables the plugin without touching files. Persists until restart.
+
+### Removing the Plugin System Completely
+
+If you want to remove the entire plugin system from the code:
+
+**Delete:**
+
+```
+api/plugin-loader.js    ← delete
+plugins/                ← delete entire folder
+```
+
+**Revert `api/bot-handler.js`:**
+- Remove `import { PluginLoader } from './plugin-loader.js'`
+- Remove `await PluginLoader.loadPlugins()`
+- Remove `buildPluginContext()` and `buildCallbackPluginContext()` functions
+- Remove `/plugins` command handler
+- Remove `cb_plugins` callback case
+- Remove plugin routing (`PluginLoader.routeCommand` / `PluginLoader.routeCallback`)
+- Remove `🔌 Pʟᴜɢɪɴs` button from `getHelpKeyboard()`
+
+**Revert `api/constants.js`:**
+- Remove the `🔌 Pʟᴜɢɪɴs:` section from `helpMessage`
+
+After these changes, the core bot returns to exactly how it was — zero plugin traces.
+
+### Creating a Plugin
+
+**Step 1: Copy the template**
+
+```bash
+cp plugins/_example.js plugins/my-plugin.js
+```
+
+**Step 2: Edit the plugin**
+
+```javascript
+export default {
+    // Required
+    name: 'my-plugin',
+    description: 'What this plugin does',
+
+    // Optional
+    version: '1.0.0',
+    author: 'Your Name',
+
+    // Commands this plugin handles
+    commands: ['/mycommand', '/another'],
+
+    // Callback data prefixes (for inline buttons)
+    callbacks: ['myplugin_'],
+
+    // Called once when plugin loads
+    async init() { },
+
+    // Handle commands
+    async onCommand(cmd, args, ctx) {
+        if (cmd === '/mycommand') {
+            await ctx.botApi.sendMessage(ctx.chatId,
+                'Hello from my plugin!',
+                ctx.keyboard.close()
+            );
+        }
+    },
+
+    // Handle callback queries (inline buttons)
+    async onCallback(data, ctx) {
+        if (data === 'myplugin_action') {
+            await ctx.botApi.answerCallbackQuery(ctx.callbackQueryId, 'Clicked!');
+        }
+    },
+};
+```
+
+**Step 3: Restart the bot**
+
+The plugin auto-loads from the `plugins/` directory.
+
+### Context Object
+
+The `ctx` object passed to `onCommand` and `onCallback` contains:
+
+| Field | Type | Description |
+|---|---|---|
+| `chatId` | number | Current chat ID |
+| `userId` | number | Sender's user ID |
+| `messageId` | number | Current message ID |
+| `chatType` | string | `'private'` / `'group'` / `'supergroup'` / `'channel'` |
+| `botApi` | object | TelegramBotAPI instance — `sendMessage`, `editMessageText`, `sendPhoto`, `editMessageCaption`, `deleteMessage`, `answerCallbackQuery` |
+| `callbackQueryId` | string | For `answerCallbackQuery()` (callbacks only) |
+| `Store` | object | Persistent store — `getReaction`, `setReaction`, `isPaused`, etc. |
+| `keyboard` | object | `{ close(), back(), menu(userId, ownerId) }` |
+
+### Using External APIs
+
+Plugins can call any external API using `fetch`:
+
+```javascript
+async onCommand(cmd, args, ctx) {
+    const res = await fetch('https://api.example.com/data');
+    const data = await res.json();
+    await ctx.botApi.sendMessage(ctx.chatId, data.text, ctx.keyboard.close());
+}
+```
+
+No extra dependencies needed — `fetch` is built into Node.js 18+.
+
+### Sending Photos
+
+Plugins can send photos with captions:
+
+```javascript
+async onCommand(cmd, args, ctx) {
+    await ctx.botApi.sendPhoto(ctx.chatId,
+        'https://example.com/image.jpg',
+        'Caption text here',
+        ctx.keyboard.close()
+    );
+}
+```
+
+### Plugin Error Handling
+
+If a plugin throws an error:
+- The error is logged to the console
+- The user sees a message: "⚠️ Plugin [name] encountered an error"
+- Other plugins and the core bot continue working
+- The bot does not crash
+
+### Naming Convention
+
+| File Pattern | Loaded? | Why |
+|---|---|---|
+| `anime-news.js` | ✅ | Normal plugin |
+| `manhwa.js` | ✅ | Normal plugin |
+| `_example.js` | ❌ | Starts with `_` — skipped |
+| `_disabled.js` | ❌ | Starts with `_` — skipped |
+| `readme.md` | ❌ | Not a `.js` file |
+
+### Tips
+
+- Each plugin is isolated — one crashing doesn't affect others
+- Commands are first-come-first-served — don't overlap with core commands (`/start`, `/help`, `/ping`, etc.)
+- Keep plugin files small and focused
+- Use `ctx.keyboard.close()` for a close button on responses
+- Use `ctx.keyboard.back()` for a back button with support links
+- Check `/plugins` to verify your plugin loaded correctly
 
 ---
 

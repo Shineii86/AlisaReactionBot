@@ -56,6 +56,10 @@ All notable changes to Alisa Reaction Bot are documented here.
   - Sources: Anime News Network, Anime Corner, MyAnimeList, Crunchyroll, Otaku USA, Anime Herald, Comic Book
   - Smart caching via API (~200ms responses, 10-min auto-refresh)
 
+### 📝 Docs
+
+- **GUIDE.md** — Added full Plugin System section covering: how it works, built-in plugins list, managing plugins, installing/removing, removing the system completely, creating plugins, context object, external APIs, photos, error handling, naming conventions, and tips.
+
 ### ✨ Improvements
 
 - **Plugins button in Help menu** — New 🔌 Plugins button in the help keyboard shows all installed plugins with status, descriptions, and commands. Help message updated with plugin command references.
