@@ -42,8 +42,10 @@ Usᴇ Tʜᴇ Bᴜᴛᴛᴏɴs Bᴇʟᴏᴡ. Aɴᴅ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ R�
 // HELP MESSAGE
 // ══════════════════════════════════════════════════════════════
 
-// ---- FEATURE: /help command list (public commands only) ----
-export const helpMessage = `📚 <b>Cᴏᴍᴍᴀɴᴅs — Pᴀʏ Aᴛᴛᴇɴᴛɪᴏɴ</b>
+// ---- FEATURE: /help command list (paginated) ----
+export const helpPages = [
+    // Page 1: Basic Commands
+    `📚 <b>Cᴏᴍᴍᴀɴᴅs — Pᴀʏ Aᴛᴛᴇɴᴛɪᴏɴ</b>
 
 Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 
@@ -53,11 +55,11 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔹 <code>/stats</code> — Mʏ Pᴇʀғᴏʀᴍᴀɴᴄᴇ Mᴇᴛʀɪᴄs. Великолепно, Rɪɢʜᴛ?
 🔹 <code>/ping</code> — Cʜᴇᴄᴋ Mʏ Rᴇsᴘᴏɴsᴇ Tɪᴍᴇ. Spᴏɪʟᴇʀ: Iᴛ's Fᴀsᴛ.
 🔹 <code>/donate</code> — Sᴜᴘᴘᴏʀᴛ Mʏ Dᴇᴠᴇʟᴏᴘᴍᴇɴᴛ. Может быть.
-🔹 <code>/reactions</code> — Sᴇᴇ Mʏ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪ Sᴇᴛ.
+🔹 <code>/reactions</code> — Sᴇᴇ Mʏ Cᴜʀᴀᴛᴇᴅ Eᴍᴏᴊɪ Sᴇᴛ.`,
 
-────────────────
+    // Page 2: Admin Commands
+    `🔒 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
 
-🔒 <b>Gʀᴏᴜᴘ Aᴅᴍɪɴs Oɴʟʏ:</b>
 🔹 <code>/pause</code> — Pᴀᴜsᴇ Mʏ Rᴇᴀᴄᴛɪᴏɴs. Yᴏᴜ'ʟʟ Mɪss Tʜᴇᴍ.
 🔹 <code>/resume</code> — Rᴇsᴜᴍᴇ. Ахаха, Wᴇʟᴄᴏᴍᴇ Bᴀᴄᴋ.
 🔹 <code>/setreactions</code> — Cᴜsᴛᴏᴍɪᴢᴇ Rᴇᴀᴄᴛɪᴏɴs Fᴏʀ Tʜɪs Cʜᴀᴛ.
@@ -69,11 +71,11 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 • Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
 • Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
 • Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ <code>/pause</code> Aɴᴅ <code>/setreactions</code>.
-• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.
+• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`,
 
-────────────────
+    // Page 3: Plugins
+    `🔌 <b>Pʟᴜɢɪɴs:</b>
 
-🔌 <b>Pʟᴜɢɪɴs:</b>
 🔹 <code>/animenews</code> — Lᴀᴛᴇsᴛ Aɴɪᴍᴇ Nᴇᴡs (7 sᴏᴜʀᴄᴇs).
 🔹 <code>/anisearch &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ Nᴇᴡs.
 🔹 <code>/anilist &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ (AɴɪLɪsᴛ).
@@ -82,6 +84,10 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔹 <code>/manga &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Mᴀɴɢᴀ & Mᴀɴʜᴡᴀ.
 🔹 <code>/mangarandom</code> — Rᴀɴᴅᴏᴍ Dɪsᴄᴏᴠᴇʀʏ.
 🔹 <code>/plugins</code> — Lɪsᴛ Aʟʟ Pʟᴜɢɪɴs.`
+];
+
+// Keep old export for backward compatibility
+export const helpMessage = helpPages.join('\n\n────────────────\n\n');
 
 // ---- FEATURE: Admin panel — owner-only commands ----
 export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇʀ Oɴʟʏ</b>

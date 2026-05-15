@@ -19,7 +19,7 @@
  */
 
 import {
-    startMessage, helpMessage, aboutMessage, donateMessage, statsHeader,
+    startMessage, helpMessage, helpPages, aboutMessage, donateMessage, statsHeader,
     reactionsUpdated, reactionsReset, reactionsInvalid,
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
@@ -414,13 +414,55 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
             };
 
+            // Build paginated help keyboard with navigation
+            function getHelpPageKeyboard(pageIndex, totalPages, userId, ownerId) {
+                const navRow = [];
+                if (pageIndex > 0) {
+                    navRow.push({ text: '◁ Pʀᴇᴠ', callback_data: `cb_help:${pageIndex - 1}`, style: 'primary' });
+                }
+                navRow.push({ text: `${pageIndex + 1}/${totalPages}`, callback_data: 'cb_help_none' });
+                if (pageIndex < totalPages - 1) {
+                    navRow.push({ text: 'Nᴇxᴛ ▷', callback_data: `cb_help:${pageIndex + 1}`, style: 'primary' });
+                }
+                const keyboard = [
+                    [
+                        { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
+                        { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
+                    ],
+                    [
+                        { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
+                        { text: '🔌 Pʟᴜɢɪɴs', callback_data: 'cb_plugins', style: 'success' },
+                    ],
+                    navRow,
+                ];
+                if (ownerId && userId && String(userId) === String(ownerId)) {
+                    keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'success' }]);
+                }
+                keyboard.push([
+                    { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+                    { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
+                ]);
+                return keyboard;
+            }
+
             // Retrieve owner ID dynamically for admin panel visibility
             const callbackUserId = cq.from?.id;
 
             switch (cq.data) {
                 case 'cb_help':
-                    await editMsg(withAd(helpMessage), getHelpKeyboard(callbackUserId, ownerId));
+                case 'cb_help:0':
+                case 'cb_help:1':
+                case 'cb_help:2': {
+                    const page = cq.data.includes(':') ? parseInt(cq.data.split(':')[1], 10) : 0;
+                    const pageIndex = Math.max(0, Math.min(page, helpPages.length - 1));
+                    const helpText = helpPages[pageIndex];
+                    const keyboard = getHelpPageKeyboard(pageIndex, helpPages.length, callbackUserId, ownerId);
+                    await editMsg(helpText, keyboard);
                     break;
+                }
+                case 'cb_help_none':
+                    await botApi.answerCallbackQuery(cq.id);
+                    return;
                 case 'cb_about':
                     await editMsg(withAd(aboutMessage), getBackKeyboard());
                     break;
@@ -571,12 +613,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             // /help
             if (cmd === '/help') {
                 trackCommand('help');
-                const caption = withAd(helpMessage);
-                const keyboard = getHelpKeyboard(userId, ownerId);
+                const helpText = helpPages[0];
+                const keyboard = getHelpPageKeyboard(0, helpPages.length, userId, ownerId);
                 await cleanupMessages(botApi, chatId, message_id);
                 let sent;
-                // Help text is too long for photo caption (1024 limit) — always use text
-                sent = await botApi.sendMessage(chatId, caption, keyboard);
+                sent = await botApi.sendMessage(chatId, helpText, keyboard);
                 trackBotMessage(chatId, sent);
                 return;
             }

@@ -8,6 +8,10 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### 🐛 Bug Fixes
 
+- **Fixed menu buttons not working with BOT_PHOTO** — Help and About messages (1865 and 1295 chars) exceed Telegram's 1024-character caption limit. When `BOT_PHOTO` was set, `editMessageCaption` failed silently and the fallback also failed.
+  - **Help now paginated** — Split into 3 pages (Basic Commands, Admin Commands, Plugins) with ◁ Prev / Nᴇxᴛ ▷ navigation buttons. All pages edit in place via callback.
+  - `editMsg` helper now checks caption length — uses delete + sendMessage when text exceeds 1024 chars.
+
 - **Fixed callback buttons sending new messages instead of editing** — Inline buttons (📚 Help, 💫 Reactions, 🤖 About, 📊 Stats, 🎁 Donate, etc.) were sending new messages instead of editing the existing message when `BOT_PHOTO` was configured.
   - **Root cause**: The `editMsg` helper in the callback handler decided edit method based on `botPhoto` (env var) instead of the actual message type (`cq.message.photo`). When `editMessageCaption` failed (e.g., caption too long, or message was actually text), the catch block called `sendMessage` — creating a duplicate message instead of editing.
   - **Fix**: `editMsg` now checks the actual message type (`cq.message.photo`) to determine whether to use `editMessageCaption` or `editMessageText`. If the first method fails, it tries the other method before falling back to delete + send new (preventing duplicate messages).
