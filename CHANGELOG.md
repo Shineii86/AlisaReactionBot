@@ -23,32 +23,40 @@ All notable changes to Alisa Reaction Bot are documented here.
   - Removed plugin references from `README.md` — features table, commands table, project structure, memory model
   - Removed Plugin System section from `GUIDE.md` — built-in plugins, managing plugins, creating plugins, context object, all documentation
 
+- **Removed `sendPhoto`, `editMessageMedia`, `editMessageCaption` from TelegramBotAPI** — No longer needed with `link_preview_options`.
+
+- **Removed unused `style` property from all inline keyboard buttons** — Not a valid Telegram Bot API field (was silently ignored).
+
+- **Removed help pagination** — Combined 2 help pages into single `helpMessage`. Removed `helpPages` array, `getHelpPageKeyboard()`, `cb_help:0`, `cb_help:1`, `cb_help_none` callbacks.
+
 ### 🐛 Bug Fixes
 
-- **Fixed all buttons using `link_preview_options`** — Replaced `sendPhoto` with `sendMessage` + `link_preview_options` across all commands and callbacks. This eliminates all photo↔text transition issues:
-  - No more 1024-character caption limit — messages use text, image shows as large preview above
-  - No more `editMessageCaption` / `editMessageMedia` — all edits use `editMessageText`
-  - No more photo↔text transitions in callbacks — `editMsg` always edits text
-  - `cb_menu` (Back to Menu) simplified — always `editMessageText` with link preview
-  - All buttons verified working in both `BOT_PHOTO` set and unset modes
+- **Fixed all buttons using `link_preview_options`** — Replaced `sendPhoto` with `sendMessage` + `link_preview_options` across all commands and callbacks. No more 1024-char caption limit, no more photo↔text transitions.
 
-- **Fixed `/help` not showing photo** — `/help` always sent as text even when `BOT_PHOTO` was set. Now uses `link_preview_options` to show photo as large preview.
+- **Fixed missing ads on commands** — Added `withAd()` to all command responses that were missing it: `/help`, `/ping`, `/setreactions`, `/pause`, `/resume`, `/randomlevel`, `/broadcast`, `/log`, `/leave`, `/chats`, `/setwebhook`, `/restrict`, `/unrestrict`, `/welcome`, `/goodbye`.
 
-- **Fixed `/about` photo handling** — `/about` was hardcoded to always send as text. Now shows photo preview via `link_preview_options`.
+- **Fixed missing `linkPreview` on commands** — Added `linkPreview` parameter to all `sendMessage` and `editMessageText` calls for consistent photo display.
 
-- **Fixed `/stats` photo fallback** — `/stats` used `sendPhoto` which silently failed when caption exceeded 1024 chars. Now uses `sendMessage` with `link_preview_options` — no length limit.
+### ✨ New Features
 
-- **Fixed `/reactions` duplicate closing** — Removed duplicate `trackBotMessage`/`return`/`}` lines left from previous edit.
-
-- **Fixed help pagination** — Removed stale `cb_help:2` case (only 2 help pages exist).
+- **Premium Custom Emoji Support** — Bot messages and buttons now render with Telegram premium custom emojis via Bot API 9.4.
+  - New `api/emoji-map.js` — Maps 60+ Unicode emojis to Telegram `custom_emoji_id` values.
+  - New `applyCustomEmojis()` in `helper.js` — Converts Unicode emojis in HTML text to `<tg-emoji emoji_id="...">` tags.
+  - New `enrichKeyboard()` in `bot-handler.js` — Auto-adds `icon_custom_emoji_id` to inline keyboard buttons.
+  - New `withPremium()` wrapper — Applies both text and keyboard emoji enrichment in one call.
+  - `botApi.sendMessage()` and `botApi.editMessageText()` now auto-apply premium emojis via wrapper in `onUpdate()`.
+  - Requires: Bot owner must have Telegram Premium subscription.
+  - Custom: Edit `api/emoji-map.js` to add your own emoji IDs.
 
 ### 🔧 Changes
 
-- **`TelegramBotAPI.js`** — Added `linkPreviewOptions` parameter to `sendMessage()` and `editMessageText()`. When set, enables link preview with `prefer_large_media` and `show_above_text`. When null, `disable_web_page_preview: true` is used as before. Removed `sendPhoto()`, `editMessageMedia()`, and `editMessageCaption()` methods — no longer needed with `link_preview_options`.
+- **`TelegramBotAPI.js`** — Added `linkPreviewOptions` parameter to `sendMessage()` and `editMessageText()`. Removed `sendPhoto()`, `editMessageMedia()`, `editMessageCaption()`.
 
-- **`bot-handler.js`** — Unified photo display via `link_preview_options`. All commands and callbacks now use `sendMessage`/`editMessageText` with optional link preview. No more photo↔text transitions, no caption length limits.
+- **`constants.js`** — Merged 2 paginated help pages into single `helpMessage` export. Removed `helpPages` array.
 
-- Version bumped to v2.13.0 across all files (package.json, all API modules, landing page, JSON-LD)
+- **`bot-handler.js`** — Unified all commands to use `sendMessage`/`editMessageText` with `linkPreview` and `withAd()`. Simplified help callback. Removed pagination logic.
+
+- Version bumped to v2.13.0 across all files (package.json, package-lock.json, all API modules, landing page, JSON-LD)
 
 ---
 

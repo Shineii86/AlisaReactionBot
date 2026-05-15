@@ -19,16 +19,17 @@
  */
 
 import {
-    startMessage, helpMessage, helpPages, aboutMessage, donateMessage, statsHeader,
+    startMessage, helpMessage, aboutMessage, donateMessage, statsHeader,
     reactionsUpdated, reactionsReset, reactionsInvalid,
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
     onlyAdminMessage, groupOnlyMessage, pingMessage,
     adminPanelMessage
 } from './constants.js';
-import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
+import { getRandomPositiveReaction, splitEmojis, log, applyCustomEmojis } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
+import { getCustomEmojiId } from './emoji-map.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE (runtime-only, not persisted)
@@ -221,6 +222,54 @@ ${cmdLines}${topChatsText}
 }
 
 // ══════════════════════════════════════════════════════════════
+// CUSTOM EMOJI HELPERS
+// ══════════════════════════════════════════════════════════════
+
+/**
+ * Extract the first emoji from a string.
+ * @param {string} text
+ * @returns {string|null}
+ */
+function firstEmoji(text) {
+    const m = text.match(/^(?:\p{Regional_Indicator}\p{Regional_Indicator}|(?:[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*(?:\u200D[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*)*))/u);
+    return m ? m[0] : null;
+}
+
+/**
+ * Enrich inline keyboard buttons with icon_custom_emoji_id.
+ * Looks up the first emoji in each button's text against emoji-map.
+ * @param {Array} keyboard — Inline keyboard array
+ * @returns {Array} — Keyboard with icon_custom_emoji_id added
+ */
+function enrichKeyboard(keyboard) {
+    if (!keyboard) return keyboard;
+    return keyboard.map(row =>
+        row.map(btn => {
+            if (btn.url || btn.callback_data) {
+                const emoji = firstEmoji(btn.text || '');
+                const id = emoji ? getCustomEmojiId(emoji) : null;
+                if (id) return { ...btn, icon_custom_emoji_id: id };
+            }
+            return btn;
+        })
+    );
+}
+
+/**
+ * Prepare message with premium emojis: convert text emojis to
+ * <tg-emoji> tags and enrich keyboard buttons with icon_custom_emoji_id.
+ * @param {string} text — HTML message text
+ * @param {Array} keyboard — Inline keyboard (optional)
+ * @returns {{ text: string, keyboard: Array }}
+ */
+function withPremium(text, keyboard) {
+    return {
+        text: applyCustomEmojis(text),
+        keyboard: enrichKeyboard(keyboard)
+    };
+}
+
+// ══════════════════════════════════════════════════════════════
 // INLINE KEYBOARDS
 // ══════════════════════════════════════════════════════════════
 
@@ -268,7 +317,7 @@ function getHelpKeyboard(userId, ownerId) {
     }
 
     keyboard.push([
-        { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
+        { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu', style: 'primary' },
         { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
     ]);
     return keyboard;
@@ -315,7 +364,30 @@ function getCloseKeyboard() {
  * @param {string} webhookSecret - Webhook secret token
  * @param {string} botPhoto - Bot photo URL from env
  */
-export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
+export async function onUpdate(data, botApiRaw, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
+
+    // Wrap botApi to auto-apply premium emojis to all text messages
+    const botApi = {
+        ...botApiRaw,
+        async sendMessage(chatId, text, inlineKeyboard, linkPreviewOptions) {
+            const p = withPremium(text, inlineKeyboard);
+            return botApiRaw.sendMessage(chatId, p.text, p.keyboard, linkPreviewOptions);
+        },
+        async editMessageText(chatId, messageId, text, inlineKeyboard, linkPreviewOptions) {
+            const p = withPremium(text, inlineKeyboard);
+            return botApiRaw.editMessageText(chatId, messageId, p.text, p.keyboard, linkPreviewOptions);
+        },
+        getMe: (...a) => botApiRaw.getMe(...a),
+        getChat: (...a) => botApiRaw.getChat(...a),
+        getChatMember: (...a) => botApiRaw.getChatMember(...a),
+        deleteMessage: (...a) => botApiRaw.deleteMessage(...a),
+        setMessageReaction: (...a) => botApiRaw.setMessageReaction(...a),
+        answerCallbackQuery: (...a) => botApiRaw.answerCallbackQuery(...a),
+        leaveChat: (...a) => botApiRaw.leaveChat(...a),
+        setWebhook: (...a) => botApiRaw.setWebhook(...a),
+        deleteWebhook: (...a) => botApiRaw.deleteWebhook(...a),
+        getWebhookInfo: (...a) => botApiRaw.getWebhookInfo(...a),
+    };
 
     // Load persistent chat store (idempotent — only loads once)
     await Store.load();
@@ -350,53 +422,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 await botApi.editMessageText(chatId, messageId, text, keyboard, linkPreview);
             };
 
-            // Build paginated help keyboard with navigation
-            function getHelpPageKeyboard(pageIndex, totalPages, userId, ownerId) {
-                const navRow = [];
-                if (pageIndex > 0) {
-                    navRow.push({ text: '◁ Pʀᴇᴠ', callback_data: `cb_help:${pageIndex - 1}`, style: 'primary' });
-                }
-                navRow.push({ text: `${pageIndex + 1}/${totalPages}`, callback_data: 'cb_help_none' });
-                if (pageIndex < totalPages - 1) {
-                    navRow.push({ text: 'Nᴇxᴛ ▷', callback_data: `cb_help:${pageIndex + 1}`, style: 'primary' });
-                }
-                const keyboard = [
-                    [
-                        { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
-                        { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
-                    ],
-                    [
-                        { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
-                    ],
-                    navRow,
-                ];
-                if (ownerId && userId && String(userId) === String(ownerId)) {
-                    keyboard.push([{ text: '𝘤Pᴀɴᴇʟ', callback_data: '!admin', style: 'success' }]);
-                }
-                keyboard.push([
-                    { text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu' },
-                    { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
-                ]);
-                return keyboard;
-            }
-
             // Retrieve owner ID dynamically for admin panel visibility
             const callbackUserId = cq.from?.id;
 
             switch (cq.data) {
                 case 'cb_help':
-                case 'cb_help:0':
-                case 'cb_help:1': {
-                    const page = cq.data.includes(':') ? parseInt(cq.data.split(':')[1], 10) : 0;
-                    const pageIndex = Math.max(0, Math.min(page, helpPages.length - 1));
-                    const helpText = helpPages[pageIndex];
-                    const keyboard = getHelpPageKeyboard(pageIndex, helpPages.length, callbackUserId, ownerId);
-                    await editMsg(helpText, keyboard);
+                    await editMsg(withAd(helpMessage), getHelpKeyboard(callbackUserId, ownerId));
                     break;
-                }
-                case 'cb_help_none':
-                    await botApi.answerCallbackQuery(cq.id);
-                    return;
                 case 'cb_about':
                     await editMsg(withAd(aboutMessage), getBackKeyboard());
                     break;
@@ -494,10 +526,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             // /help
             if (cmd === '/help') {
                 trackCommand('help');
-                const helpText = helpPages[0];
-                const keyboard = getHelpPageKeyboard(0, helpPages.length, userId, ownerId);
+                const keyboard = getHelpKeyboard(userId, ownerId);
                 await cleanupMessages(botApi, chatId, message_id);
-                const sent = await botApi.sendMessage(chatId, helpText, keyboard, linkPreview);
+                const sent = await botApi.sendMessage(chatId, withAd(helpMessage), keyboard, linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -522,17 +553,17 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     trackBotMessage(chatId, sent);
                     const latency = Date.now() - start;
                     const msgId = sent?.result?.message_id;
-                    const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
+                    const pingText = withAd(pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`);
                     if (msgId) {
-                        await botApi.editMessageText(chatId, msgId, pingText, getCloseKeyboard());
+                        await botApi.editMessageText(chatId, msgId, pingText, getCloseKeyboard(), linkPreview);
                     } else {
-                        const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                        const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard(), linkPreview);
                         trackBotMessage(chatId, sent2);
                     }
                 } catch {
                     const latency = Date.now() - start;
-                    const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
-                    const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                    const pingText = withAd(pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`);
+                    const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard(), linkPreview);
                     trackBotMessage(chatId, sent2);
                 }
                 return;
@@ -590,8 +621,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 await Store.setReaction(chatId, emojis.join(''));
                 const sent = await botApi.sendMessage(chatId,
-                    `${reactionsUpdated}🎯 <b>Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:</b> ${emojis.join(' ')}`,
-                    getBackKeyboard()
+                    withAd(`${reactionsUpdated}🎯 <b>Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:</b> ${emojis.join(' ')}`),
+                    getBackKeyboard(), linkPreview
                 );
                 trackBotMessage(chatId, sent);
                 return;
@@ -612,7 +643,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 await Store.pauseChat(chatId);
-                const sent = await botApi.sendMessage(chatId, pausedMessage, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, withAd(pausedMessage), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -632,12 +663,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return;
                 }
                 if (!Store.isPaused(chatId)) {
-                    const sent = await botApi.sendMessage(chatId, notPausedMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, withAd(notPausedMessage), getCloseKeyboard(), linkPreview);
                     trackBotMessage(chatId, sent);
                     return;
                 }
                 await Store.resumeChat(chatId);
-                const sent = await botApi.sendMessage(chatId, resumedMessage, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, withAd(resumedMessage), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -655,12 +686,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const globalLevel = RandomLevel;
                         const globalChance = (10 - globalLevel) * 10;
                         const sent = await botApi.sendMessage(chatId,
-                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
+                            withAd(`🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
                             `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
                             `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n\n` +
                             `⚠️ To Oᴠᴇʀʀɪᴅᴇ, Usᴇ <code>/randomlevel &lt;0-10&gt;</code> Iɴ A Gʀᴏᴜᴘ.\n` +
-                            `📌 Aᴅᴍɪɴs Oɴʟʏ. Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Oᴛʜᴇʀᴡɪsᴇ.`,
-                            getCloseKeyboard()
+                            `📌 Aᴅᴍɪɴs Oɴʟʏ. Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Oᴛʜᴇʀᴡɪsᴇ.`),
+                            getCloseKeyboard(), linkPreview
                         );
                         trackBotMessage(chatId, sent);
                         return;
@@ -681,11 +712,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
                         const currentChance = (10 - current) * 10;
                         const sent = await botApi.sendMessage(chatId,
-                            `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
+                            withAd(`🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
                             `📊 Cᴜʀʀᴇɴᴛ: <code>${current}</code> (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
                             `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: <code>${RandomLevel}</code>\n\n` +
-                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> To Cʜᴀɴᴀɢᴇ. Iғ Yᴏᴜ Dᴀʀᴇ.`,
-                            getCloseKeyboard()
+                            `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> To Cʜᴀɴᴀɢᴇ. Iғ Yᴏᴜ Dᴀʀᴇ.`),
+                            getCloseKeyboard(), linkPreview
                         );
                         trackBotMessage(chatId, sent);
                         return;
@@ -708,11 +739,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     perChatRandomLevel[chatId] = level;
                     const chance = (10 - level) * 10;
                     const sent = await botApi.sendMessage(chatId,
-                        `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
+                        withAd(`🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
                         `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
                         `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n` +
-                        `🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ. Ничего страшного.`,
-                        getCloseKeyboard()
+                        `🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ. Ничего страшного.`),
+                        getCloseKeyboard(), linkPreview
                     );
                     trackBotMessage(chatId, sent);
                 } catch (error) {
@@ -773,7 +804,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         failed++;
                     }
                 }
-                sent = await botApi.sendMessage(chatId, broadcastDone(success, failed), getCloseKeyboard());
+                sent = await botApi.sendMessage(chatId, withAd(broadcastDone(success, failed)), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -799,7 +830,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     return `${i + 1}. ${e.emoji} → ${name} (${time})`;
                 }).join('\n');
                 await cleanupMessages(botApi, chatId, message_id);
-                const sent = await botApi.sendMessage(chatId, `📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, withAd(`📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -832,7 +863,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     uniqueChats.delete(Number(targetChatId));
                     delete perChatRandomLevel[targetChatId];
                     await Store.removeChat(targetChatId);
-                    const sent = await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, withAd(`✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`), getCloseKeyboard(), linkPreview);
                     trackBotMessage(chatId, sent);
                 } catch (error) {
                     const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
@@ -875,8 +906,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const summary = `📊 ${groups} ɢʀᴏᴜᴘs · ${channels} ᴄʜᴀɴɴᴇʟs · ${privates} ᴘʀɪᴠᴀᴛᴇ`;
                 await cleanupMessages(botApi, chatId, message_id);
                 const sent = await botApi.sendMessage(chatId,
-                    `💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`,
-                    getCloseKeyboard()
+                    withAd(`💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`),
+                    getCloseKeyboard(), linkPreview
                 );
                 trackBotMessage(chatId, sent);
                 return;
@@ -899,7 +930,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         const status = wh.url ? `🔗 <b>Uʀʟ:</b> ${wh.url}` : '📵 Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ.';
                         const pending = wh.pending_update_count > 0 ? `\n⏳ <b>Pᴇɴᴅɪɴɢ:</b> ${wh.pending_update_count}` : '';
                         const error = wh.last_error_message ? `\n⚠️ <b>Eʀʀᴏʀ:</b> ${wh.last_error_message}` : '';
-                        const sent = await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
+                        const sent = await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard(), linkPreview);
                         trackBotMessage(chatId, sent);
                     } catch (error) {
                         const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`, getCloseKeyboard());
@@ -915,7 +946,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 try {
                     await botApi.setWebhook(webhookUrl, webhookSecret || '');
-                    const sent = await botApi.sendMessage(chatId, `✅ Хорошо! Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, withAd(`✅ Хорошо! Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!
+
+🔗 ${webhookUrl}`), getCloseKeyboard(), linkPreview);
                     trackBotMessage(chatId, sent);
                 } catch (error) {
                     const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`, getCloseKeyboard());
@@ -948,7 +981,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 await cleanupMessages(botApi, chatId, message_id);
                 await Store.restrictChat(restrictId);
-                const sent = await botApi.sendMessage(chatId, `🚫 Хорошо. Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. I Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ Tʜᴇʀᴇ.`, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, withAd(`🚫 Хорошо. Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. I Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ Tʜᴇʀᴇ.`), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -983,7 +1016,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 }
                 await cleanupMessages(botApi, chatId, message_id);
                 await Store.unrestrictChat(unrestrictId);
-                const sent = await botApi.sendMessage(chatId, `✅ Хорошо. Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, withAd(`✅ Хорошо. Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -1006,13 +1039,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 let sent;
                 if (!enabled) {
                     sent = await botApi.sendMessage(chatId,
-                        `🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Nᴏ Gʀᴇᴇᴛɪɴɢs.`,
-                        getCloseKeyboard()
+                        withAd(`🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Nᴏ Gʀᴇᴇᴛɪɴɢs.`),
+                        getCloseKeyboard(), linkPreview
                     );
                 } else {
                     sent = await botApi.sendMessage(chatId,
-                        `🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. Nᴇᴡ Mᴇᴍʙᴇʀs Wɪʟʟ Rᴇᴄᴇɪᴠᴇ Mʏ Gʀᴇᴇᴛɪɴɢ.`,
-                        getCloseKeyboard()
+                        withAd(`🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. Nᴇᴡ Mᴇᴍʙᴇʀs Wɪʟʟ Rᴇᴄᴇɪᴠᴇ Mʏ Gʀᴇᴇᴛɪɴɢ.`),
+                        getCloseKeyboard(), linkPreview
                     );
                 }
                 trackBotMessage(chatId, sent);
@@ -1037,13 +1070,13 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 let sent;
                 if (!enabled) {
                     sent = await botApi.sendMessage(chatId,
-                        `🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Tʜᴇʏ Cᴀɴ Jᴜsᴛ… Lᴇᴀᴠᴇ.`,
-                        getCloseKeyboard()
+                        withAd(`🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Tʜᴇʏ Cᴀɴ Jᴜsᴛ… Lᴇᴀᴠᴇ.`),
+                        getCloseKeyboard(), linkPreview
                     );
                 } else {
                     sent = await botApi.sendMessage(chatId,
-                        `🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. I'ʟʟ Sᴀʏ Gᴏᴏᴅʙʏᴇ. Iᴛ's Oɴʟʏ Pᴏʟɪᴛᴇ.`,
-                        getCloseKeyboard()
+                        withAd(`🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. I'ʟʟ Sᴀʏ Gᴏᴏᴅʙʏᴇ. Iᴛ's Oɴʟʏ Pᴏʟɪᴛᴇ.`),
+                        getCloseKeyboard(), linkPreview
                     );
                 }
                 trackBotMessage(chatId, sent);
