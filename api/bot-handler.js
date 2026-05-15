@@ -26,10 +26,9 @@ import {
     onlyAdminMessage, groupOnlyMessage, pingMessage,
     adminPanelMessage
 } from './constants.js';
-import { getRandomPositiveReaction, splitEmojis, log, applyCustomEmojis } from './helper.js';
+import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
-import { getCustomEmojiId } from './emoji-map.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE (runtime-only, not persisted)
@@ -222,53 +221,7 @@ ${cmdLines}${topChatsText}
 }
 
 // ══════════════════════════════════════════════════════════════
-// CUSTOM EMOJI HELPERS
-// ══════════════════════════════════════════════════════════════
-
-/**
- * Extract the first emoji from a string.
- * @param {string} text
- * @returns {string|null}
- */
-function firstEmoji(text) {
-    const m = text.match(/^(?:\p{Regional_Indicator}\p{Regional_Indicator}|(?:[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*(?:\u200D[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*)*))/u);
-    return m ? m[0] : null;
-}
-
-/**
- * Enrich inline keyboard buttons with icon_custom_emoji_id.
- * Looks up the first emoji in each button's text against emoji-map.
- * @param {Array} keyboard — Inline keyboard array
- * @returns {Array} — Keyboard with icon_custom_emoji_id added
- */
-function enrichKeyboard(keyboard) {
-    if (!keyboard) return keyboard;
-    return keyboard.map(row =>
-        row.map(btn => {
-            if (btn.url || btn.callback_data) {
-                const emoji = firstEmoji(btn.text || '');
-                const id = emoji ? getCustomEmojiId(emoji) : null;
-                if (id) return { ...btn, icon_custom_emoji_id: id };
-            }
-            return btn;
-        })
-    );
-}
-
-/**
- * Prepare message with premium emojis: convert text emojis to
- * <tg-emoji> tags and enrich keyboard buttons with icon_custom_emoji_id.
- * @param {string} text — HTML message text
- * @param {Array} keyboard — Inline keyboard (optional)
- * @returns {{ text: string, keyboard: Array }}
- */
-function withPremium(text, keyboard) {
-    return {
-        text: applyCustomEmojis(text),
-        keyboard: enrichKeyboard(keyboard)
-    };
-}
-
+// INLINE KEYBOARDS
 // ══════════════════════════════════════════════════════════════
 // INLINE KEYBOARDS
 // ══════════════════════════════════════════════════════════════
@@ -364,30 +317,7 @@ function getCloseKeyboard() {
  * @param {string} webhookSecret - Webhook secret token
  * @param {string} botPhoto - Bot photo URL from env
  */
-export async function onUpdate(data, botApiRaw, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
-
-    // Wrap botApi to auto-apply premium emojis to all text messages
-    const botApi = {
-        ...botApiRaw,
-        async sendMessage(chatId, text, inlineKeyboard, linkPreviewOptions) {
-            const p = withPremium(text, inlineKeyboard);
-            return botApiRaw.sendMessage(chatId, p.text, p.keyboard, linkPreviewOptions);
-        },
-        async editMessageText(chatId, messageId, text, inlineKeyboard, linkPreviewOptions) {
-            const p = withPremium(text, inlineKeyboard);
-            return botApiRaw.editMessageText(chatId, messageId, p.text, p.keyboard, linkPreviewOptions);
-        },
-        getMe: (...a) => botApiRaw.getMe(...a),
-        getChat: (...a) => botApiRaw.getChat(...a),
-        getChatMember: (...a) => botApiRaw.getChatMember(...a),
-        deleteMessage: (...a) => botApiRaw.deleteMessage(...a),
-        setMessageReaction: (...a) => botApiRaw.setMessageReaction(...a),
-        answerCallbackQuery: (...a) => botApiRaw.answerCallbackQuery(...a),
-        leaveChat: (...a) => botApiRaw.leaveChat(...a),
-        setWebhook: (...a) => botApiRaw.setWebhook(...a),
-        deleteWebhook: (...a) => botApiRaw.deleteWebhook(...a),
-        getWebhookInfo: (...a) => botApiRaw.getWebhookInfo(...a),
-    };
+export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
 
     // Load persistent chat store (idempotent — only loads once)
     await Store.load();

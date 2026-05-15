@@ -58,37 +58,6 @@ export function splitEmojis(emojiString) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// CUSTOM EMOJI FORMATTING
-// ══════════════════════════════════════════════════════════════
-
-// ---- FEATURE: Premium emoji rendering ----
-
-import { getCustomEmojiId } from './emoji-map.js';
-
-/**
- * Replace Unicode emojis in HTML text with <tg-emoji> tags
- * for premium custom emoji rendering.
- *
- * Skips emojis inside HTML tags (<a>, <code>, <b>, etc.) and
- * only replaces emojis that have a mapping in emoji-map.js.
- *
- * @param {string} text — HTML-formatted text
- * @returns {string} — Text with emojis wrapped in <tg-emoji> tags
- */
-export function applyCustomEmojis(text) {
-    if (!text) return text;
-
-    // Match all emoji sequences (same regex as splitEmojis)
-    const emojiRegex = /\p{Regional_Indicator}\p{Regional_Indicator}|(?:[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*(?:\u200D[\p{Emoji_Presentation}\p{Extended_Pictographic}\p{Emoji_Modifier_Base}][\uFE0F\p{Emoji_Modifier}]*)*)/gu;
-
-    return text.replace(emojiRegex, (match) => {
-        const id = getCustomEmojiId(match);
-        if (!id) return match; // No mapping — keep original
-        return `<tg-emoji emoji_id="${id}">${match}</tg-emoji>`;
-    });
-}
-
-// ══════════════════════════════════════════════════════════════
 // CHAT & HTTP UTILITIES
 // ══════════════════════════════════════════════════════════════
 
