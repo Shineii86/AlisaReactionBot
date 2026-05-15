@@ -10,7 +10,7 @@
  *
  * @exports TelegramBotAPI (default)
  *
- * @version 2.12.0
+ * @version 2.13.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -61,52 +61,25 @@ export default class TelegramBotAPI {
         return this.callApi('getChatMember', { chat_id: chatId, user_id: userId });
     }
 
-    async sendMessage(chatId, text, inlineKeyboard = null) {
+    async sendMessage(chatId, text, inlineKeyboard = null, linkPreviewOptions = null) {
         return this.callApi('sendMessage', {
             chat_id: chatId,
             text: text,
             parse_mode: 'HTML',
-            disable_web_page_preview: true,
+            disable_web_page_preview: !linkPreviewOptions,
+            ...(linkPreviewOptions && { link_preview_options: linkPreviewOptions }),
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
         });
     }
 
-    async editMessageText(chatId, messageId, text, inlineKeyboard = null) {
+    async editMessageText(chatId, messageId, text, inlineKeyboard = null, linkPreviewOptions = null) {
         return this.callApi('editMessageText', {
             chat_id: chatId,
             message_id: messageId,
             text: text,
             parse_mode: 'HTML',
-            disable_web_page_preview: true,
-            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
-        });
-    }
-
-    async sendPhoto(chatId, photo, caption, inlineKeyboard = null) {
-        return this.callApi('sendPhoto', {
-            chat_id: chatId,
-            photo: photo,
-            caption: caption,
-            parse_mode: 'HTML',
-            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
-        });
-    }
-
-    async editMessageMedia(chatId, messageId, media, inlineKeyboard = null) {
-        return this.callApi('editMessageMedia', {
-            chat_id: chatId,
-            message_id: messageId,
-            media: media,
-            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
-        });
-    }
-
-    async editMessageCaption(chatId, messageId, caption, inlineKeyboard = null) {
-        return this.callApi('editMessageCaption', {
-            chat_id: chatId,
-            message_id: messageId,
-            caption: caption,
-            parse_mode: 'HTML',
+            disable_web_page_preview: !linkPreviewOptions,
+            ...(linkPreviewOptions && { link_preview_options: linkPreviewOptions }),
             ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
         });
     }

@@ -11,7 +11,7 @@
  *   getRandomPositiveReaction, splitEmojis, getChatIds,
  *   returnHTML, log
  *
- * @version 2.12.0
+ * @version 2.13.0
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

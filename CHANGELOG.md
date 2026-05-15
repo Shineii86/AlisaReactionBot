@@ -4,6 +4,54 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.13.0] — 2026-05-15
+
+### 🗑️ Removed
+
+- **Plugin System Completely Removed** — All plugin-related code, files, and references have been removed from the codebase.
+  - Deleted `api/plugin-loader.js` — dynamic plugin loader module
+  - Deleted `plugins/` directory — all plugin files (anilist.js, aninews.js, kitsu.js, manga.js, _example.js, README.md)
+  - Removed `PluginLoader` import and all plugin routing from `api/bot-handler.js`
+  - Removed `/plugins` command handler (list and toggle)
+  - Removed `cb_plugins` callback handler from inline keyboard processing
+  - Removed plugin command routing (`PluginLoader.routeCommand` / `PluginLoader.routeCallback`)
+  - Removed `buildPluginContext()` and `buildCallbackPluginContext()` helper functions
+  - Removed plugin page (Page 3) from paginated help in `api/constants.js`
+  - Removed 🔌 Plugins button from help keyboard and help page keyboard
+  - Removed Plugin System feature card from landing page (`api/landing.js`)
+  - Removed plugin system badge from landing page footer
+  - Removed plugin references from `README.md` — features table, commands table, project structure, memory model
+  - Removed Plugin System section from `GUIDE.md` — built-in plugins, managing plugins, creating plugins, context object, all documentation
+
+### 🐛 Bug Fixes
+
+- **Fixed all buttons using `link_preview_options`** — Replaced `sendPhoto` with `sendMessage` + `link_preview_options` across all commands and callbacks. This eliminates all photo↔text transition issues:
+  - No more 1024-character caption limit — messages use text, image shows as large preview above
+  - No more `editMessageCaption` / `editMessageMedia` — all edits use `editMessageText`
+  - No more photo↔text transitions in callbacks — `editMsg` always edits text
+  - `cb_menu` (Back to Menu) simplified — always `editMessageText` with link preview
+  - All buttons verified working in both `BOT_PHOTO` set and unset modes
+
+- **Fixed `/help` not showing photo** — `/help` always sent as text even when `BOT_PHOTO` was set. Now uses `link_preview_options` to show photo as large preview.
+
+- **Fixed `/about` photo handling** — `/about` was hardcoded to always send as text. Now shows photo preview via `link_preview_options`.
+
+- **Fixed `/stats` photo fallback** — `/stats` used `sendPhoto` which silently failed when caption exceeded 1024 chars. Now uses `sendMessage` with `link_preview_options` — no length limit.
+
+- **Fixed `/reactions` duplicate closing** — Removed duplicate `trackBotMessage`/`return`/`}` lines left from previous edit.
+
+- **Fixed help pagination** — Removed stale `cb_help:2` case (only 2 help pages exist).
+
+### 🔧 Changes
+
+- **`TelegramBotAPI.js`** — Added `linkPreviewOptions` parameter to `sendMessage()` and `editMessageText()`. When set, enables link preview with `prefer_large_media` and `show_above_text`. When null, `disable_web_page_preview: true` is used as before. Removed `sendPhoto()`, `editMessageMedia()`, and `editMessageCaption()` methods — no longer needed with `link_preview_options`.
+
+- **`bot-handler.js`** — Unified photo display via `link_preview_options`. All commands and callbacks now use `sendMessage`/`editMessageText` with optional link preview. No more photo↔text transitions, no caption length limits.
+
+- Version bumped to v2.13.0 across all files (package.json, all API modules, landing page, JSON-LD)
+
+---
+
 ## [v2.12.0] — 2026-05-15
 
 ### 🐛 Bug Fixes
