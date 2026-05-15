@@ -42,6 +42,7 @@ const reactionLog = [];          // Last 50 Reactions: [{chatId, emoji, timestam
 const rateLimitMap = {};         // chatId → { count, resetAt }
 const chatNames = {};            // chatId → Chat Title (Cached)
 const perChatRandomLevel = {};   // chatId → Random Level Override (0-10)
+const lastBotMessage = {};       // chatId → last bot message_id (for cleanup)
 
 const LOG_MAX = 50;
 const RATE_LIMIT_MAX = 30;       // Max Reactions Per Minute Per Chat
@@ -150,6 +151,33 @@ function getTopChats(limit = 5) {
  */
 function withAd(msg) {
     return msg + getAdFooter();
+}
+
+/**
+ * Clean up previous bot response and user command message.
+ * Deletes the old bot message (if tracked) and the triggering message.
+ * @param {Object} botApi - TelegramBotAPI instance
+ * @param {number} chatId - Chat ID
+ * @param {number} userMessageId - User's command message ID to delete
+ */
+async function cleanupMessages(botApi, chatId, userMessageId) {
+    // Delete previous bot response
+    if (lastBotMessage[chatId]) {
+        try { await botApi.deleteMessage(chatId, lastBotMessage[chatId]); } catch {}
+        delete lastBotMessage[chatId];
+    }
+    // Delete user's command message
+    try { await botApi.deleteMessage(chatId, userMessageId); } catch {}
+}
+
+/**
+ * Track a sent bot message for future cleanup.
+ * @param {number} chatId - Chat ID
+ * @param {Object} sent - Telegram API response from sendMessage/sendPhoto
+ */
+function trackBotMessage(chatId, sent) {
+    const msgId = sent?.result?.message_id;
+    if (msgId) lastBotMessage[chatId] = msgId;
 }
 
 // Runtime start time (not persisted — resets on restart)
@@ -305,17 +333,33 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
         try {
             // Helper: edit message — handles both photo and text messages
+            const isPhotoMessage = !!cq.message?.photo;
             const editMsg = async (text, keyboard) => {
-                if (botPhoto) {
-                    // Photo message — try caption edit, fallback to new message if too long
-                    try {
+                try {
+                    if (isPhotoMessage) {
+                        // Photo message — edit caption
                         await botApi.editMessageCaption(chatId, messageId, text, keyboard);
-                    } catch {
-                        await botApi.sendMessage(chatId, text, keyboard);
+                    } else {
+                        // Text message — edit text directly
+                        await botApi.editMessageText(chatId, messageId, text, keyboard);
                     }
-                } else {
-                    // Text message — edit directly
-                    await botApi.editMessageText(chatId, messageId, text, keyboard);
+                } catch (editError) {
+                    // If edit failed, try the other method before sending new message
+                    try {
+                        if (isPhotoMessage) {
+                            await botApi.editMessageText(chatId, messageId, text, keyboard);
+                        } else {
+                            await botApi.editMessageCaption(chatId, messageId, text, keyboard);
+                        }
+                    } catch {
+                        // Last resort: delete old message, send new one (avoids duplicates)
+                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
+                        if (botPhoto) {
+                            await botApi.sendPhoto(chatId, botPhoto, text, keyboard);
+                        } else {
+                            await botApi.sendMessage(chatId, text, keyboard);
+                        }
+                    }
                 }
             };
 
@@ -425,11 +469,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     : content.chat.title;
                 const caption = withAd(startMessage.replace('UserName', displayName));
                 const keyboard = getStartKeyboard(botUsername, userId, ownerId);
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, keyboard); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, keyboard); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, keyboard);
+                    sent = await botApi.sendMessage(chatId, caption, keyboard);
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -438,11 +486,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 trackCommand('help');
                 const caption = withAd(helpMessage);
                 const keyboard = getHelpKeyboard(userId, ownerId);
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, keyboard); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, keyboard); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, keyboard);
+                    sent = await botApi.sendMessage(chatId, caption, keyboard);
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -450,11 +502,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/about') {
                 trackCommand('about');
                 const caption = withAd(aboutMessage);
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard()); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, getBackKeyboard()); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                    sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -462,20 +518,24 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/ping') {
                 trackCommand('ping');
                 const start = Date.now();
+                await cleanupMessages(botApi, chatId, message_id);
                 try {
                     const sent = await botApi.sendMessage(chatId, '🏓 Хмпф. Pɪɴɢɪɴɢ...', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     const latency = Date.now() - start;
                     const msgId = sent?.result?.message_id;
                     const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
                     if (msgId) {
                         await botApi.editMessageText(chatId, msgId, pingText, getCloseKeyboard());
                     } else {
-                        await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                        const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                        trackBotMessage(chatId, sent2);
                     }
                 } catch {
                     const latency = Date.now() - start;
                     const pingText = pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`;
-                    await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                    const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard());
+                    trackBotMessage(chatId, sent2);
                 }
                 return;
             }
@@ -484,11 +544,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/stats') {
                 trackCommand('stats');
                 const caption = withAd(getStatsMessage());
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard()); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, getBackKeyboard()); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                    sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -498,11 +562,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const reactions = getReactionsForChat(chatId, Reactions).join(' ');
                 const isCustom = Store.getReaction(chatId) ? `\n\n<i>✨ Хорошо. Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>` : `\n\n<i>📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.</i>`;
                 const caption = withAd(`🚀 <b>Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${reactions}${isCustom}`);
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard()); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, getBackKeyboard()); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                    sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -510,71 +578,88 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/setreactions') {
                 trackCommand('setreactions');
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!args || args.trim().length === 0) {
-                    // Reset to default
                     await Store.deleteReaction(chatId);
-                    await botApi.sendMessage(chatId, reactionsReset, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, reactionsReset, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const emojis = splitEmojis(args.trim());
                 if (emojis.length === 0) {
-                    await botApi.sendMessage(chatId, reactionsInvalid, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, reactionsInvalid, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 await Store.setReaction(chatId, emojis.join(''));
-                await botApi.sendMessage(chatId,
+                const sent = await botApi.sendMessage(chatId,
                     `${reactionsUpdated}🎯 <b>Nᴇᴡ Rᴇᴀᴄᴛɪᴏɴs:</b> ${emojis.join(' ')}`,
                     getBackKeyboard()
                 );
+                trackBotMessage(chatId, sent);
                 return;
             }
 
             // /pause (group admins only)
             if (cmd === '/pause') {
                 trackCommand('pause');
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 await Store.pauseChat(chatId);
-                await botApi.sendMessage(chatId, pausedMessage, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, pausedMessage, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
             // /resume (group admins only)
             if (cmd === '/resume') {
                 trackCommand('resume');
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!Store.isPaused(chatId)) {
-                    await botApi.sendMessage(chatId, notPausedMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, notPausedMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 await Store.resumeChat(chatId);
-                await botApi.sendMessage(chatId, resumedMessage, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, resumedMessage, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
             // /randomlevel <0-10> (group admins only for override; shows info in DMs)
             if (cmd === '/randomlevel') {
                 trackCommand('randomlevel');
+                await cleanupMessages(botApi, chatId, message_id);
                 try {
                     const trimmedArgs = args?.trim();
                     const isGroup = isGroupChat(chatType);
@@ -583,7 +668,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     if (!isGroup) {
                         const globalLevel = RandomLevel;
                         const globalChance = (10 - globalLevel) * 10;
-                        await botApi.sendMessage(chatId,
+                        const sent = await botApi.sendMessage(chatId,
                             `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ — Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ</b>\n\n` +
                             `📊 Cᴜʀʀᴇɴᴛ: <code>${globalLevel}</code> — Rᴇᴀᴄᴛ ~${globalChance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
                             `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n\n` +
@@ -591,12 +676,14 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             `📌 Aᴅᴍɪɴs Oɴʟʏ. Dᴏɴ'ᴛ Eᴠᴇɴ Tʀʏ Oᴛʜᴇʀᴡɪsᴇ.`,
                             getCloseKeyboard()
                         );
+                        trackBotMessage(chatId, sent);
                         return;
                     }
 
                     // Group: require admin permission
                     if (!await isGroupAdmin(botApi, chatId, userId)) {
-                        await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                        const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                        trackBotMessage(chatId, sent);
                         return;
                     }
 
@@ -607,42 +694,46 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             : RandomLevel;
                         const source = perChatRandomLevel[chatId] !== undefined ? 'Cᴜsᴛᴏᴍ' : 'Gʟᴏʙᴀʟ';
                         const currentChance = (10 - current) * 10;
-                        await botApi.sendMessage(chatId,
+                        const sent = await botApi.sendMessage(chatId,
                             `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Fᴏʀ Tʜɪs Cʜᴀᴛ:</b>\n\n` +
                             `📊 Cᴜʀʀᴇɴᴛ: <code>${current}</code> (${source}) — Rᴇᴀᴄᴛ ~${currentChance}%\n` +
                             `📌 Gʟᴏʙᴀʟ Dᴇғᴀᴜʟᴛ: <code>${RandomLevel}</code>\n\n` +
                             `💡 Usᴇ <code>/randomlevel &lt;0-10&gt;</code> To Cʜᴀɴᴀɢᴇ. Iғ Yᴏᴜ Dᴀʀᴇ.`,
                             getCloseKeyboard()
                         );
+                        trackBotMessage(chatId, sent);
                         return;
                     }
 
                     // Validate the level value
                     const level = parseInt(trimmedArgs, 10);
                     if (isNaN(level) || level < 0 || level > 10) {
-                        await botApi.sendMessage(chatId,
+                        const sent = await botApi.sendMessage(chatId,
                             `📵 Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Mᴜsᴛ Bᴇ A Nᴜᴍʙᴇʀ Bᴇᴛᴡᴇᴇɴ <code>0</code> Aɴᴅ <code>10</code>.\n\n` +
                             `📌 Usᴀɢᴇ: <code>/randomlevel &lt;0-10&gt;</code>\n` +
                             `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ. Eᴠᴇɴ I Cᴏᴜʟᴅ Fɪɢᴜʀᴇ Tʜᴀᴛ Oᴜᴛ.`,
                             getCloseKeyboard()
                         );
+                        trackBotMessage(chatId, sent);
                         return;
                     }
 
                     // Set per-chat override
                     perChatRandomLevel[chatId] = level;
                     const chance = (10 - level) * 10;
-                    await botApi.sendMessage(chatId,
+                    const sent = await botApi.sendMessage(chatId,
                         `🎲 <b>Rᴀɴᴅᴏᴍ Lᴇᴠᴇʟ Sᴇᴛ!</b> 📊\n\n` +
                         `🎯 Lᴇᴠᴇʟ: <code>${level}</code> — Rᴇᴀᴄᴛ ~${chance}% Oғ Tʜᴇ Tɪᴍᴇ\n\n` +
                         `💡 <code>0</code> = Eᴠᴇʀʏ Mᴇssᴀɢᴇ | <code>10</code> = Nᴇᴠᴇʀ\n` +
                         `🔄 Rᴇsᴇᴛs Oɴ Rᴇsᴛᴀʀᴛ. Ничего страшного.`,
                         getCloseKeyboard()
                     );
+                    trackBotMessage(chatId, sent);
                 } catch (error) {
                     log.error('[/randomlevel]', error.message);
                     try {
-                        await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`, getCloseKeyboard());
+                        const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Pʀᴏᴄᴇss /randomlevel: ${error.message}`, getCloseKeyboard());
+                        trackBotMessage(chatId, sent);
                     } catch {}
                 }
                 return;
@@ -652,11 +743,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/donate') {
                 trackCommand('donate');
                 const caption = withAd(donateMessage);
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent;
                 if (botPhoto) {
-                    await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard());
+                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard()); }
+                    catch { sent = await botApi.sendMessage(chatId, caption, getBackKeyboard()); }
                 } else {
-                    await botApi.sendMessage(chatId, caption, getBackKeyboard());
+                    sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -664,21 +759,29 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/broadcast') {
                 trackCommand('broadcast');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф… Usᴀɢᴇ: <code>/broadcast &lt;message&gt;</code>', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📝 Хмпф… Usᴀɢᴇ: <code>/broadcast &lt;message&gt;</code>', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const now = Date.now();
                 if (now - lastBroadcastTime < BROADCAST_COOLDOWN) {
                     const remaining = Math.ceil((BROADCAST_COOLDOWN - (now - lastBroadcastTime)) / 1000);
-                    await botApi.sendMessage(chatId, `⏳ Хмпф. Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s. Dᴏɴ'ᴛ Rᴜsʜ Mᴇ.`, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, `⏳ Хмпф. Cᴏᴏʟᴅᴏᴡɴ! Wᴀɪᴛ ${remaining}s. Dᴏɴ'ᴛ Rᴜsʜ Mᴇ.`, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 lastBroadcastTime = now;
-                await botApi.sendMessage(chatId, broadcastStarted, getCloseKeyboard());
+                await cleanupMessages(botApi, chatId, message_id);
+                let sent = await botApi.sendMessage(chatId, broadcastStarted, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 const allChats = new Set(uniqueChats);
                 if (userId) allChats.add(userId);
                 let success = 0, failed = 0;
@@ -690,7 +793,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         failed++;
                     }
                 }
-                await botApi.sendMessage(chatId, broadcastDone(success, failed), getCloseKeyboard());
+                sent = await botApi.sendMessage(chatId, broadcastDone(success, failed), getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -698,11 +802,15 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/log') {
                 trackCommand('log');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (reactionLog.length === 0) {
-                    await botApi.sendMessage(chatId, '📋 Хмпф. Tʜᴇ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ Is Eᴍᴘᴛʏ. Gɪᴠᴇ Iᴛ Sᴏᴍᴇ Tɪᴍᴇ.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📋 Хмпф. Tʜᴇ Rᴇᴀᴄᴛɪᴏɴ Lᴏɢ Is Eᴍᴘᴛʏ. Gɪᴠᴇ Iᴛ Sᴏᴍᴇ Tɪᴍᴇ.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const lines = reactionLog.slice(-10).reverse().map((e, i) => {
@@ -710,7 +818,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const name = chatNames[e.chatId] || e.chatId;
                     return `${i + 1}. ${e.emoji} → ${name} (${time})`;
                 }).join('\n');
-                await botApi.sendMessage(chatId, `📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`, getCloseKeyboard());
+                await cleanupMessages(botApi, chatId, message_id);
+                const sent = await botApi.sendMessage(chatId, `📋 <b>Lᴀsᴛ 10 Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${lines}`, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -718,26 +828,35 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/leave' || cmd === '/remove') {
                 trackCommand(cmd === '/leave' ? 'leave' : 'remove');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/leave &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/leave &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const targetChatId = args.trim();
                 if (!/^-?\d+$/.test(targetChatId)) {
-                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ Nᴜᴍᴇʀɪᴄ.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID. Mᴜsᴛ Bᴇ Nᴜᴍᴇʀɪᴄ.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
+                await cleanupMessages(botApi, chatId, message_id);
                 try {
                     await botApi.leaveChat(targetChatId);
                     uniqueChats.delete(Number(targetChatId));
                     delete perChatRandomLevel[targetChatId];
-                    await Store.removeChat(targetChatId); // cleans up reactions, paused, restricted, welcome, goodbye
-                    await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
+                    await Store.removeChat(targetChatId);
+                    const sent = await botApi.sendMessage(chatId, `✅ До свидания. Lᴇғᴛ Cʜᴀᴛ <code>${targetChatId}</code>.`, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Lᴇᴀᴠᴇ Cʜᴀᴛ <code>${targetChatId}</code>:\n${error.message}`, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                 }
                 return;
             }
@@ -746,15 +865,18 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/chats') {
                 trackCommand('chats');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const allChats = Store.getAllChats();
                 if (allChats.length === 0) {
-                    await botApi.sendMessage(chatId, '📭 Хмпф. Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs Yᴇᴛ.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📭 Хмпф. Nᴏ Aᴄᴛɪᴠᴇ Cʜᴀᴛs Yᴇᴛ.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
-                // Sort: groups/supergroups first, then channels, then private
                 const typeOrder = { supergroup: 0, group: 1, channel: 2, private: 3, unknown: 4 };
                 allChats.sort((a, b) => (typeOrder[a.type] ?? 9) - (typeOrder[b.type] ?? 9));
 
@@ -771,10 +893,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const privates = allChats.filter(c => c.type === 'private').length;
 
                 const summary = `📊 ${groups} ɢʀᴏᴜᴘs · ${channels} ᴄʜᴀɴɴᴇʟs · ${privates} ᴘʀɪᴠᴀᴛᴇ`;
-                await botApi.sendMessage(chatId,
+                await cleanupMessages(botApi, chatId, message_id);
+                const sent = await botApi.sendMessage(chatId,
                     `💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`,
                     getCloseKeyboard()
                 );
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -782,33 +906,40 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/setwebhook') {
                 trackCommand('setwebhook');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!args || args.trim().length === 0) {
-                    // Show current webhook info
                     try {
                         const info = await botApi.getWebhookInfo();
                         const wh = info.result;
                         const status = wh.url ? `🔗 <b>Uʀʟ:</b> ${wh.url}` : '📵 Nᴏ Wᴇʙʜᴏᴏᴋ Sᴇᴛ.';
                         const pending = wh.pending_update_count > 0 ? `\n⏳ <b>Pᴇɴᴅɪɴɢ:</b> ${wh.pending_update_count}` : '';
                         const error = wh.last_error_message ? `\n⚠️ <b>Eʀʀᴏʀ:</b> ${wh.last_error_message}` : '';
-                        await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
+                        const sent = await botApi.sendMessage(chatId, `📡 <b>Wᴇʙʜᴏᴏᴋ Sᴛᴀᴛᴜs:</b>\n\n${status}${pending}${error}`, getCloseKeyboard());
+                        trackBotMessage(chatId, sent);
                     } catch (error) {
-                        await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`, getCloseKeyboard());
+                        const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Wᴇʙʜᴏᴏᴋ Iɴғᴏ:\n${error.message}`, getCloseKeyboard());
+                        trackBotMessage(chatId, sent);
                     }
                     return;
                 }
                 const webhookUrl = args.trim();
                 if (!webhookUrl.startsWith('https://')) {
-                    await botApi.sendMessage(chatId, '📵 Хмпф. Wᴇʙʜᴏᴏᴋ Uʀʟ Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ<code>https://</code>', getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, '📵 Хмпф. Wᴇʙʜᴏᴏᴋ Uʀʟ Mᴜsᴛ Sᴛᴀʀᴛ Wɪᴛʜ<code>https://</code>', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 try {
                     await botApi.setWebhook(webhookUrl, webhookSecret || '');
-                    await botApi.sendMessage(chatId, `✅ Хорошо! Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, `✅ Хорошо! Wᴇʙʜᴏᴏᴋ Sᴇᴛ Sᴜᴄᴄᴇssғᴜʟʟʏ!\n\n🔗 ${webhookUrl}`, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                 } catch (error) {
-                    await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, `📵 Хмпф. Fᴀɪʟᴇᴅ Tᴏ Sᴇᴛ Wᴇʙʜᴏᴏᴋ:\n${error.message}`, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                 }
                 return;
             }
@@ -817,20 +948,28 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/restrict') {
                 trackCommand('restrict');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/restrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/restrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const restrictId = Number(args.trim());
                 if (!restrictId) {
-                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
+                await cleanupMessages(botApi, chatId, message_id);
                 await Store.restrictChat(restrictId);
-                await botApi.sendMessage(chatId, `🚫 Хорошо. Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. I Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ Tʜᴇʀᴇ.`, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, `🚫 Хорошо. Cʜᴀᴛ <code>${restrictId}</code> Rᴇsᴛʀɪᴄᴛᴇᴅ. I Wɪʟʟ Nᴏᴛ Rᴇᴀᴄᴛ Tʜᴇʀᴇ.`, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
@@ -838,76 +977,96 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             if (cmd === '/unrestrict') {
                 trackCommand('unrestrict');
                 if (!isOwner(userId, ownerId)) {
-                    await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!args || args.trim().length === 0) {
-                    await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/unrestrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📝 Хмпф. Usᴀɢᴇ: <code>/unrestrict &lt;chat_id&gt;</code>', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const unrestrictId = Number(args.trim());
                 if (!unrestrictId) {
-                    await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, '📵 Хмпф. Iɴᴠᴀʟɪᴅ Cʜᴀᴛ ID.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!Store.isRestricted(unrestrictId)) {
-                    await botApi.sendMessage(chatId, 'ℹ️ Хмпф. Tʜᴀᴛ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.', getCloseKeyboard());
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, 'ℹ️ Хмпф. Tʜᴀᴛ Cʜᴀᴛ Is Nᴏᴛ Rᴇsᴛʀɪᴄᴛᴇᴅ.', getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
+                await cleanupMessages(botApi, chatId, message_id);
                 await Store.unrestrictChat(unrestrictId);
-                await botApi.sendMessage(chatId, `✅ Хорошо. Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`, getCloseKeyboard());
+                const sent = await botApi.sendMessage(chatId, `✅ Хорошо. Cʜᴀᴛ <code>${unrestrictId}</code> Uɴʀᴇsᴛʀɪᴄᴛᴇᴅ.`, getCloseKeyboard());
+                trackBotMessage(chatId, sent);
                 return;
             }
 
             // /welcome (group admins only — toggle welcome messages)
             if (cmd === '/welcome') {
                 trackCommand('welcome');
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const enabled = await Store.toggleWelcome(chatId);
+                let sent;
                 if (!enabled) {
-                    await botApi.sendMessage(chatId,
+                    sent = await botApi.sendMessage(chatId,
                         `🔕 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Nᴏ Gʀᴇᴇᴛɪɴɢs.`,
                         getCloseKeyboard()
                     );
                 } else {
-                    await botApi.sendMessage(chatId,
+                    sent = await botApi.sendMessage(chatId,
                         `🔔 <b>Wᴇʟᴄᴏᴍᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. Nᴇᴡ Mᴇᴍʙᴇʀs Wɪʟʟ Rᴇᴄᴇɪᴠᴇ Mʏ Gʀᴇᴇᴛɪɴɢ.`,
                         getCloseKeyboard()
                     );
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
 
             // /goodbye (group admins only — toggle leave messages)
             if (cmd === '/goodbye') {
                 trackCommand('goodbye');
+                await cleanupMessages(botApi, chatId, message_id);
                 if (!isGroupChat(chatType)) {
-                    await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, groupOnlyMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 if (!await isGroupAdmin(botApi, chatId, userId)) {
-                    await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    const sent = await botApi.sendMessage(chatId, onlyAdminMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
                     return;
                 }
                 const enabled = await Store.toggleGoodbye(chatId);
+                let sent;
                 if (!enabled) {
-                    await botApi.sendMessage(chatId,
+                    sent = await botApi.sendMessage(chatId,
                         `🔕 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. Tʜᴇʏ Cᴀɴ Jᴜsᴛ… Lᴇᴀᴠᴇ.`,
                         getCloseKeyboard()
                     );
                 } else {
-                    await botApi.sendMessage(chatId,
+                    sent = await botApi.sendMessage(chatId,
                         `🔔 <b>Lᴇᴀᴠᴇ Mᴇssᴀɢᴇs Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. I'ʟʟ Sᴀʏ Gᴏᴏᴅʙʏᴇ. Iᴛ's Oɴʟʏ Pᴏʟɪᴛᴇ.`,
                         getCloseKeyboard()
                     );
                 }
+                trackBotMessage(chatId, sent);
                 return;
             }
         }
@@ -949,7 +1108,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                 try {
                     if (botPhoto) {
-                        await botApi.sendPhoto(chatId, botPhoto, welcomeText, welcomeBtns);
+                        try {
+                            await botApi.sendPhoto(chatId, botPhoto, welcomeText, welcomeBtns);
+                        } catch {
+                            await botApi.sendMessage(chatId, welcomeText, welcomeBtns);
+                        }
                     } else {
                         await botApi.sendMessage(chatId, welcomeText, welcomeBtns);
                     }
@@ -986,7 +1149,11 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                 try {
                     if (botPhoto) {
-                        await botApi.sendPhoto(chatId, botPhoto, leaveText, leaveBtns);
+                        try {
+                            await botApi.sendPhoto(chatId, botPhoto, leaveText, leaveBtns);
+                        } catch {
+                            await botApi.sendMessage(chatId, leaveText, leaveBtns);
+                        }
                     } else {
                         await botApi.sendMessage(chatId, leaveText, leaveBtns);
                     }

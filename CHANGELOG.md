@@ -4,6 +4,26 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.12.0] — 2026-05-15
+
+### 🐛 Bug Fixes
+
+- **Fixed callback buttons sending new messages instead of editing** — Inline buttons (📚 Help, 💫 Reactions, 🤖 About, 📊 Stats, 🎁 Donate, etc.) were sending new messages instead of editing the existing message when `BOT_PHOTO` was configured.
+  - **Root cause**: The `editMsg` helper in the callback handler decided edit method based on `botPhoto` (env var) instead of the actual message type (`cq.message.photo`). When `editMessageCaption` failed (e.g., caption too long, or message was actually text), the catch block called `sendMessage` — creating a duplicate message instead of editing.
+  - **Fix**: `editMsg` now checks the actual message type (`cq.message.photo`) to determine whether to use `editMessageCaption` or `editMessageText`. If the first method fails, it tries the other method before falling back to delete + send new (preventing duplicate messages).
+  - Affected callbacks: `cb_help`, `cb_about`, `cb_stats`, `cb_donate`, `cb_reactions`, `!admin`.
+
+- **Added sendPhoto fallback for all commands** — All commands using `sendPhoto` (`/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`, welcome/goodbye messages) now gracefully fall back to `sendMessage` if the photo fails to send. Previously, a failed `sendPhoto` would propagate the error and the user received nothing.
+
+### ✨ Improvements
+
+- **Auto-cleanup on command usage** — When a user sends a command, the bot now automatically deletes both the user's command message and the previous bot response before sending the new response. Keeps chats clean without manual cleanup.
+  - Tracks last bot message ID per chat (runtime only, resets on restart).
+  - Works for all commands: `/start`, `/help`, `/about`, `/ping`, `/stats`, `/reactions`, `/donate`, `/setreactions`, `/pause`, `/resume`, `/randomlevel`, `/broadcast`, `/log`, `/leave`, `/remove`, `/chats`, `/setwebhook`, `/restrict`, `/unrestrict`, `/welcome`, `/goodbye`.
+  - Gracefully handles delete failures (e.g., missing permissions in groups).
+
+---
+
 ## [v2.12.0] — 2026-05-14
 
 ### ✨ New Features
