@@ -15,6 +15,16 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 - **Added sendPhoto fallback for all commands** — All commands using `sendPhoto` (`/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`, welcome/goodbye messages) now gracefully fall back to `sendMessage` if the photo fails to send. Previously, a failed `sendPhoto` would propagate the error and the user received nothing.
 
+### ✨ Plugins
+
+- **AniNews Plugin** (`plugins/aninews.js`) — Anime news from 7 sources powered by [AniNewsAPI](https://github.com/Shineii86/AniNewsAPI).
+  - `/animenews` or `/aninews` — Latest anime news with pagination
+  - `/anisearch <query>` — Full-text search with relevance scoring
+  - `/anitags` — List available news tags
+  - Inline buttons: pagination (Prev/Next), source filter (All/CR/ANN/MAL), numbered article buttons, full article view
+  - Sources: Anime News Network, Anime Corner, MyAnimeList, Crunchyroll, Otaku USA, Anime Herald, Comic Book
+  - Smart caching via API (~200ms responses, 10-min auto-refresh)
+
 ### ✨ Improvements
 
 - **Plugin System** — Extensible architecture for adding custom commands and features without modifying core code.
