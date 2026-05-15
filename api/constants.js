@@ -69,7 +69,17 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 • Aᴅᴅ Mᴇ Tᴏ A Gʀᴏᴜᴘ Aɴᴅ I'ʟʟ Rᴇᴀᴄᴛ Aᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ.
 • Iɴ Pʀɪᴠᴀᴛᴇ Cʜᴀᴛ, I Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏ Mᴇssᴀɢᴇ.
 • Gʀᴏᴜᴘ Aᴅᴍɪɴs Cᴀɴ Usᴇ <code>/pause</code> Aɴᴅ <code>/setreactions</code>.
-• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.`
+• Usᴇ <code>/setwebhook</code> Wɪᴛʜᴏᴜᴛ Aʀɢs Tᴏ Cʜᴇᴄᴋ Cᴜʀʀᴇɴᴛ Sᴛᴀᴛᴜs.
+
+────────────────
+
+🔌 <b>Pʟᴜɢɪɴs:</b>
+🔹 <code>/animenews</code> — Lᴀᴛᴇsᴛ Aɴɪᴍᴇ Nᴇᴡs (7 sᴏᴜʀᴄᴇs).
+🔹 <code>/anisearch &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ Nᴇᴡs.
+🔹 <code>/manga &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Mᴀɴɢᴀ & Mᴀɴʜᴡᴀ.
+🔹 <code>/mangapopular</code> — Pᴏᴘᴜʟᴀʀ Sᴇʀɪᴇs.
+🔹 <code>/mangarandom</code> — Rᴀɴᴅᴏᴍ Dɪsᴄᴏᴠᴇʀʏ.
+🔹 <code>/plugins</code> — Lɪsᴛ Aʟʟ Pʟᴜɢɪɴs.`
 
 // ---- FEATURE: Admin panel — owner-only commands ----
 export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇʀ Oɴʟʏ</b>

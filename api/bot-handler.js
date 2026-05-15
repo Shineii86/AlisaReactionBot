@@ -309,6 +309,7 @@ function getHelpKeyboard(userId, ownerId) {
         ],
         [
             { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
+            { text: '🔌 Pʟᴜɢɪɴs', callback_data: 'cb_plugins', style: 'success' },
         ],
     ];
 
@@ -438,6 +439,36 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     const reactions = getReactionsForChat(chatId, Reactions).join(' ');
                     const isCustom = Store.getReaction(chatId) ? `\n\n<i>✨ Хорошᴏ. Cᴜsᴛᴏᴍ Sᴇᴛ Fᴏʀ Tʜɪs Cʜᴀᴛ.</i>` : `\n\n<i>📌 Mʏ Dᴇғᴀᴜʟᴛ Sᴇᴛ. Tʜᴇʏ'ʀᴇ Pᴇʀғᴇᴄᴛ.</i>`;
                     await editMsg(withAd(`🚀 <b>Eɴᴀʙʟᴇᴅ Rᴇᴀᴄᴛɪᴏɴs:</b>\n\n${reactions}${isCustom}`), getBackKeyboard());
+                    break;
+                }
+                case 'cb_plugins': {
+                    const allPlugins = PluginLoader.getAllPlugins();
+                    let pluginsText;
+                    if (allPlugins.length === 0) {
+                        pluginsText = `╔═══════════════════════\n` +
+                                      `║ 🔌 <b>Pʟᴜɢɪɴs</b>\n` +
+                                      `╚═══════════════════════\n\n` +
+                                      `📭 Nᴏ ᴘʟᴜɢɪɴs ɪɴsᴛᴀʟʟᴇᴅ.\n\n` +
+                                      `Dʀᴏᴘ <code>.js</code> ғɪʟᴇs ɪɴ <code>plugins/</code> ᴛᴏ ᴇxᴛᴇɴᴅ.`;
+                    } else {
+                        const lines = allPlugins.map((p, i) => {
+                            const status = p.enabled ? '✅' : '❌';
+                            const cmds = p.commands.length > 0
+                                ? p.commands.map(c => `<code>${c}</code>`).join(', ')
+                                : '—';
+                            return `┌─${status} <b>${p.name}</b> v${p.version}\n` +
+                                   `├─ <i>${p.description}</i>\n` +
+                                   `├─ Cᴍᴅs: ${cmds}\n` +
+                                   `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─`;
+                        }).join('\n\n');
+
+                        pluginsText = `╔═══════════════════════\n` +
+                                      `║ 🔌 <b>Pʟᴜɢɪɴs</b>\n` +
+                                      `╟─── ${PluginLoader.getEnabledCount()}/${PluginLoader.getPluginCount()} ᴀᴄᴛɪᴠᴇ\n` +
+                                      `╚═══════════════════════\n\n` +
+                                      lines;
+                    }
+                    await editMsg(withAd(pluginsText), getBackKeyboard());
                     break;
                 }
                 case '!admin':

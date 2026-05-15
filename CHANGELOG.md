@@ -39,6 +39,8 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### ✨ Improvements
 
+- **Plugins button in Help menu** — New 🔌 Plugins button in the help keyboard shows all installed plugins with status, descriptions, and commands. Help message updated with plugin command references.
+
 - **Plugin System** — Extensible architecture for adding custom commands and features without modifying core code.
   - New `api/plugin-loader.js` — auto-discovers `.js` files in `plugins/` directory.
   - Each plugin exports: `name`, `description`, `commands`, `callbacks`, `onCommand()`, `onCallback()`.
