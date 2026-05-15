@@ -388,36 +388,29 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         const messageId = cq.message?.message_id;
 
         try {
-            // Helper: edit message — handles both photo and text messages
+            // Helper: edit or replace message — handles photo ↔ text transitions
             const isPhotoMessage = !!cq.message?.photo;
             const CAPTION_LIMIT = 1024;
+
+            /**
+             * Smart edit: tries to edit in place. If content doesn't fit
+             * (photo caption too short), deletes old and sends new text.
+             */
             const editMsg = async (text, keyboard) => {
-                try {
-                    if (isPhotoMessage) {
-                        // Photo message — edit caption
-                        await botApi.editMessageCaption(chatId, messageId, text, keyboard);
-                    } else {
-                        // Text message — edit text directly
-                        await botApi.editMessageText(chatId, messageId, text, keyboard);
-                    }
-                } catch (editError) {
-                    // If edit failed, try the other method before sending new message
-                    try {
-                        if (isPhotoMessage) {
-                            await botApi.editMessageText(chatId, messageId, text, keyboard);
-                        } else {
+                if (isPhotoMessage) {
+                    // Currently a photo message — try caption edit first
+                    if (text.length <= CAPTION_LIMIT) {
+                        try {
                             await botApi.editMessageCaption(chatId, messageId, text, keyboard);
-                        }
-                    } catch {
-                        // Last resort: delete old message, send new one (avoids duplicates)
-                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
-                        // If text is too long for caption, always use text message
-                        if (botPhoto && text.length <= CAPTION_LIMIT) {
-                            await botApi.sendPhoto(chatId, botPhoto, text, keyboard);
-                        } else {
-                            await botApi.sendMessage(chatId, text, keyboard);
-                        }
+                            return;
+                        } catch {}
                     }
+                    // Caption too long or edit failed — delete photo, send text
+                    try { await botApi.deleteMessage(chatId, messageId); } catch {}
+                    await botApi.sendMessage(chatId, text, keyboard);
+                } else {
+                    // Text message — edit directly
+                    await botApi.editMessageText(chatId, messageId, text, keyboard);
                 }
             };
 
@@ -425,30 +418,12 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             const callbackUserId = cq.from?.id;
 
             switch (cq.data) {
-                case 'cb_help': {
-                    const helpText = withAd(helpMessage);
-                    const helpKb = getHelpKeyboard(callbackUserId, ownerId);
-                    // Help text exceeds caption limit — always use text edit
-                    if (isPhotoMessage) {
-                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
-                        await botApi.sendMessage(chatId, helpText, helpKb);
-                    } else {
-                        await botApi.editMessageText(chatId, messageId, helpText, helpKb);
-                    }
+                case 'cb_help':
+                    await editMsg(withAd(helpMessage), getHelpKeyboard(callbackUserId, ownerId));
                     break;
-                }
-                case 'cb_about': {
-                    const aboutText = withAd(aboutMessage);
-                    const aboutKb = getBackKeyboard();
-                    // About text exceeds caption limit — always use text edit
-                    if (isPhotoMessage) {
-                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
-                        await botApi.sendMessage(chatId, aboutText, aboutKb);
-                    } else {
-                        await botApi.editMessageText(chatId, messageId, aboutText, aboutKb);
-                    }
+                case 'cb_about':
+                    await editMsg(withAd(aboutMessage), getBackKeyboard());
                     break;
-                }
                 case 'cb_stats':
                     await editMsg(withAd(getStatsMessage()), getBackKeyboard());
                     break;
@@ -504,24 +479,25 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                         : cq.message?.chat?.title;
                     const caption = withAd(startMessage.replace('UserName', name));
                     const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
-                    // Check if current message is a photo message
-                    const hasPhoto = cq.message?.photo;
-                    if (hasPhoto) {
+                    if (isPhotoMessage) {
+                        // Already a photo — edit media back to bot photo
                         try {
                             await botApi.editMessageMedia(chatId, messageId, {
                                 type: 'photo',
-                                media: botPhoto,
+                                media: botPhoto || '',
                                 caption: caption,
                                 parse_mode: 'HTML'
                             }, keyboard);
                         } catch {
-                            await botApi.editMessageCaption(chatId, messageId, caption, keyboard);
+                            // Fallback: edit caption
+                            try { await botApi.editMessageCaption(chatId, messageId, caption, keyboard); } catch {}
                         }
                     } else if (botPhoto) {
-                        // Current message is text but we want photo — send new photo
-                        await botApi.deleteMessage(chatId, messageId).catch(() => {});
+                        // Text message — replace with photo
+                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
                         await botApi.sendPhoto(chatId, botPhoto, caption, keyboard);
                     } else {
+                        // No photo configured — edit text
                         await botApi.editMessageText(chatId, messageId, caption, keyboard);
                     }
                     break;
