@@ -76,8 +76,10 @@ Dᴏɴ'ᴛ Mᴀᴋᴇ Mᴇ Exᴘʟᴀɪɴ Tᴡɪᴄᴇ.
 🔌 <b>Pʟᴜɢɪɴs:</b>
 🔹 <code>/animenews</code> — Lᴀᴛᴇsᴛ Aɴɪᴍᴇ Nᴇᴡs (7 sᴏᴜʀᴄᴇs).
 🔹 <code>/anisearch &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ Nᴇᴡs.
+🔹 <code>/anilist &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ (AɴɪLɪsᴛ).
+🔹 <code>/anichar &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Cʜᴀʀᴀᴄᴛᴇʀs.
+🔹 <code>/kitsu &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Aɴɪᴍᴇ (Kɪᴛsᴜ).
 🔹 <code>/manga &lt;q&gt;</code> — Sᴇᴀʀᴄʜ Mᴀɴɢᴀ & Mᴀɴʜᴡᴀ.
-🔹 <code>/mangapopular</code> — Pᴏᴘᴜʟᴀʀ Sᴇʀɪᴇs.
 🔹 <code>/mangarandom</code> — Rᴀɴᴅᴏᴍ Dɪsᴄᴏᴠᴇʀʏ.
 🔹 <code>/plugins</code> — Lɪsᴛ Aʟʟ Pʟᴜɢɪɴs.`
 

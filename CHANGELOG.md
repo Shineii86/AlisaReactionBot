@@ -19,6 +19,24 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 - **AniNews Plugin** (`plugins/aninews.js`) — Anime news from 7 sources powered by [AniNewsAPI](https://github.com/Shineii86/AniNewsAPI).
 
+- **AniList Plugin** (`plugins/anilist.js`) — Anime, manga & characters via AniList GraphQL API.
+  - `/anilist <query>` — Search anime with cover art
+  - `/anilistmanga <query>` — Search manga
+  - `/anichar <query>` — Search characters with portraits
+  - `/anitrending` — Trending anime
+  - `/aniseason` — Current seasonal anime with season picker
+  - Inline buttons: detail view with cover, character portraits, season filter, AniList link
+  - Score bars, studio info, character lists, airing schedule
+  - Free, no auth, unlimited
+
+- **Kitsu Plugin** (`plugins/kitsu.js`) — Anime & manga via Kitsu JSON:API.
+  - `/kitsu <query>` — Search anime with cover art
+  - `/kitsumanga <query>` — Search manga
+  - `/kitsutrending` — Trending anime
+  - `/kitcategories` — Browse categories
+  - Inline buttons: detail view with cover/poster, back navigation
+  - Free, no auth
+
 - **Manga Plugin** (`plugins/manga.js`) — Manga, manhwa & webtoon data powered by [ShineiAPI](https://github.com/Shineii86/ShineiAPI).
   - `/manga <query>` — Full-text search across thousands of series
   - `/mangapopular` — Popular manga/manhwa with type filter buttons
