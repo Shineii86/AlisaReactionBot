@@ -23,10 +23,11 @@ All notable changes to Alisa Reaction Bot are documented here.
   - `/manga <query>` — Full-text search across thousands of series
   - `/mangapopular` — Popular manga/manhwa with type filter buttons
   - `/mangatop` — Top rated series
-  - `/mangarandom` — Random discovery
+  - `/mangarandom` — Random discovery with cover art
   - `/mangaschedule [day]` — Release schedule with day picker
   - `/mangagenres` — Browse available genres
-  - Inline buttons: series detail, chapter list, type filter (Manga/Manhwa), day selector, random refresh
+  - Inline buttons: series detail with cover, chapter list, type filter, day selector, random refresh
+  - Cover images displayed for series detail and random discovery
   - Rich metadata: rating, chapters, authors, artists, genres, status, synopsis
   - Styled with box-drawing characters and source emojis
   - Zero auth, free, 60 req/min

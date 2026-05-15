@@ -119,29 +119,45 @@ function buildSeriesDetail(s) {
     const genres = formatGenres(s.genres);
     const altTitles = s.alt_titles?.slice(0, 3).map(t => `<i>${t}</i>`).join(', ') || '';
 
-    let text = `╔═══════════════════════\n` +
-               `║ ${emoji} <b>Sᴇʀɪᴇs Dᴇᴛᴀɪʟ</b>\n` +
-               `╚═══════════════════════\n\n` +
-               `📰 <b>${s.title}</b>\n`;
-
+    let text = `${emoji} <b>${s.title}</b>\n`;
     if (altTitles) text += `📝 ${altTitles}\n`;
     text += '\n';
 
-    text += `┌─ ${status} <b>${s.status || 'Unknown'}</b>  ·  ${emoji} <b>${s.type || 'Unknown'}</b>\n`;
+    text += `${status} <b>${s.status || 'Unknown'}</b>  ·  ${emoji} <b>${s.type || 'Unknown'}</b>\n`;
 
-    if (s.rating) text += `├─ ${formatRating(s.rating)}\n`;
-    if (s.chapters_count) text += `├─ 📖 <b>${s.chapters_count}</b> ᴄʜᴀᴘᴛᴇʀs\n`;
-    if (s.authors?.length) text += `├─ ✍️ ${s.authors.join(', ')}\n`;
-    if (s.artists?.length) text += `├─ 🎨 ${s.artists.join(', ')}\n`;
-    if (genres) text += `├─ 🏷️ ${genres}\n`;
-    text += `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─\n\n`;
+    if (s.rating) text += `${formatRating(s.rating)}\n`;
+    if (s.chapters_count) text += `📖 <b>${s.chapters_count}</b> ᴄʜᴀᴘᴛᴇʀs\n`;
+    if (s.authors?.length) text += `✍️ ${s.authors.join(', ')}\n`;
+    if (s.artists?.length) text += `🎨 ${s.artists.join(', ')}\n`;
+    if (genres) text += `🏷️ ${genres}\n`;
 
     const synopsis = s.synopsis || s.description || 'Nᴏ sʏɴᴏᴘsɪs ᴀᴠᴀɪʟᴀʙʟᴇ.';
-    text += truncate(synopsis, 600);
+    text += `\n${truncate(synopsis, 500)}`;
 
     if (s.popularity_rank) {
         text += `\n\n🏆 Pᴏᴘᴜʟᴀʀɪᴛʏ: #${s.popularity_rank}`;
     }
+
+    return text;
+}
+
+function buildSeriesDetailCaption(s) {
+    if (!s) return '📭 Sᴇʀɪᴇs Nᴏᴛ Fᴏᴜɴᴅ.';
+
+    const status = statusEmoji(s.status);
+    const genres = formatGenres(s.genres);
+
+    let text = `${status} <b>${s.status || 'Unknown'}</b>  ·  ${typeEmoji(s.type)} <b>${s.type || 'Unknown'}</b>\n`;
+
+    if (s.rating) text += `${formatRating(s.rating)}\n`;
+    if (s.chapters_count) text += `📖 <b>${s.chapters_count}</b> ᴄʜᴀᴘᴛᴇʀs\n`;
+    if (s.authors?.length) text += `✍️ ${s.authors.join(', ')}\n`;
+    if (genres) text += `🏷️ ${genres}\n`;
+
+    const synopsis = s.synopsis || s.description || '';
+    if (synopsis) text += `\n${truncate(synopsis, 300)}`;
+
+    if (s.popularity_rank) text += `\n🏆 #${s.popularity_rank}`;
 
     return text;
 }
@@ -347,20 +363,28 @@ export default {
             try {
                 const result = await fetchAPI('/random');
                 const s = result.data || result;
-                if (Array.isArray(s)) {
-                    const text = buildSeriesList(s, 'Rᴀɴᴅᴏᴍ Dɪsᴄᴏᴠᴇʀʏ');
-                    const keyboard = buildListKeyboard(s, 'manga_detail');
-                    await ctx.botApi.sendMessage(ctx.chatId, text, keyboard);
+                const series = Array.isArray(s) ? s[0] : s;
+
+                if (series?.cover) {
+                    const caption = buildSeriesDetailCaption(series);
+                    const keyboard = buildSeriesDetailKeyboard(series.slug);
+                    const sent = await ctx.botApi.sendPhoto(ctx.chatId, series.cover, caption, keyboard);
+                    trackBotMessage(ctx.chatId, sent);
+                } else if (series) {
+                    const text = buildSeriesDetail(series);
+                    const keyboard = buildSeriesDetailKeyboard(series.slug);
+                    const sent = await ctx.botApi.sendMessage(ctx.chatId, text, keyboard);
+                    trackBotMessage(ctx.chatId, sent);
                 } else {
-                    const text = buildSeriesDetail(s);
-                    const keyboard = buildSeriesDetailKeyboard(s.slug);
-                    await ctx.botApi.sendMessage(ctx.chatId, text, keyboard);
+                    const sent = await ctx.botApi.sendMessage(ctx.chatId, '📭 Nᴏ ʀᴀɴᴅᴏᴍ sᴇʀɪᴇs ғᴏᴜɴᴅ.', ctx.keyboard.close());
+                    trackBotMessage(ctx.chatId, sent);
                 }
             } catch (error) {
-                await ctx.botApi.sendMessage(ctx.chatId,
+                const sent = await ctx.botApi.sendMessage(ctx.chatId,
                     `⚠️ Fᴀɪʟᴇᴅ Tᴏ Fᴇᴛᴄʜ Rᴀɴᴅᴏᴍ.\n<code>${error.message}</code>`,
                     ctx.keyboard.close()
                 );
+                trackBotMessage(ctx.chatId, sent);
             }
             return;
         }
@@ -407,9 +431,28 @@ export default {
             try {
                 const result = await fetchAPI(`/series/${slug}`);
                 const s = result.data || result;
-                const text = buildSeriesDetail(s);
                 const keyboard = buildSeriesDetailKeyboard(slug);
-                await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
+
+                if (s.cover) {
+                    // Photo with caption
+                    const caption = buildSeriesDetailCaption(s);
+                    try {
+                        await ctx.botApi.editMessageMedia(ctx.chatId, ctx.messageId, {
+                            type: 'photo',
+                            media: s.cover,
+                            caption: s.title,
+                            parse_mode: 'HTML'
+                        }, keyboard);
+                    } catch {
+                        // Current message might be text — delete and send photo
+                        try { await ctx.botApi.deleteMessage(ctx.chatId, ctx.messageId); } catch {}
+                        await ctx.botApi.sendPhoto(ctx.chatId, s.cover, caption, keyboard);
+                    }
+                } else {
+                    // No cover — text only
+                    const text = buildSeriesDetail(s);
+                    await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
+                }
             } catch (error) {
                 await ctx.botApi.answerCallbackQuery(ctx.callbackQueryId, `⚠️ ${error.message}`, true);
             }
@@ -429,7 +472,12 @@ export default {
                     [{ text: '◁ Bᴀᴄᴋ Tᴏ Dᴇᴛᴀɪʟ', callback_data: `manga_detail:${slug}`, style: 'primary' },
                      { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }]
                 ];
-                await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
+                // Try text edit first, fallback to caption edit (photo messages)
+                try {
+                    await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
+                } catch {
+                    await ctx.botApi.editMessageCaption(ctx.chatId, ctx.messageId, text, keyboard);
+                }
             } catch (error) {
                 await ctx.botApi.answerCallbackQuery(ctx.callbackQueryId, `⚠️ ${error.message}`, true);
             }
@@ -478,13 +526,25 @@ export default {
             try {
                 const result = await fetchAPI('/random');
                 const s = result.data || result;
-                if (Array.isArray(s)) {
-                    const text = buildSeriesList(s, 'Rᴀɴᴅᴏᴍ Dɪsᴄᴏᴠᴇʀʏ');
-                    const keyboard = buildListKeyboard(s, 'manga_detail');
-                    await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
-                } else {
-                    const text = buildSeriesDetail(s);
-                    const keyboard = buildSeriesDetailKeyboard(s.slug);
+                const series = Array.isArray(s) ? s[0] : s;
+
+                if (series?.cover) {
+                    const caption = buildSeriesDetailCaption(series);
+                    const keyboard = buildSeriesDetailKeyboard(series.slug);
+                    try {
+                        await ctx.botApi.editMessageMedia(ctx.chatId, ctx.messageId, {
+                            type: 'photo',
+                            media: series.cover,
+                            caption: series.title,
+                            parse_mode: 'HTML'
+                        }, keyboard);
+                    } catch {
+                        try { await ctx.botApi.deleteMessage(ctx.chatId, ctx.messageId); } catch {}
+                        await ctx.botApi.sendPhoto(ctx.chatId, series.cover, caption, keyboard);
+                    }
+                } else if (series) {
+                    const text = buildSeriesDetail(series);
+                    const keyboard = buildSeriesDetailKeyboard(series.slug);
                     await ctx.botApi.editMessageText(ctx.chatId, ctx.messageId, text, keyboard);
                 }
             } catch (error) {
