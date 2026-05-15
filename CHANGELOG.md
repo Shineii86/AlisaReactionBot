@@ -18,6 +18,18 @@ All notable changes to Alisa Reaction Bot are documented here.
 ### ✨ Plugins
 
 - **AniNews Plugin** (`plugins/aninews.js`) — Anime news from 7 sources powered by [AniNewsAPI](https://github.com/Shineii86/AniNewsAPI).
+
+- **Manga Plugin** (`plugins/manga.js`) — Manga, manhwa & webtoon data powered by [ShineiAPI](https://github.com/Shineii86/ShineiAPI).
+  - `/manga <query>` — Full-text search across thousands of series
+  - `/mangapopular` — Popular manga/manhwa with type filter buttons
+  - `/mangatop` — Top rated series
+  - `/mangarandom` — Random discovery
+  - `/mangaschedule [day]` — Release schedule with day picker
+  - `/mangagenres` — Browse available genres
+  - Inline buttons: series detail, chapter list, type filter (Manga/Manhwa), day selector, random refresh
+  - Rich metadata: rating, chapters, authors, artists, genres, status, synopsis
+  - Styled with box-drawing characters and source emojis
+  - Zero auth, free, 60 req/min
   - `/animenews` or `/aninews` — Latest anime news with pagination
   - `/anisearch <query>` — Full-text search with relevance scoring
   - `/anitags` — List available news tags
