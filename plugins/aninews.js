@@ -99,16 +99,21 @@ function buildNewsList(data, meta, source = 'all') {
     const lines = data.map((article, i) => {
         const emoji = sourceEmoji(article.source);
         const date = formatDate(article.date);
-        const tags = article.tags?.slice(0, 3).map(t => `#${t}`).join(' ') || '';
-        return `${emoji} <b>${i + 1}.</b> <a href="${article.link}">${truncate(article.title, 80)}</a>\n` +
-               `   📅 ${date} · ${article.source}\n` +
-               `   <i>${truncate(article.excerpt, 120)}</i>` +
-               (tags ? `\n   ${tags}` : '');
+        const tags = article.tags?.slice(0, 3).map(t => `#${t}`).join(' · ') || '';
+        return `┌─${emoji} <b><a href="${article.link}">${truncate(article.title, 70)}</a></b>\n` +
+               `├─ 📅 <i>${date}</i>  ·  <b>${article.source}</b>\n` +
+               `├─ <i>${truncate(article.excerpt, 110)}</i>\n` +
+               (tags ? `└─ 🏷️ <code>${tags}</code>` : `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─`);
     }).join('\n\n');
 
     const sourceLabel = SOURCES[source] || '📡 Aʟʟ Sᴏᴜʀᴄᴇs';
-    const header = `🎌 <b>Aɴɪᴍᴇ Nᴇᴡs</b> — ${sourceLabel}\n` +
-                   `📰 ${meta.total} ᴀʀᴛɪᴄʟᴇs · Pᴀɢᴇ ${Math.floor((meta.offset || 0) / PAGE_SIZE) + 1}\n\n`;
+    const page = Math.floor((meta.offset || 0) / PAGE_SIZE) + 1;
+    const totalPages = Math.ceil(meta.total / PAGE_SIZE);
+    const header = `╔═══════════════════════\n` +
+                   `║ 🎌 <b>Aɴɪᴍᴇ Nᴇᴡs</b>\n` +
+                   `║ ${sourceLabel}\n` +
+                   `╟─── 📰 ${meta.total} ᴀʀᴛɪᴄʟᴇs · Pᴀɢᴇ ${page}/${totalPages}\n` +
+                   `╚═══════════════════════\n\n`;
 
     return header + lines;
 }
@@ -118,21 +123,27 @@ function buildArticle(article) {
 
     const emoji = sourceEmoji(article.source);
     const date = formatDate(article.date);
-    const tags = article.tags?.map(t => `#${t}`).join(' ') || '';
+    const tags = article.tags?.map(t => `<code>${t}</code>`).join(' · ') || '';
 
-    let text = `${emoji} <b>${article.title}</b>\n\n` +
-               `📅 ${date} · ${article.source}\n`;
+    let text = `╔═══════════════════════\n` +
+               `║ ${emoji} <b>Aʀᴛɪᴄʟᴇ</b>\n` +
+               `╚═══════════════════════\n\n` +
+               `📰 <b>${article.title}</b>\n\n` +
+               `┌─ 📅 <i>${date}</i>\n` +
+               `├─ 📡 <b>${article.source}</b>\n`;
 
-    if (tags) text += `🏷️ ${tags}\n`;
+    if (tags) text += `├─ 🏷️ ${tags}\n`;
+    text += `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─\n\n`;
 
-    text += `\n${article.excerpt || 'Nᴏ sᴜᴍᴍᴀʀʏ ᴀᴠᴀɪʟᴀʙʟᴇ.'}`;
+    text += article.excerpt || 'Nᴏ sᴜᴍᴍᴀʀʏ ᴀᴠᴀɪʟᴀʙʟᴇ.';
 
     if (article.content && article.content !== article.excerpt) {
         const content = truncate(article.content, 800);
         text += `\n\n${content}`;
     }
 
-    text += `\n\n🔗 <a href="${article.link}">Rᴇᴀᴅ Fᴜʟʟ Aʀᴛɪᴄʟᴇ</a>`;
+    text += `\n\n┌─ 🔗 <a href="${article.link}">Rᴇᴀᴅ Fᴜʟʟ Aʀᴛɪᴄʟᴇ</a>\n` +
+            `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─`;
 
     return text;
 }
@@ -140,19 +151,19 @@ function buildArticle(article) {
 function buildNewsKeyboard(data, meta, source = 'all') {
     const keyboard = [];
 
-    // Source filter row
+    // Source filter row with emojis
     const sourceRow = [
-        { text: source === 'all' ? '☑️ Aʟʟ' : 'Aʟʟ', callback_data: 'aninews_source:all' },
-        { text: source === 'crunchyroll' ? '☑️ CR' : 'CR', callback_data: 'aninews_source:crunchyroll' },
-        { text: source === 'ann' ? '☑️ ANN' : 'ANN', callback_data: 'aninews_source:ann' },
-        { text: source === 'myanimelist' ? '☑️ MAL' : 'MAL', callback_data: 'aninews_source:myanimelist' },
+        { text: source === 'all' ? '🌐 Aʟʟ' : 'Aʟʟ', callback_data: 'aninews_source:all' },
+        { text: source === 'crunchyroll' ? '🍿 CR' : 'CR', callback_data: 'aninews_source:crunchyroll' },
+        { text: source === 'ann' ? '📰 ANN' : 'ANN', callback_data: 'aninews_source:ann' },
+        { text: source === 'myanimelist' ? '📊 MAL' : 'MAL', callback_data: 'aninews_source:myanimelist' },
     ];
     keyboard.push(sourceRow);
 
-    // Article buttons (numbered)
+    // Article buttons (numbered with emoji)
     if (data && data.length > 0) {
         const articleRow = data.map((_, i) => ({
-            text: `${i + 1}`,
+            text: `${sourceEmoji(data[i].source)} ${i + 1}`,
             callback_data: `aninews_article:${data[i].slug}`,
         }));
         keyboard.push(articleRow);
@@ -162,10 +173,10 @@ function buildNewsKeyboard(data, meta, source = 'all') {
     const paginationRow = [];
     const offset = meta.offset || 0;
     if (offset > 0) {
-        paginationRow.push({ text: '◁ Pʀᴇᴠ', callback_data: `aninews_page:${Math.max(0, offset - PAGE_SIZE)}` });
+        paginationRow.push({ text: '◁ Pʀᴇᴠ', callback_data: `aninews_page:${Math.max(0, offset - PAGE_SIZE)}`, style: 'primary' });
     }
     if (meta.hasMore) {
-        paginationRow.push({ text: 'Nᴇxᴛ ▷', callback_data: `aninews_page:${offset + PAGE_SIZE}` });
+        paginationRow.push({ text: 'Nᴇxᴛ ▷', callback_data: `aninews_page:${offset + PAGE_SIZE}`, style: 'primary' });
     }
     if (paginationRow.length > 0) {
         keyboard.push(paginationRow);
@@ -180,7 +191,7 @@ function buildNewsKeyboard(data, meta, source = 'all') {
 function buildArticleKeyboard() {
     return [
         [
-            { text: '◁ Bᴀᴄᴋ Tᴏ Nᴇᴡs', callback_data: 'aninews_back' },
+            { text: '◁ Bᴀᴄᴋ Tᴏ Nᴇᴡs', callback_data: 'aninews_back', style: 'primary' },
             { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }
         ]
     ];
@@ -248,14 +259,18 @@ export default {
                     return;
                 }
 
-                const header = `🔍 <b>Sᴇᴀʀᴄʜ Rᴇsᴜʟᴛs:</b> "${args.trim()}"\n` +
-                               `📰 ${result.meta.total} ғᴏᴜɴᴅ\n\n`;
+                const header = `╔═══════════════════════\n` +
+                               `║ 🔍 <b>Sᴇᴀʀᴄʜ Rᴇsᴜʟᴛs</b>\n` +
+                               `╟─── "${args.trim()}"\n` +
+                               `╟─── 📰 ${result.meta.total} ғᴏᴜɴᴅ\n` +
+                               `╚═══════════════════════\n\n`;
 
                 const lines = result.data.map((article, i) => {
                     const emoji = sourceEmoji(article.source);
-                    return `${emoji} <b>${i + 1}.</b> <a href="${article.link}">${truncate(article.title, 80)}</a>\n` +
-                           `   ${article.source} · ${formatDate(article.date)}\n` +
-                           `   <i>${truncate(article.excerpt, 100)}</i>`;
+                    return `┌─${emoji} <b><a href="${article.link}">${truncate(article.title, 70)}</a></b>\n` +
+                           `├─ 📅 <i>${formatDate(article.date)}</i>  ·  <b>${article.source}</b>\n` +
+                           `├─ <i>${truncate(article.excerpt, 100)}</i>\n` +
+                           `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─`;
                 }).join('\n\n');
 
                 // Build keyboard with article buttons
@@ -292,11 +307,15 @@ export default {
 
                 const lines = result.data
                     .slice(0, 30)
-                    .map(t => `• <code>${t.name || t.tag}</code> (${t.count || 0})`)
+                    .map(t => `├─ 📌 <code>${t.name || t.tag}</code>  ·  ${t.count || 0} ᴀʀᴛɪᴄʟᴇs`)
                     .join('\n');
 
                 await ctx.botApi.sendMessage(ctx.chatId,
-                    `🏷️ <b>Aᴠᴀɪʟᴀʙʟᴇ Tᴀɢs:</b>\n\n${lines}\n\n` +
+                    `╔═══════════════════════\n` +
+                    `║ 🏷️ <b>Aᴠᴀɪʟᴀʙʟᴇ Tᴀɢs</b>\n` +
+                    `╚═══════════════════════\n\n` +
+                    `${lines}\n` +
+                    `└─ ─ ─ ─ ─ ─ ─ ─ ─ ─\n\n` +
                     `<i>Usᴇ <code>/animenews</code> Tᴏ ʙʀᴏᴡsᴇ ɴᴇᴡs.</i>`,
                     ctx.keyboard.close()
                 );
