@@ -13,7 +13,14 @@ All notable changes to Alisa Reaction Bot are documented here.
   - **Fix**: `editMsg` now checks the actual message type (`cq.message.photo`) to determine whether to use `editMessageCaption` or `editMessageText`. If the first method fails, it tries the other method before falling back to delete + send new (preventing duplicate messages).
   - Affected callbacks: `cb_help`, `cb_about`, `cb_stats`, `cb_donate`, `cb_reactions`, `!admin`.
 
-- **Added sendPhoto fallback for all commands** — All commands using `sendPhoto` (`/start`, `/help`, `/about`, `/stats`, `/reactions`, `/donate`, welcome/goodbye messages) now gracefully fall back to `sendMessage` if the photo fails to send. Previously, a failed `sendPhoto` would propagate the error and the user received nothing.
+- **Fixed menu buttons not working with BOT_PHOTO** — Help and About messages (1865 and 1295 chars) exceed Telegram's 1024-character caption limit. When `BOT_PHOTO` was set, `editMessageCaption` failed silently and the fallback also failed.
+  - `/help` and `/about` commands now always use `sendMessage` (text, not photo caption).
+  - `cb_help` and `cb_about` callbacks now detect photo messages and use delete + `sendMessage` instead of trying caption edit.
+  - `editMsg` fallback now checks caption length — uses `sendMessage` when text exceeds 1024 chars.
+
+- **Fixed plugin loader running on every request** — `loadPlugins()` had no idempotency guard, causing duplicate plugin registrations and log spam on every webhook request. Added `pluginsLoaded` flag to ensure plugins load only once.
+
+- **Added sendPhoto fallback for all commands** — All commands using `sendPhoto` (`/start`, `/stats`, `/reactions`, `/donate`, welcome/goodbye messages) now gracefully fall back to `sendMessage` if the photo fails to send. Previously, a failed `sendPhoto` would propagate the error and the user received nothing.
 
 ### ✨ Plugins
 

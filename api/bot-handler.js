@@ -390,6 +390,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         try {
             // Helper: edit message — handles both photo and text messages
             const isPhotoMessage = !!cq.message?.photo;
+            const CAPTION_LIMIT = 1024;
             const editMsg = async (text, keyboard) => {
                 try {
                     if (isPhotoMessage) {
@@ -410,7 +411,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     } catch {
                         // Last resort: delete old message, send new one (avoids duplicates)
                         try { await botApi.deleteMessage(chatId, messageId); } catch {}
-                        if (botPhoto) {
+                        // If text is too long for caption, always use text message
+                        if (botPhoto && text.length <= CAPTION_LIMIT) {
                             await botApi.sendPhoto(chatId, botPhoto, text, keyboard);
                         } else {
                             await botApi.sendMessage(chatId, text, keyboard);
@@ -423,12 +425,30 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             const callbackUserId = cq.from?.id;
 
             switch (cq.data) {
-                case 'cb_help':
-                    await editMsg(withAd(helpMessage), getHelpKeyboard(callbackUserId, ownerId));
+                case 'cb_help': {
+                    const helpText = withAd(helpMessage);
+                    const helpKb = getHelpKeyboard(callbackUserId, ownerId);
+                    // Help text exceeds caption limit — always use text edit
+                    if (isPhotoMessage) {
+                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
+                        await botApi.sendMessage(chatId, helpText, helpKb);
+                    } else {
+                        await botApi.editMessageText(chatId, messageId, helpText, helpKb);
+                    }
                     break;
-                case 'cb_about':
-                    await editMsg(withAd(aboutMessage), getBackKeyboard());
+                }
+                case 'cb_about': {
+                    const aboutText = withAd(aboutMessage);
+                    const aboutKb = getBackKeyboard();
+                    // About text exceeds caption limit — always use text edit
+                    if (isPhotoMessage) {
+                        try { await botApi.deleteMessage(chatId, messageId); } catch {}
+                        await botApi.sendMessage(chatId, aboutText, aboutKb);
+                    } else {
+                        await botApi.editMessageText(chatId, messageId, aboutText, aboutKb);
+                    }
                     break;
+                }
                 case 'cb_stats':
                     await editMsg(withAd(getStatsMessage()), getBackKeyboard());
                     break;
@@ -579,12 +599,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const keyboard = getHelpKeyboard(userId, ownerId);
                 await cleanupMessages(botApi, chatId, message_id);
                 let sent;
-                if (botPhoto) {
-                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, keyboard); }
-                    catch { sent = await botApi.sendMessage(chatId, caption, keyboard); }
-                } else {
-                    sent = await botApi.sendMessage(chatId, caption, keyboard);
-                }
+                // Help text is too long for photo caption (1024 limit) — always use text
+                sent = await botApi.sendMessage(chatId, caption, keyboard);
                 trackBotMessage(chatId, sent);
                 return;
             }
@@ -595,12 +611,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const caption = withAd(aboutMessage);
                 await cleanupMessages(botApi, chatId, message_id);
                 let sent;
-                if (botPhoto) {
-                    try { sent = await botApi.sendPhoto(chatId, botPhoto, caption, getBackKeyboard()); }
-                    catch { sent = await botApi.sendMessage(chatId, caption, getBackKeyboard()); }
-                } else {
-                    sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
-                }
+                // About text is too long for photo caption (1024 limit) — always use text
+                sent = await botApi.sendMessage(chatId, caption, getBackKeyboard());
                 trackBotMessage(chatId, sent);
                 return;
             }

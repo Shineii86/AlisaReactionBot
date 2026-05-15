@@ -42,7 +42,12 @@ const disabledPlugins = new Set(); // Runtime-disabled plugin names
  * Scan plugins/ directory and load all valid plugin files.
  * Each plugin must export: name, description, onCommand or onCallback.
  */
+let pluginsLoaded = false;
+
 async function loadPlugins() {
+    if (pluginsLoaded) return;
+    pluginsLoaded = true;
+
     try {
         const files = readdir(PLUGINS_DIR);
         const pluginFiles = (await files).filter(f => f.endsWith('.js') && !f.startsWith('_'));
