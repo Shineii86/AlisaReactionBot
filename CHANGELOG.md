@@ -17,6 +17,17 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### ✨ Improvements
 
+- **Plugin System** — Extensible architecture for adding custom commands and features without modifying core code.
+  - New `api/plugin-loader.js` — auto-discovers `.js` files in `plugins/` directory.
+  - Each plugin exports: `name`, `description`, `commands`, `callbacks`, `onCommand()`, `onCallback()`.
+  - Plugins receive a context object with `botApi`, `Store`, `chatId`, `userId`, keyboard builders.
+  - Plugin errors are caught and reported to the user without crashing the bot.
+  - New `/plugins` command — list all installed plugins with status and commands.
+  - New `/plugins toggle <name>` — enable/disable plugins at runtime (owner only).
+  - Files prefixed with `_` are skipped (use for templates/disabled plugins).
+  - New `plugins/_example.js` — template plugin with all available hooks documented.
+  - New `plugins/README.md` — plugin development guide.
+
 - **Auto-cleanup on command usage** — When a user sends a command, the bot now automatically deletes both the user's command message and the previous bot response before sending the new response. Keeps chats clean without manual cleanup.
   - Tracks last bot message ID per chat (runtime only, resets on restart).
   - Works for all commands: `/start`, `/help`, `/about`, `/ping`, `/stats`, `/reactions`, `/donate`, `/setreactions`, `/pause`, `/resume`, `/randomlevel`, `/broadcast`, `/log`, `/leave`, `/remove`, `/chats`, `/setwebhook`, `/restrict`, `/unrestrict`, `/welcome`, `/goodbye`.

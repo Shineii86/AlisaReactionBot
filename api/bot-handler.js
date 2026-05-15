@@ -29,6 +29,7 @@ import {
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
+import { PluginLoader } from './plugin-loader.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE (runtime-only, not persisted)
@@ -180,6 +181,57 @@ function trackBotMessage(chatId, sent) {
     if (msgId) lastBotMessage[chatId] = msgId;
 }
 
+// ══════════════════════════════════════════════════════════════
+// PLUGIN HELPERS
+// ══════════════════════════════════════════════════════════════
+
+/**
+ * Build context object for plugin handlers.
+ * Provides everything a plugin needs without exposing internals.
+ */
+function buildPluginContext(content, botApi, ownerId) {
+    return {
+        chatId: content.chat?.id,
+        userId: content.from?.id,
+        messageId: content.message_id,
+        chatType: content.chat?.type,
+        botApi,
+        Store,
+        keyboard: {
+            close: () => [[{ text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }]],
+            back: () => [
+                [{ text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'success' },
+                 { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'success' }],
+                [{ text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu', style: 'primary' },
+                 { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }]
+            ],
+            menu: (userId, ownerId) => getStartKeyboard(botUsername, userId, ownerId),
+        },
+    };
+}
+
+function buildCallbackPluginContext(cq, botApi, ownerId) {
+    return {
+        chatId: cq.message?.chat?.id,
+        userId: cq.from?.id,
+        messageId: cq.message?.message_id,
+        chatType: cq.message?.chat?.type,
+        botApi,
+        Store,
+        callbackQueryId: cq.id,
+        keyboard: {
+            close: () => [[{ text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }]],
+            back: () => [
+                [{ text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'success' },
+                 { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'success' }],
+                [{ text: '◁ Bᴀᴄᴋ', callback_data: 'cb_menu', style: 'primary' },
+                 { text: 'Cʟᴏsᴇ ✕', callback_data: 'cb_close', style: 'danger' }]
+            ],
+            menu: (userId, ownerId) => getStartKeyboard(botUsername, userId, ownerId),
+        },
+    };
+}
+
 // Runtime start time (not persisted — resets on restart)
 const startTime = Date.now();
 
@@ -318,6 +370,9 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
     // Load persistent chat store (idempotent — only loads once)
     await Store.load();
 
+    // Load plugins (idempotent — only loads once)
+    await PluginLoader.loadPlugins();
+
     // Guard against NaN RandomLevel from invalid env var
     if (isNaN(RandomLevel) || RandomLevel < 0 || RandomLevel > 10) {
         RandomLevel = 0;
@@ -423,9 +478,14 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 case 'cb_close':
                     await botApi.deleteMessage(chatId, messageId);
                     break;
-                default:
+                default: {
+                    // Try plugin callback routing before rejecting
+                    const pluginCtx = buildCallbackPluginContext(cq, botApi, ownerId);
+                    const pluginHandled = await PluginLoader.routeCallback(cq.data, pluginCtx);
+                    if (pluginHandled) break;
                     await botApi.answerCallbackQuery(cq.id, '❓ Хмпф. Uɴᴋɴᴏᴡɴ Aᴄᴛɪᴏɴ.', true);
                     return;
+                }
             }
             await botApi.answerCallbackQuery(cq.id);
         } catch (error) {
@@ -1067,6 +1127,75 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     );
                 }
                 trackBotMessage(chatId, sent);
+                return;
+            }
+
+            // /plugins — list or toggle plugins (owner only for toggle)
+            if (cmd === '/plugins') {
+                trackCommand('plugins');
+                await cleanupMessages(botApi, chatId, message_id);
+
+                const subCmd = args?.trim().split(' ')[0]?.toLowerCase();
+                const pluginName = args?.trim().split(' ').slice(1).join(' ');
+
+                // /plugins toggle <name>
+                if (subCmd === 'toggle' && pluginName) {
+                    if (!isOwner(userId, ownerId)) {
+                        const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                        trackBotMessage(chatId, sent);
+                        return;
+                    }
+                    const allPlugins = PluginLoader.getAllPlugins();
+                    const target = allPlugins.find(p => p.name.toLowerCase() === pluginName.toLowerCase());
+                    if (!target) {
+                        const sent = await botApi.sendMessage(chatId,
+                            `📵 Plugin <b>${pluginName}</b> Nᴏᴛ Fᴏᴜɴᴅ. Usᴇ <code>/plugins</code> Tᴏ Sᴇᴇ Aʟʟ.`,
+                            getCloseKeyboard()
+                        );
+                        trackBotMessage(chatId, sent);
+                        return;
+                    }
+                    const nowEnabled = PluginLoader.togglePlugin(target.name);
+                    const sent = await botApi.sendMessage(chatId,
+                        `${nowEnabled ? '✅' : '❌'} Pʟᴜɢɪɴ <b>${target.name}</b> ${nowEnabled ? 'Eɴᴀʙʟᴇᴅ' : 'Dɪsᴀʙʟᴇᴅ'}.`,
+                        getCloseKeyboard()
+                    );
+                    trackBotMessage(chatId, sent);
+                    return;
+                }
+
+                // /plugins — list all plugins
+                const allPlugins = PluginLoader.getAllPlugins();
+                if (allPlugins.length === 0) {
+                    const sent = await botApi.sendMessage(chatId,
+                        `📭 Nᴏ Pʟᴜɢɪɴs Iɴsᴛᴀʟʟᴇᴅ.\n\nDʀᴏᴘ <code>.js</code> ғɪʟᴇs ɪɴ <code>plugins/</code> ᴛᴏ ᴇxᴛᴇɴᴅ.`,
+                        getCloseKeyboard()
+                    );
+                    trackBotMessage(chatId, sent);
+                    return;
+                }
+
+                const lines = allPlugins.map((p, i) => {
+                    const status = p.enabled ? '✅' : '❌';
+                    const cmds = p.commands.length > 0 ? p.commands.map(c => `<code>${c}</code>`).join(', ') : '—';
+                    return `${i + 1}. ${status} <b>${p.name}</b> v${p.version}\n   ${p.description}\n   Cᴍᴅs: ${cmds}`;
+                }).join('\n\n');
+
+                const sent = await botApi.sendMessage(chatId,
+                    `🔌 <b>Pʟᴜɢɪɴs (${PluginLoader.getEnabledCount()}/${PluginLoader.getPluginCount()}):</b>\n\n${lines}\n\n` +
+                    `<i>Usᴇ <code>/plugins toggle &lt;name&gt;</code> Tᴏ Eɴᴀʙʟᴇ/Dɪsᴀʙʟᴇ.</i>`,
+                    getCloseKeyboard()
+                );
+                trackBotMessage(chatId, sent);
+                return;
+            }
+
+            // ─── Plugin Command Routing ───
+            // Try plugins before falling through to auto-reaction engine
+            const pluginHandled = await PluginLoader.routeCommand(cmd, args, buildPluginContext(content, botApi, ownerId));
+            if (pluginHandled) {
+                trackCommand(cmd.replace('/', ''));
+                await cleanupMessages(botApi, chatId, message_id);
                 return;
             }
         }
