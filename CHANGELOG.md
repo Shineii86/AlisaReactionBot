@@ -8,6 +8,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### 🐛 Bug Fixes
 
+- **Gemini model fallback chain** — On 429 (quota exhausted), automatically tries gemini-2.5-flash → gemini-2.0-flash → gemini-flash-lite-latest
 - **Gemini API auth fix** — API key now sent via `X-goog-api-key` header instead of query parameter (fixes "Brain isn't working" error)
 
 ### ✨ New Features

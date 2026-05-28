@@ -21,7 +21,12 @@ import { log } from './helper.js';
 // CONFIGURATION
 // ══════════════════════════════════════════════════════════════
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
+const MODEL_CHAIN = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-flash-lite-latest'
+];
 const MAX_TOKENS = 1024;
 const TIMEOUT_MS = 8000;
 
@@ -101,49 +106,26 @@ DO NOT:
 // ══════════════════════════════════════════════════════════════
 
 /**
- * Send a message to Gemini and get Alisa's response
+ * Try a single Gemini model
  * @param {string} apiKey — Gemini API key
- * @param {string} userMessage — The user's message
- * @param {Array} history — Previous messages [{role, parts}]
- * @returns {Promise<{text: string, mood: string}>}
+ * @param {string} model — Model name
+ * @param {Array} contents — Conversation contents
+ * @returns {Promise<{ok: boolean, status?: number, text?: string, mood?: string}>}
  */
-export async function askAlisa(apiKey, userMessage, history = []) {
-    if (!apiKey) {
-        log.error('[Alisa] No GEMINI_API_KEY configured');
-        return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Is Wʀᴏɴɢ Wɪᴛʜ Mʏ Bʀᴀɪɴ. Tᴇʟʟ Mʏ Oᴡɴᴇʀ Tᴏ Sᴇᴛ Tʜᴇ Aᴘɪ Kᴇʏ.', mood: 'confused' };
-    }
+async function tryModel(apiKey, model, contents) {
+    const url = `${GEMINI_BASE}${model}:generateContent`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
-        // Build conversation context
-        const contents = [];
-
-        // Add history (sliding window)
-        for (const msg of history) {
-            contents.push({
-                role: msg.role,
-                parts: [{ text: msg.text }]
-            });
-        }
-
-        // Add current message
-        contents.push({
-            role: 'user',
-            parts: [{ text: userMessage }]
-        });
-
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-        const response = await fetch(GEMINI_API_URL, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-goog-api-key': apiKey
             },
             body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
+                system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
                 contents,
                 generationConfig: {
                     maxOutputTokens: MAX_TOKENS,
@@ -163,32 +145,76 @@ export async function askAlisa(apiKey, userMessage, history = []) {
         clearTimeout(timeout);
 
         if (!response.ok) {
-            const error = await response.text();
-            log.error('[Alisa] Gemini API error:', response.status, error);
-            return { text: 'Хмпф… Mʏ Bʀᴀɪɴ Isɴ\'ᴛ Wᴏʀᴋɪɴɢ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Lᴀᴛᴇʀ.', mood: 'confused' };
+            return { ok: false, status: response.status };
         }
 
         const data = await response.json();
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!aiText) {
-            log.error('[Alisa] No response text from Gemini');
-            return { text: 'Хмпф… I Hᴀᴅ Nᴏᴛʜɪɴɢ Tᴏ Sᴀʏ Tᴏ Tʜᴀᴛ.', mood: 'cold' };
+            return { ok: false, status: 0 };
         }
 
-        // Detect mood from response
-        const mood = detectMood(aiText);
-
-        return { text: aiText.trim(), mood };
+        return { ok: true, text: aiText.trim(), mood: detectMood(aiText) };
 
     } catch (error) {
+        clearTimeout(timeout);
         if (error.name === 'AbortError') {
+            return { ok: false, status: -1 };
+        }
+        return { ok: false, status: -2 };
+    }
+}
+
+/**
+ * Send a message to Gemini and get Alisa's response
+ * Tries models in fallback order: gemini-2.5-flash → gemini-2.0-flash → gemini-flash-lite-latest
+ * @param {string} apiKey — Gemini API key
+ * @param {string} userMessage — The user's message
+ * @param {Array} history — Previous messages [{role, text}]
+ * @returns {Promise<{text: string, mood: string}>}
+ */
+export async function askAlisa(apiKey, userMessage, history = []) {
+    if (!apiKey) {
+        log.error('[Alisa] No GEMINI_API_KEY configured');
+        return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Is Wʀᴏɴɢ Wɪᴛʜ Mʏ Bʀᴀɪɴ. Tᴇʟʟ Mʏ Oᴡɴᴇʀ Tᴏ Sᴇᴛ Tʜᴇ Aᴘɪ Kᴇʏ.', mood: 'confused' };
+    }
+
+    // Build conversation context
+    const contents = [];
+    for (const msg of history) {
+        contents.push({ role: msg.role, parts: [{ text: msg.text }] });
+    }
+    contents.push({ role: 'user', parts: [{ text: userMessage }] });
+
+    // Try each model in the fallback chain
+    for (const model of MODEL_CHAIN) {
+        const result = await tryModel(apiKey, model, contents);
+
+        if (result.ok) {
+            log.info(`[Alisa] Response from ${model}`);
+            return { text: result.text, mood: result.mood };
+        }
+
+        // Only fallback on 429 (quota exhausted) — other errors are not retryable
+        if (result.status === 429) {
+            log.error(`[Alisa] ${model} quota exhausted, trying next...`);
+            continue;
+        }
+
+        // Non-retryable error — don't try other models
+        if (result.status === -1) {
             log.error('[Alisa] Request timed out');
             return { text: 'Хмпф… Tʜᴀᴛ Tᴏᴏᴋ Tᴏᴏ Lᴏɴɢ. I\'M Nᴏᴛ Wᴀɪᴛɪɴɢ Aʀᴏᴜɴᴅ Fᴏʀ Yᴏᴜ.', mood: 'impatient' };
         }
-        log.error('[Alisa] Request failed:', error.message);
-        return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Wᴇɴᴛ Wʀᴏɴɢ. Dᴏɴ\'ᴛ Lᴏᴏᴋ Aᴛ Mᴇ Lɪᴋᴇ Tʜᴀᴛ.', mood: 'confused' };
+
+        log.error('[Alisa] Gemini API error:', result.status);
+        return { text: 'Хмпф… Mʏ Bʀᴀɪɴ Isɴ\'ᴛ Wᴏʀᴋɪɴɢ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Lᴀᴛᴇʀ.', mood: 'confused' };
     }
+
+    // All models exhausted (all 429)
+    log.error('[Alisa] All models quota exhausted');
+    return { text: 'Хмпф… Eᴠᴇʀʏᴏɴᴇ Wᴀɴᴛs Tᴏ Tᴀʟᴋ Tᴏ Mᴇ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Iɴ A Mɪɴᴜᴛᴇ.', mood: 'annoyed' };
 }
 
 // ══════════════════════════════════════════════════════════════
