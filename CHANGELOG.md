@@ -8,6 +8,27 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### ✨ New Features
 
+- **Hinglish Language Support** — AI Chat now detects and responds in Hinglish (Hindi-English mix) with Russian sprinkled in
+
+### 📖 Documentation
+
+- **GUIDE.md** — Added complete AI Chat section covering:
+  - How AI Chat works (Gemini + mood stickers + typing indicator)
+  - `/ai` toggle command usage
+  - Multi-language support table (Russian, Japanese, English, Hinglish)
+  - Conversation memory (last 10 messages per chat)
+  - Mood sticker system (7 moods: tsundere, annoyed, grateful, reluctant, flustered, thoughtful, neutral)
+  - Alisa personality traits and speech style
+  - Configuration (`GEMINI_API_KEY`)
+  - Technical details (model, tokens, temperature, timeout)
+- **GUIDE.md** — Fixed inconsistent Table of Contents numbering
+
+---
+
+## [v2.15.3] — 2026-05-29
+
+### ✨ New Features
+
 - **AI Chat (Google Gemini)** — Alisa now responds to non-command messages with tsundere personality
   - Private chats: responds to all messages
   - Groups: responds when @mentioned
