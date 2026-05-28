@@ -1166,12 +1166,12 @@ If `BOT_PHOTO` is not set, all commands send regular text messages without link 
 
 ## Alisa Chat
 
-Starting from v2.15.3, Alisa can have real conversations using Google Gemini AI. She responds in her signature tsundere personality — proud, sharp-tongued, and secretly warm.
+Starting from v2.15.3, Alisa can have real conversations using AI. She responds in her signature tsundere personality — proud, sharp-tongued, and secretly warm. Powered by Groq (Llama 3.3 70B) as primary provider with Google Gemini as fallback.
 
 ### How It Works
 
 1. A user sends a message in a private chat (not a command)
-2. The bot forwards it to Google Gemini with Alisa's personality prompt
+2. The bot forwards it to Groq with Alisa's personality prompt (falls back to Gemini if Groq is unavailable)
 3. Alisa responds in character — short, tsundere, with Russian sprinkled in
 4. A mood-based sticker is sent alongside the response
 5. A typing indicator shows before she replies
@@ -1251,13 +1251,17 @@ Alisa's AI personality is defined by her character from *"Alya Sometimes Hides H
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes | Google Gemini API key ([Get one here](https://aistudio.google.com/apikey)) |
+| `GROQ_API_KEY` | Recommended | Groq API key — primary provider ([Get one here](https://console.groq.com)) |
+| `GEMINI_API_KEY` | Optional | Google Gemini API key — fallback provider ([Get one here](https://aistudio.google.com/apikey)) |
+
+At least one key is required. Set both for maximum uptime.
 
 ### Technical Details
 
 | Setting | Value |
 |---|---|
-| Model | `gemini-2.5-flash` |
+| Primary model | `llama-3.3-70b-versatile` (Groq) |
+| Fallback models | `gemini-2.5-flash` → `gemini-2.0-flash` → `gemini-flash-lite-latest` |
 | Max tokens | `1024` |
 | Temperature | `0.9` |
 | Timeout | `8 seconds` |
@@ -1265,9 +1269,9 @@ Alisa's AI personality is defined by her character from *"Alya Sometimes Hides H
 | Module | `api/alisa.js` |
 | Sticker module | `api/stickers.js` |
 
-### Without GEMINI_API_KEY
+### Without API Keys
 
-If `GEMINI_API_KEY` is not set, the AI chat feature is disabled. The bot still works for reactions and all other commands. No data is sent to Google.
+If neither `GROQ_API_KEY` nor `GEMINI_API_KEY` is set, the Alisa Chat feature is disabled. The bot still works for reactions and all other commands.
 
 ---
 
