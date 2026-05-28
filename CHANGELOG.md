@@ -4,6 +4,15 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.15.1] — 2026-05-28
+
+### 🔧 Changes
+
+- **Dynamic footer year** — Copyright year now auto-updates via JavaScript instead of hardcoded 2026
+- **Removed shutter page transition** — Removed the curtain overlay animation on page load
+
+---
+
 ## [v2.15.0] — 2026-05-28
 
 ### ✨ New Features & Redesign
