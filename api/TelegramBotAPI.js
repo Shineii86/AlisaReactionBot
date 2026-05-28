@@ -60,14 +60,15 @@ export default class TelegramBotAPI {
         return this.callApi('getChatMember', { chat_id: chatId, user_id: userId });
     }
 
-    async sendMessage(chatId, text, inlineKeyboard = null, linkPreviewOptions = null) {
+    async sendMessage(chatId, text, inlineKeyboard = null, linkPreviewOptions = null, replyToMessageId = null) {
         return this.callApi('sendMessage', {
             chat_id: chatId,
             text: text,
             parse_mode: 'HTML',
             disable_web_page_preview: !linkPreviewOptions,
             ...(linkPreviewOptions && { link_preview_options: linkPreviewOptions }),
-            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } })
+            ...(inlineKeyboard && { reply_markup: { inline_keyboard: inlineKeyboard } }),
+            ...(replyToMessageId && { reply_parameters: { message_id: replyToMessageId } })
         });
     }
 

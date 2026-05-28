@@ -10,6 +10,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 - **Reactions working with Alisa Chat** — Auto-reaction engine now fires even when Alisa Chat responds (was skipped due to early `return`)
 - **No photo preview on Alisa Chat** — Alisa's text responses no longer show BOT_PHOTO link preview
+- **Reply threading** — Alisa now replies to the user's message (shows as threaded reply in chat)
 
 ### ✨ New Features
 

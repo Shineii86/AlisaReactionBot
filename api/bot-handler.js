@@ -1145,8 +1145,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             // Track stats
                             await Store.trackCommand('alisa_chat');
 
-                            // Send text response (no photo preview)
-                            await botApi.sendMessage(chatId, alisaText, null, null);
+                            // Send text response (no photo preview, reply to user's message)
+                            await botApi.sendMessage(chatId, alisaText, null, null, message_id);
 
                             // Send sticker based on mood
                             const sticker = getSticker(mood);
