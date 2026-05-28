@@ -15,9 +15,14 @@
  */
 
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import TelegramBotAPI from './TelegramBotAPI.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { htmlContent } from './landing.js';
 import { splitEmojis, getChatIds, log } from './helper.js';
 import { onUpdate } from './bot-handler.js';
@@ -62,6 +67,7 @@ const botApi = new TelegramBotAPI(botToken);
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 
 // ─── Webhook Endpoint ───
 app.post('/', async (req, res) => {

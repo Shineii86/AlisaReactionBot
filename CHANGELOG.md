@@ -4,22 +4,28 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
-## [v2.14.1] — 2026-05-28
+## [v2.15.0] — 2026-05-28
 
-### 🔧 Changes
+### ✨ New Features & Redesign
 
-- **Fixed landing page responsive layout for mobile and desktop** — Comprehensive responsive CSS overhaul:
-  - Added 640px breakpoint for standard mobile devices with stacked buttons, smaller typography, and optimized spacing
-  - Added 380px breakpoint for small phones with tighter padding and reduced font sizes
-  - Fixed feature/deploy grid overflow on screens narrower than 250-280px using `min()` in `minmax()`
-  - Added `word-break: break-word` to code block to prevent horizontal overflow from long terminal lines
-  - Made hero buttons stack vertically on mobile for better tap targets
-  - Made CTA buttons stack vertically on mobile
-  - Fixed footer layout to stack vertically and center on small screens
-  - Reduced CTA section padding on mobile (120px → 56px)
-  - Reduced hero min-height on mobile for less empty space
-  - Added horizontal scroll to code-body on narrow screens
-  - Tightened nav CTA button size on small screens
+- **Complete landing page redesign inspired by roshidere.com character page**:
+  - Split hero layout with character art on the right, text on the left
+  - Alisa character artwork from the official anime site (Season 1 & Season 2 poses)
+  - Season toggle switch between two character poses
+  - Japanese name plate (アリサ・ミハイロヴナ・九条) above English name
+  - Name plate watermark (alisa_bg_name.png) behind hero
+  - Parallax decorative background layers that scroll at different speeds
+  - Floating dot particles that appear/fade at random positions (roshidere.com style)
+- **Shutter page transition** — Roshidere-style curtain that opens on page load
+- **Back-to-top button** — Floating button appears after scrolling 400px
+- **Staggered scroll reveals** — Feature and deploy cards animate in with cascading delays
+- **Nav scroll glow** — Subtle glow effect on navigation when page is scrolled
+- **Enhanced card interactions** — Smooth hover lift transitions on all cards
+- **Character images added to assets** — alisa_stand.png, alisa_stand_s2.png, alisa_bg_name.png, alisa_title.png, bg_deco_01.png, bg_deco_02.png
+- **Static file serving** — Added express.static middleware for /assets/ directory
+- **Removed cyberpunk terminology** — Replaced "Neural Primitives", "Quantum Speed", "Neural Shield" with character-appropriate language
+- **Russian section labels** — Возможности, Персонаж, Установка, Начать
+- **Updated all meta tags** — OG, Twitter, JSON-LD cleaned of cyberpunk language
 
 ---
 
