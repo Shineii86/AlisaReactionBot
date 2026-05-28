@@ -15,7 +15,6 @@
  *
  * @exports Store
  *
- * @version 2.15.2
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

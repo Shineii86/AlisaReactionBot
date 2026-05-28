@@ -10,7 +10,6 @@
  *
  * @exports htmlContent (named)
  *
- * @version 2.15.2
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

@@ -8,7 +8,6 @@
  *   development. Handles webhook routing, env validation,
  *   health checks, and the landing page.
  *
- * @version 2.15.2
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

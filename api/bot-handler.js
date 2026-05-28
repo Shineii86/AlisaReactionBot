@@ -12,7 +12,6 @@
  *                   botUsername, RandomLevel, ownerId,
  *                   webhookSecret, botPhoto)
  *
- * @version 2.15.2
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======

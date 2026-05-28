@@ -17,7 +17,6 @@
  *   Edit the `advertisements` array below to add, remove, or modify ads.
  *
  * @author  Shinei Nouzen
- * @version 1.0.0
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
