@@ -1118,9 +1118,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
             // Respond in private chats or when mentioned in groups
             if (isPrivate || isMentioned) {
-                const apiKey = process.env.GEMINI_API_KEY;
-                if (!apiKey) {
-                    // No API key — fall through to reactions
+                const groqKey = process.env.GROQ_API_KEY;
+                const geminiKey = process.env.GEMINI_API_KEY;
+                if (!groqKey && !geminiKey) {
+                    // No API keys — fall through to reactions
                 } else {
                     // Clean mention from text for groups
                     const cleanText = isMentioned
@@ -1135,8 +1136,8 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             // Get conversation history
                             const history = Store.getConversation(chatId);
 
-                            // Get Alisa response
-                            const { text: alisaText, mood } = await askAlisa(apiKey, cleanText, history);
+                            // Get Alisa response (Groq primary, Gemini fallback)
+                            const { text: alisaText, mood } = await askAlisa(groqKey, geminiKey, cleanText, history);
 
                             // Save to conversation history
                             await Store.addMessage(chatId, 'user', cleanText);

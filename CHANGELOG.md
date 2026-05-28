@@ -6,9 +6,14 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.15.3] — 2026-05-29
 
+### ✨ New Features
+
+- **Groq as primary AI provider** — Llama 3.3 70B via Groq (fast, generous free tier, 30 RPM)
+- **Multi-provider fallback chain** — Groq → Gemini 2.5-flash → Gemini 2.0-flash → Gemini flash-lite
+- **New env var: `GROQ_API_KEY`** — Set alongside `GEMINI_API_KEY` for maximum uptime
+
 ### 🐛 Bug Fixes
 
-- **Gemini model fallback chain** — On 429 (quota exhausted), automatically tries gemini-2.5-flash → gemini-2.0-flash → gemini-flash-lite-latest
 - **Gemini API auth fix** — API key now sent via `X-goog-api-key` header instead of query parameter (fixes "Brain isn't working" error)
 
 ### ✨ New Features

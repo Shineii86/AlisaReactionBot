@@ -4,9 +4,12 @@
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
- *   Google Gemini AI client. Handles conversational AI
- *   with Alisa Mikhailovna Kujou's tsundere personality.
- *   Supports multi-language (Russian, Japanese, English, Hinglish).
+ *   Multi-provider AI client with fallback chain.
+ *   Primary: Groq (Llama 3.3 70B) — fast, generous free tier.
+ *   Fallback: Google Gemini (2.5-flash → 2.0-flash → flash-lite).
+ *   Handles conversational AI with Alisa Mikhailovna Kujou's
+ *   tsundere personality. Supports multi-language
+ *   (Russian, Japanese, English, Hinglish).
  *
  * @exports askAlisa
  *
@@ -21,12 +24,16 @@ import { log } from './helper.js';
 // CONFIGURATION
 // ══════════════════════════════════════════════════════════════
 
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
-const MODEL_CHAIN = [
+const GEMINI_CHAIN = [
     'gemini-2.5-flash',
     'gemini-2.0-flash',
     'gemini-flash-lite-latest'
 ];
+
 const MAX_TOKENS = 1024;
 const TIMEOUT_MS = 8000;
 
@@ -102,17 +109,96 @@ DO NOT:
 - Mention you are powered by Gemini or Google — you are Alisa, that's all they need to know`;
 
 // ══════════════════════════════════════════════════════════════
-// AI REQUEST
+// AI REQUEST — Multi-provider with fallback
 // ══════════════════════════════════════════════════════════════
 
 /**
- * Try a single Gemini model
+ * Build conversation messages for OpenAI-compatible APIs (Groq)
+ * @param {string} userMessage — Current message
+ * @param {Array} history — Previous messages [{role, text}]
+ * @returns {Array} messages array
+ */
+function buildMessages(userMessage, history) {
+    const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
+    for (const msg of history) {
+        messages.push({ role: msg.role, content: msg.text });
+    }
+    messages.push({ role: 'user', content: userMessage });
+    return messages;
+}
+
+/**
+ * Build conversation contents for Gemini API
+ * @param {string} userMessage — Current message
+ * @param {Array} history — Previous messages [{role, text}]
+ * @returns {Array} contents array
+ */
+function buildContents(userMessage, history) {
+    const contents = [];
+    for (const msg of history) {
+        contents.push({ role: msg.role, parts: [{ text: msg.text }] });
+    }
+    contents.push({ role: 'user', parts: [{ text: userMessage }] });
+    return contents;
+}
+
+/**
+ * Try Groq (primary provider — fast, generous free tier)
+ * @param {string} apiKey — Groq API key
+ * @param {Array} messages — Chat messages
+ * @returns {Promise<{ok: boolean, status?: number, text?: string, mood?: string}>}
+ */
+async function tryGroq(apiKey, messages) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+        const response = await fetch(GROQ_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: GROQ_MODEL,
+                messages,
+                max_tokens: MAX_TOKENS,
+                temperature: 0.9,
+                top_p: 0.95,
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            return { ok: false, status: response.status };
+        }
+
+        const data = await response.json();
+        const aiText = data.choices?.[0]?.message?.content;
+
+        if (!aiText) {
+            return { ok: false, status: 0 };
+        }
+
+        return { ok: true, text: aiText.trim(), mood: detectMood(aiText) };
+
+    } catch (error) {
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') return { ok: false, status: -1 };
+        return { ok: false, status: -2 };
+    }
+}
+
+/**
+ * Try a single Gemini model (fallback provider)
  * @param {string} apiKey — Gemini API key
  * @param {string} model — Model name
  * @param {Array} contents — Conversation contents
  * @returns {Promise<{ok: boolean, status?: number, text?: string, mood?: string}>}
  */
-async function tryModel(apiKey, model, contents) {
+async function tryGemini(apiKey, model, contents) {
     const url = `${GEMINI_BASE}${model}:generateContent`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -159,61 +245,73 @@ async function tryModel(apiKey, model, contents) {
 
     } catch (error) {
         clearTimeout(timeout);
-        if (error.name === 'AbortError') {
-            return { ok: false, status: -1 };
-        }
+        if (error.name === 'AbortError') return { ok: false, status: -1 };
         return { ok: false, status: -2 };
     }
 }
 
 /**
- * Send a message to Gemini and get Alisa's response
- * Tries models in fallback order: gemini-2.5-flash → gemini-2.0-flash → gemini-flash-lite-latest
- * @param {string} apiKey — Gemini API key
+ * Send a message and get Alisa's response
+ * Provider chain: Groq (Llama 3.3) → Gemini (2.5-flash → 2.0-flash → flash-lite)
+ * @param {string} groqKey — Groq API key (GROQ_API_KEY)
+ * @param {string} geminiKey — Gemini API key (GEMINI_API_KEY)
  * @param {string} userMessage — The user's message
  * @param {Array} history — Previous messages [{role, text}]
  * @returns {Promise<{text: string, mood: string}>}
  */
-export async function askAlisa(apiKey, userMessage, history = []) {
-    if (!apiKey) {
-        log.error('[Alisa] No GEMINI_API_KEY configured');
-        return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Is Wʀᴏɴɢ Wɪᴛʜ Mʏ Bʀᴀɪɴ. Tᴇʟʟ Mʏ Oᴡɴᴇʀ Tᴏ Sᴇᴛ Tʜᴇ Aᴘɪ Kᴇʏ.', mood: 'confused' };
-    }
+export async function askAlisa(groqKey, geminiKey, userMessage, history = []) {
+    const messages = buildMessages(userMessage, history);
+    const contents = buildContents(userMessage, history);
 
-    // Build conversation context
-    const contents = [];
-    for (const msg of history) {
-        contents.push({ role: msg.role, parts: [{ text: msg.text }] });
-    }
-    contents.push({ role: 'user', parts: [{ text: userMessage }] });
-
-    // Try each model in the fallback chain
-    for (const model of MODEL_CHAIN) {
-        const result = await tryModel(apiKey, model, contents);
+    // ── Step 1: Try Groq (primary) ──
+    if (groqKey) {
+        const result = await tryGroq(groqKey, messages);
 
         if (result.ok) {
-            log.info(`[Alisa] Response from ${model}`);
+            log.info('[Alisa] Response from Groq (Llama 3.3)');
             return { text: result.text, mood: result.mood };
         }
 
-        // Only fallback on 429 (quota exhausted) — other errors are not retryable
         if (result.status === 429) {
-            log.error(`[Alisa] ${model} quota exhausted, trying next...`);
-            continue;
+            log.error('[Alisa] Groq quota exhausted, falling back to Gemini...');
+        } else if (result.status === -1) {
+            log.error('[Alisa] Groq timed out, falling back to Gemini...');
+        } else {
+            log.error('[Alisa] Groq error:', result.status, '— falling back to Gemini...');
         }
-
-        // Non-retryable error — don't try other models
-        if (result.status === -1) {
-            log.error('[Alisa] Request timed out');
-            return { text: 'Хмпф… Tʜᴀᴛ Tᴏᴏᴋ Tᴏᴏ Lᴏɴɢ. I\'M Nᴏᴛ Wᴀɪᴛɪɴɢ Aʀᴏᴜɴᴅ Fᴏʀ Yᴏᴜ.', mood: 'impatient' };
-        }
-
-        log.error('[Alisa] Gemini API error:', result.status);
-        return { text: 'Хмпф… Mʏ Bʀᴀɪɴ Isɴ\'ᴛ Wᴏʀᴋɪɴɢ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Lᴀᴛᴇʀ.', mood: 'confused' };
     }
 
-    // All models exhausted (all 429)
-    log.error(`[Alisa] All models quota exhausted (tried: ${MODEL_CHAIN.join(', ')})`);
+    // ── Step 2: Try Gemini fallback chain ──
+    if (geminiKey) {
+        for (const model of GEMINI_CHAIN) {
+            const result = await tryGemini(geminiKey, model, contents);
+
+            if (result.ok) {
+                log.info(`[Alisa] Response from Gemini (${model})`);
+                return { text: result.text, mood: result.mood };
+            }
+
+            if (result.status === 429) {
+                log.error(`[Alisa] Gemini ${model} quota exhausted, trying next...`);
+                continue;
+            }
+
+            if (result.status === -1) {
+                return { text: 'Хмпф… Tʜᴀᴛ Tᴏᴏᴋ Tᴏᴏ Lᴏɴɢ. I\'M Nᴏᴛ Wᴀɪᴛɪɴɢ Aʀᴏᴜɴᴅ Fᴏʀ Yᴏᴜ.', mood: 'impatient' };
+            }
+
+            log.error('[Alisa] Gemini API error:', result.status);
+            return { text: 'Хмпф… Mʏ Bʀᴀɪɴ Isɴ\'ᴛ Wᴏʀᴋɪɴɢ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Lᴀᴛᴇʀ.', mood: 'confused' };
+        }
+    }
+
+    // ── Step 3: All providers exhausted ──
+    if (!groqKey && !geminiKey) {
+        log.error('[Alisa] No API keys configured (GROQ_API_KEY or GEMINI_API_KEY)');
+        return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Is Wʀᴏɴɢ Wɪᴛʜ Mʏ Bʀᴀɪɴ. Tᴇʟʟ Mʏ Oᴡɴᴇʀ Tᴏ Sᴇᴛ Tʜᴇ Aᴘɪ Kᴇʏ.', mood: 'confused' };
+    }
+
+    log.error('[Alisa] All providers exhausted (Groq + Gemini chain)');
     return { text: 'Хмпф… Eᴠᴇʀʏᴏɴᴇ Wᴀɴᴛs Tᴏ Tᴀʟᴋ Tᴏ Mᴇ Rɪɢʜᴛ Nᴏᴡ 😤 Tʀʏ Aɢᴀɪɴ Iɴ A Mɪɴᴜᴛᴇ.', mood: 'annoyed' };
 }
 
