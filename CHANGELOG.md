@@ -12,6 +12,10 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### 📖 Documentation
 
+- **landing.js** — Updated landing page with AI features:
+  - AI Chat card now mentions Gemini 2.0 Flash, Hinglish, conversation memory, mood stickers
+  - Updated meta descriptions (OG, Twitter, JSON-LD) to include AI Chat
+  - Updated hero description, features subtitle, and page title
 - **README.md** — Updated Features table:
   - Added Hinglish to AI Chat multi-language list
   - Paired Security & Privacy with Welcome & Leave (no more empty cells)
