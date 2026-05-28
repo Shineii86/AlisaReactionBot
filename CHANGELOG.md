@@ -6,6 +6,10 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.15.3] — 2026-05-29
 
+### 🐛 Bug Fixes
+
+- **Gemini API auth fix** — API key now sent via `X-goog-api-key` header instead of query parameter (fixes "Brain isn't working" error)
+
 ### ✨ New Features
 
 - **Upgraded Alisa Personality** — More realistic and detailed system prompt:

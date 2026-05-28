@@ -134,9 +134,12 @@ export async function askAlisa(apiKey, userMessage, history = []) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        const response = await fetch(GEMINI_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': apiKey
+            },
             body: JSON.stringify({
                 system_instruction: {
                     parts: [{ text: SYSTEM_PROMPT }]
