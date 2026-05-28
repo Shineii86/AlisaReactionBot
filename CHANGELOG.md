@@ -6,6 +6,16 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.15.3] — 2026-05-29
 
+### ✨ New Features
+
+- **Upgraded Alisa Personality** — More realistic and detailed system prompt:
+  - Added character background (Student Council Treasurer, cat lover, competitive, cook)
+  - Added relationship dynamics (how she reacts to kindness, teasing, compliments, rudeness, sadness)
+  - Added creator attribution (Shinei Nouzen) — Alisa proudly mentions her maker
+  - Now uses emojis naturally and sparingly (😤💢🙄💕✨😊)
+  - More Russian phrases and tsundere catchphrases
+  - Deeper personality traits (perfectionist, protective, competitive)
+
 ### 🐛 Bug Fixes
 
 - **Reactions working with Alisa Chat** — Auto-reaction engine now fires even when Alisa Chat responds (was skipped due to early `return`)
