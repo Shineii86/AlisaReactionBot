@@ -199,10 +199,8 @@ export const htmlContent = `
       text-decoration: none;
     }
     .island-logo {
-      width: 32px; height: 32px; border-radius: 10px;
-      background: var(--gradient-main);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 800; color: #fff;
+      width: 32px; height: 32px; border-radius: 50%;
+      object-fit: cover;
       box-shadow: 0 2px 8px rgba(99,102,241,0.25);
     }
     .island-title {
@@ -246,7 +244,7 @@ export const htmlContent = `
     @media (max-width: 640px) {
       .island-wrap { top: 10px; }
       .island { padding: 6px 10px; gap: 6px; }
-      .island-logo { width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
+      .island-logo { width: 28px; height: 28px; }
       .island-title { font-size: 13px; }
       .island-links a { padding: 5px 10px; font-size: 12px; }
       .island-cta { padding: 6px 12px; font-size: 11px; }
@@ -679,7 +677,7 @@ export const htmlContent = `
   <div class="island-wrap">
     <div class="island">
       <a href="/" class="island-brand">
-        <div class="island-logo">A</div>
+        <img src="/assets/icon.png" alt="Alisa" class="island-logo">
         <span class="island-title">Alisa</span>
       </a>
       <div class="island-divider"></div>
