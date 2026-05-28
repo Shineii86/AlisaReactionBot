@@ -4,23 +4,22 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
-## [v2.15.2] — 2026-05-28
+## [v2.15.2] — 2026-05-29
 
 ### ✨ New Features
 
 - **Dynamic Island navigation** — iPhone-style floating pill nav:
-  - Compact state shows just "A Alisa" logo
-  - Expands on hover to reveal Features, Deploy, GitHub links and Launch CTA
+  - Always visible, never collapses — all links, divider, and CTA always shown
   - Glassmorphism blur with subtle inset glow shadow
-  - Smooth 0.4s expand/collapse animation
-  - Click brand to toggle persistent expanded state (useful on touch devices)
   - Responsive sizing for mobile
+- **Nav logo** — Uses `icon.png` image instead of CSS text letter
 - **Dynamic footer year** — Copyright year auto-updates via JavaScript
 - **Removed shutter page transition**
+- **Version bumped to v2.15.2** across all files (package.json, package-lock.json, all API modules)
 
 ---
 
-## [v2.15.1] — 2026-05-28
+## [v2.15.1] — 2026-05-29
 
 ### 🔧 Changes
 
@@ -29,7 +28,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
-## [v2.15.0] — 2026-05-28
+## [v2.15.0] — 2026-05-29
 
 ### ✨ New Features & Redesign
 
