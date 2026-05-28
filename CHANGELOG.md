@@ -6,6 +6,11 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.15.3] — 2026-05-29
 
+### 🐛 Bug Fixes
+
+- **Reactions working with Alisa Chat** — Auto-reaction engine now fires even when Alisa Chat responds (was skipped due to early `return`)
+- **No photo preview on Alisa Chat** — Alisa's text responses no longer show BOT_PHOTO link preview
+
 ### ✨ New Features
 
 - **Gemini 2.5 Flash** — Upgraded AI model from gemini-2.0-flash to gemini-2.5-flash (newer, smarter, same speed)

@@ -1145,14 +1145,25 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             // Track stats
                             await Store.trackCommand('alisa_chat');
 
-                            // Send text response
-                            await botApi.sendMessage(chatId, alisaText, null, linkPreview);
+                            // Send text response (no photo preview)
+                            await botApi.sendMessage(chatId, alisaText, null, null);
 
                             // Send sticker based on mood
                             const sticker = getSticker(mood);
                             if (sticker) {
                                 try { await botApi.sendSticker(chatId, sticker); } catch {}
                             }
+
+                            // Still react to the user's message
+                            try {
+                                const chatReactions = getReactionsForChat(chatId, Reactions);
+                                const reaction = getRandomPositiveReaction(chatReactions);
+                                if (reaction) {
+                                    await botApi.setMessageReaction(chatId, message_id, reaction);
+                                    await Store.trackReaction();
+                                    logReaction(chatId, reaction);
+                                }
+                            } catch {}
 
                             return;
                         } catch (error) {
