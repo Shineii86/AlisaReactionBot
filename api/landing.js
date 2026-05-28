@@ -177,60 +177,99 @@ export const htmlContent = `
       pointer-events: none;
     }
 
-    /* Navigation */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 12px 0;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      transition: box-shadow 0.3s;
+    /* Navigation — Dynamic Island */
+    .island-wrap {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 100; display: flex; justify-content: center;
     }
-    nav.scrolled { box-shadow: var(--shadow-sm); }
-    nav .container { display: flex; align-items: center; justify-content: space-between; }
-    .nav-brand { display: flex; align-items: center; gap: 12px; }
-    .nav-logo-wrap {
-      width: 38px; height: 38px; border-radius: 10px;
+    .island {
+      display: flex; align-items: center; gap: 0;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 100px;
+      padding: 8px 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 76px;
+      overflow: hidden;
+    }
+    .island:hover, .island.expanded {
+      max-width: 600px;
+      padding: 8px 12px;
+      gap: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .island-brand {
+      display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; cursor: pointer;
+      padding: 4px 8px; border-radius: 100px;
+      transition: background 0.2s;
+    }
+    .island-brand:hover { background: rgba(99,102,241,0.06); }
+    .island-logo {
+      width: 32px; height: 32px; border-radius: 10px;
       background: var(--gradient-main);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 800; color: #fff;
+      font-size: 16px; font-weight: 800; color: #fff;
       box-shadow: 0 2px 8px rgba(99,102,241,0.25);
     }
-    .nav-title { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
-    .nav-badge {
-      font-family: var(--mono); font-size: 10px; color: var(--primary);
-      padding: 2px 8px; border-radius: 100px;
-      background: var(--primary-bg); margin-left: 8px;
-      letter-spacing: 0.04em;
+    .island-title {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      letter-spacing: -0.02em; white-space: nowrap;
     }
-    .nav-links { display: flex; align-items: center; gap: 32px; }
-    .nav-links a {
-      font-size: 14px; font-weight: 500; color: var(--text-secondary);
-      transition: color 0.2s; position: relative;
+    .island-divider {
+      width: 1px; height: 24px; background: var(--border);
+      flex-shrink: 0; opacity: 0;
+      transition: opacity 0.3s 0.1s;
     }
-    .nav-links a::after {
-      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
-      height: 2px; background: var(--primary); border-radius: 1px;
-      transform: scaleX(0); transition: transform 0.2s;
+    .island:hover .island-divider, .island.expanded .island-divider { opacity: 1; }
+    .island-links {
+      display: flex; align-items: center; gap: 4px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s 0.05s;
     }
-    .nav-links a:hover { color: var(--primary); }
-    .nav-links a:hover::after { transform: scaleX(1); }
-    .nav-cta {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 10px 22px; border-radius: 100px;
+    .island:hover .island-links, .island.expanded .island-links {
+      opacity: 1; pointer-events: auto;
+    }
+    .island-links a {
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 13px; font-weight: 500; color: var(--text-secondary);
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .island-links a:hover {
+      color: var(--primary); background: var(--primary-bg);
+    }
+    .island-cta {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 16px; border-radius: 100px;
       background: var(--primary); color: #fff;
-      font-size: 13px; font-weight: 600;
-      transition: all 0.25s;
+      font-size: 12px; font-weight: 600;
       box-shadow: 0 2px 8px rgba(99,102,241,0.2);
+      opacity: 0; pointer-events: none; flex-shrink: 0;
+      transition: opacity 0.3s 0.1s, background 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-    .nav-cta .lucide { width: 14px; height: 14px; }
-    .nav-cta:hover {
+    .island:hover .island-cta, .island.expanded .island-cta {
+      opacity: 1; pointer-events: auto;
+    }
+    .island-cta .lucide { width: 13px; height: 13px; }
+    .island-cta:hover {
       background: var(--primary-light); color: #fff;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+      box-shadow: 0 4px 16px rgba(99,102,241,0.3);
     }
-    @media (max-width: 768px) { .nav-links, .nav-badge { display: none; } }
+
+    /* Mobile dynamic island */
+    @media (max-width: 640px) {
+      .island-wrap { top: 10px; }
+      .island { max-width: 64px; padding: 6px 6px; }
+      .island:hover, .island.expanded { max-width: 340px; padding: 6px 10px; gap: 6px; }
+      .island-logo { width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
+      .island-title { font-size: 14px; }
+      .island-links a { padding: 5px 10px; font-size: 12px; }
+      .island-cta { padding: 6px 12px; font-size: 11px; }
+    }
 
     /* Parallax background layers */
     .parallax-bg {
@@ -571,12 +610,6 @@ export const htmlContent = `
     .reveal.d3 { transition-delay: 0.24s; }
     .reveal.d4 { transition-delay: 0.32s; }
 
-    /* Nav scroll glow */
-    nav.scrolled {
-      box-shadow: 0 2px 20px rgba(99,102,241,0.08);
-      border-bottom-color: rgba(99,102,241,0.1);
-    }
-
     /* Card hover lift */
     .feat-card, .deploy-card {
       transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -637,8 +670,6 @@ export const htmlContent = `
       .cta-badges { flex-wrap: wrap; gap: 12px; }
       footer .container { flex-direction: column; text-align: center; gap: 10px; }
       .ft-right { justify-content: center; flex-wrap: wrap; }
-      .nav-cta { padding: 8px 16px; font-size: 12px; }
-      .nav-title { font-size: 15px; }
     }
 
     /* Small phones */
@@ -663,21 +694,22 @@ export const htmlContent = `
   <div class="bg-blur-bottom"></div>
   <canvas id="particles" style="position:fixed;inset:0;z-index:-1;pointer-events:none;"></canvas>
 
-  <nav id="navbar">
-    <div class="container">
-      <div class="nav-brand">
-        <div class="nav-logo-wrap">A</div>
-        <span class="nav-title">Alisa</span>
-        <span class="nav-badge">BOT</span>
+  <!-- Dynamic Island Navigation -->
+  <div class="island-wrap">
+    <div class="island" id="island">
+      <div class="island-brand" onclick="document.getElementById('island').classList.toggle('expanded')">
+        <div class="island-logo">A</div>
+        <span class="island-title">Alisa</span>
       </div>
-      <div class="nav-links">
+      <div class="island-divider"></div>
+      <div class="island-links">
         <a href="#features">Features</a>
         <a href="#deploy">Deploy</a>
         <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank">GitHub</a>
       </div>
-      <a href="https://t.me/AlisaReactionBot" target="_blank" class="nav-cta"><i data-lucide="zap"></i> Launch Bot</a>
+      <a href="https://t.me/AlisaReactionBot" target="_blank" class="island-cta"><i data-lucide="zap"></i> Launch</a>
     </div>
-  </nav>
+  </div>
 
   <!-- Decorative background layers — parallax scroll like roshidere.com -->
   <div class="parallax-bg">
@@ -884,17 +916,6 @@ export const htmlContent = `
       reveals.forEach(function(el) { observer.observe(el); });
     })();
 
-    // Nav scroll state
-    (function() {
-      var nav = document.getElementById('navbar');
-      window.addEventListener('scroll', function() {
-        if (window.scrollY > 20) {
-          nav.classList.add('scrolled');
-        } else {
-          nav.classList.remove('scrolled');
-        }
-      });
-    })();
 
     // Floating dots — roshidere.com style (random appear/fade)
     (function() {
