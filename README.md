@@ -107,6 +107,20 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 </td>
 <td width="50%">
 
+### 🤖 AI Chat
+- **Google Gemini** — Powered by Gemini 2.0 Flash (free tier: 15 RPM, 1M tokens/day)
+- **Tsundere Personality** — Alisa responds in character with Russian phrases
+- **Multi-Language** — Auto-detects and responds in Russian, Japanese, or English
+- **Conversation Memory** — Last 10 messages per chat for context-aware responses
+- **Sticker Responses** — Sends mood-based stickers alongside text replies
+- **Typing Indicator** — Shows "typing..." before responding
+- **Owner Toggle** — Enable/disable via `/ai` command in Admin Panel
+
+</td>
+</tr>
+<tr>
+<td>
+
 ### 🛡️ Security & Privacy
 - **Webhook Secret Validation** — Rejects spoofed requests (auto-generated if not set)
 - **Owner-Only Commands** — Broadcast, log, leave, chats, restrict, webhook restricted to owner
@@ -595,7 +609,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.15.2** — Dynamic Island nav, roshidere.com landing page redesign, character art hero, icon.png logo, dynamic footer year, removed shutter transition.
+**Latest: v3.0.0** — AI Chat with Google Gemini, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
 
 ---
 

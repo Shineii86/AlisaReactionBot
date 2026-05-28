@@ -23,11 +23,13 @@ import {
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
     onlyAdminMessage, groupOnlyMessage, pingMessage,
-    adminPanelMessage
+    adminPanelMessage, aiEnabledMessage, aiDisabledMessage
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
+import { askAI } from './ai.js';
+import { getSticker } from './stickers.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE (runtime-only, not persisted)
@@ -1012,6 +1014,23 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
+            // /ai (owner only — toggle AI chat)
+            if (cmd === '/ai') {
+                trackCommand('ai');
+                if (!isOwner(userId, ownerId)) {
+                    await cleanupMessages(botApi, chatId, message_id);
+                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
+                    trackBotMessage(chatId, sent);
+                    return;
+                }
+                const enabled = await Store.toggleAI();
+                await cleanupMessages(botApi, chatId, message_id);
+                const msg = enabled ? aiEnabledMessage : aiDisabledMessage;
+                const sent = await botApi.sendMessage(chatId, withAd(msg), getCloseKeyboard(), linkPreview);
+                trackBotMessage(chatId, sent);
+                return;
+            }
+
         }
 
         // ---- FEATURE: Welcome & Leave Messages ----
@@ -1085,6 +1104,63 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 try {
                     await botApi.sendMessage(chatId, leaveText, leaveBtns, linkPreview);
                 } catch {}
+            }
+        }
+
+        // ---- FEATURE: AI Chat ----
+
+        // ─── AI Chat Response (non-command messages) ───
+        if (text && Store.isAIEnabled()) {
+            const isPrivate = chatType === 'private';
+            const isMentioned = content.entities?.some(e =>
+                e.type === 'mention' && text.substring(e.offset, e.offset + e.length) === `@${botUsername}`
+            );
+
+            // Respond in private chats or when mentioned in groups
+            if (isPrivate || isMentioned) {
+                const apiKey = process.env.GEMINI_API_KEY;
+                if (!apiKey) {
+                    // No API key — fall through to reactions
+                } else {
+                    // Clean mention from text for groups
+                    const cleanText = isMentioned
+                        ? text.replace(new RegExp(`@${botUsername}`, 'g'), '').trim()
+                        : text;
+
+                    if (cleanText.length > 0) {
+                        try {
+                            // Show typing indicator
+                            await botApi.sendChatAction(chatId, 'typing');
+
+                            // Get conversation history
+                            const history = Store.getConversation(chatId);
+
+                            // Get AI response
+                            const { text: aiText, mood } = await askAI(apiKey, cleanText, history);
+
+                            // Save to conversation history
+                            await Store.addMessage(chatId, 'user', cleanText);
+                            await Store.addMessage(chatId, 'model', aiText);
+
+                            // Track stats
+                            await Store.trackCommand('ai_chat');
+
+                            // Send text response
+                            await botApi.sendMessage(chatId, aiText, null, linkPreview);
+
+                            // Send sticker based on mood
+                            const sticker = getSticker(mood);
+                            if (sticker) {
+                                try { await botApi.sendSticker(chatId, sticker); } catch {}
+                            }
+
+                            return;
+                        } catch (error) {
+                            log.error('[AI Chat]', error.message);
+                            // Fall through to auto-reaction on error
+                        }
+                    }
+                }
             }
         }
 

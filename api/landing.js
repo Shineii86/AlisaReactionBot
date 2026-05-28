@@ -759,7 +759,13 @@ export const htmlContent = `
           <span class="feat-tag">customizable</span>
         </div>
         <div class="feat-card reveal d4">
-          <div class="feat-icon c4"><i data-lucide="server"></i></div>
+          <div class="feat-icon c4"><i data-lucide="brain"></i></div>
+          <h3>AI Chat</h3>
+          <p>Powered by Google Gemini. Alisa talks back with tsundere personality — multi-language support for Russian, Japanese, and English.</p>
+          <span class="feat-tag">new</span>
+        </div>
+        <div class="feat-card reveal d5">
+          <div class="feat-icon c5"><i data-lucide="server"></i></div>
           <h3>Easy Deploy</h3>
           <p>Deploy on Cloudflare Workers, Vercel, Docker, or Railway. Same codebase, zero cold starts.</p>
           <span class="feat-tag">multi-platform</span>

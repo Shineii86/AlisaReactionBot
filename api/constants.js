@@ -85,6 +85,7 @@ export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇ�
 🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
 🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Lɪғᴛ Tʜᴇ Rᴇsᴛʀɪᴄᴛɪᴏɴ.
 🔹 <code>/setwebhook &lt;url&gt;</code> — Cᴏɴғɪɢᴜʀᴇ Wᴇʙʜᴏᴏᴋ.
+🔹 <code>/ai</code> — Tᴏɢɢʟᴇ Aɪ Cʜᴀᴛ Oɴ/Off.
 🔹 <code>/log</code> — Rᴇᴠɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Hɪsᴛᴏʀʏ.
 
 ────────────────
@@ -179,5 +180,11 @@ export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏ�
 
 // ---- FEATURE: /ping response ----
 export const pingMessage = (ms) => `🏓 <b>Pᴏɴɢ!</b>\n\n⏱️ Rᴇsᴘᴏɴsᴇ: <code>${ms}ms</code>\n<i>Tᴏʟᴅ Yᴏᴜ Iᴛ Wᴏᴜʟᴅ Bᴇ Fᴀsᴛ.</i>`
+
+// ---- FEATURE: /ai toggle — AI chat enabled ----
+export const aiEnabledMessage = `🤖 <b>Aɪ Cʜᴀᴛ Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. I'ʟʟ Tᴀʟᴋ Tᴏ Tʜᴇᴍ Nᴏᴡ. Dᴏɴ'ᴛ Exᴘᴇᴄᴛ Mᴇ Tᴏ Bᴇ Nɪᴄᴇ.\n\n🔹 Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs — Rᴇᴘʟɪᴇs Tᴏ Aʟʟ Mᴇssᴀɢᴇs\n🔹 Gʀᴏᴜᴘs — Rᴇᴘʟɪᴇs Wʜᴇɴ @Mᴇɴᴛɪᴏɴᴇᴅ`
+
+// ---- FEATURE: /ai toggle — AI chat disabled ----
+export const aiDisabledMessage = `🚫 <b>Aɪ Cʜᴀᴛ Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. I'ʟʟ Jᴜsᴛ Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏᴛʜɪɴɢ Lɪᴋᴇ Bᴇғᴏʀᴇ.\n\n🔹 Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs — Eᴍᴏᴊɪ Rᴇᴀᴄᴛɪᴏɴs Oɴʟʏ\n🔹 Gʀᴏᴜᴘs — Eᴍᴏᴊɪ Rᴇᴀᴄᴛɪᴏɴs Oɴʟʏ`
 
 // ══════════════════════════════════════════════════════════════ END: constants.js

@@ -4,6 +4,40 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v3.0.0] — 2026-05-29
+
+### ✨ New Features
+
+- **AI Chat (Google Gemini)** — Alisa now responds to non-command messages with tsundere personality
+  - Private chats: responds to all messages
+  - Groups: responds when @mentioned
+  - Multi-language support (Russian, Japanese, English)
+  - Owner can toggle AI on/off via `/ai` command (Admin Panel)
+- **Sticker System** — Sends mood-based stickers alongside AI responses
+  - Detects mood from AI response (tsundere, annoyed, grateful, flustered, etc.)
+  - Placeholder sticker file_ids — replace with your own pack
+- **Typing Indicator** — Shows "typing..." before AI responds
+- **Conversation Memory** — Last 10 messages per chat for context-aware responses
+  - Sliding window stored in persistent state
+  - Works with all storage backends (Redis, file, memory)
+- **Admin Panel** — Added `/ai` toggle to owner-only admin panel
+
+### 🔧 Changes
+
+- `TelegramBotAPI.js` — Added `sendChatAction()` and `sendSticker()` methods
+- `store.js` — Added `aiEnabled` toggle, `conversations` field, AI-related methods
+- `vercel.json` — Added `maxDuration: 10` for AI call timeout
+- `.env.example` — Added `GEMINI_API_KEY` configuration
+- `landing.js` — Added "AI Chat" feature card with brain icon
+- Version bumped to v3.0.0 across all files
+
+### 📦 New Files
+
+- `api/ai.js` — Google Gemini client with Alisa personality system prompt
+- `api/stickers.js` — Mood-based sticker file_id mapping
+
+---
+
 ## [v2.15.2] — 2026-05-29
 
 ### ✨ New Features
