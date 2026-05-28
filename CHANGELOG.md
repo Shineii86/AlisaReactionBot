@@ -4,6 +4,25 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.14.1] — 2026-05-28
+
+### 🔧 Changes
+
+- **Fixed landing page responsive layout for mobile and desktop** — Comprehensive responsive CSS overhaul:
+  - Added 640px breakpoint for standard mobile devices with stacked buttons, smaller typography, and optimized spacing
+  - Added 380px breakpoint for small phones with tighter padding and reduced font sizes
+  - Fixed feature/deploy grid overflow on screens narrower than 250-280px using `min()` in `minmax()`
+  - Added `word-break: break-word` to code block to prevent horizontal overflow from long terminal lines
+  - Made hero buttons stack vertically on mobile for better tap targets
+  - Made CTA buttons stack vertically on mobile
+  - Fixed footer layout to stack vertically and center on small screens
+  - Reduced CTA section padding on mobile (120px → 56px)
+  - Reduced hero min-height on mobile for less empty space
+  - Added horizontal scroll to code-body on narrow screens
+  - Tightened nav CTA button size on small screens
+
+---
+
 ## [v2.14.0] — 2026-05-15
 
 ### 🗑️ Removed
