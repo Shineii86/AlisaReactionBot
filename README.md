@@ -595,7 +595,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.13.0** — Removed plugin system, fixed all buttons, auto-cleanup on commands, callback edit fix, batched saves, graceful shutdown, and full state persistence.
+**Latest: v2.15.2** — Dynamic Island nav, roshidere.com landing page redesign, character art hero, icon.png logo, dynamic footer year, removed shutter transition.
 
 ---
 

@@ -92,7 +92,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "/assets/banner1.png",
-    "softwareVersion": "2.14.0",
+    "softwareVersion": "2.15.2",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -858,7 +858,7 @@ export const htmlContent = `
       <span>© <span id="year"></span> Alisa Reaction Bot · Хмпф</span>
       <div class="ft-right">
         <span>Built with <i data-lucide="heart" class="ft-heart"></i> by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.14.0</span>
+        <span class="ft-ver">v2.15.2</span>
       </div>
     </div>
   </footer>
