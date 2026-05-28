@@ -16,6 +16,8 @@
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
+import { VERSION } from './version.js';
+
 export const htmlContent = `
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
@@ -92,7 +94,7 @@ export const htmlContent = `
       "url": "https://github.com/Shineii86"
     },
     "image": "/assets/banner1.png",
-    "softwareVersion": "2.15.2",
+    "softwareVersion": "${VERSION}",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5",
@@ -858,7 +860,7 @@ export const htmlContent = `
       <span>© <span id="year"></span> Alisa Reaction Bot · Хмпф</span>
       <div class="ft-right">
         <span>Built with <i data-lucide="heart" class="ft-heart"></i> by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
-        <span class="ft-ver">v2.15.2</span>
+        <span class="ft-ver">v${VERSION}</span>
       </div>
     </div>
   </footer>
