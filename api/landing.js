@@ -761,7 +761,7 @@ export const htmlContent = `
         <div class="feat-card reveal d4">
           <div class="feat-icon c4"><i data-lucide="brain"></i></div>
           <h3>AI Chat</h3>
-          <p>Powered by Google Gemini 2.0 Flash. Alisa talks back with her tsundere personality — multi-language support for Russian, Japanese, English, and Hinglish. Remembers last 10 messages per chat and sends mood-based stickers alongside responses.</p>
+          <p>Powered by Google Gemini 2.5 Flash. Alisa talks back with her tsundere personality — multi-language support for Russian, Japanese, English, and Hinglish. Remembers last 10 messages per chat and sends mood-based stickers alongside responses.</p>
           <span class="feat-tag">new</span>
         </div>
         <div class="feat-card reveal d5">

@@ -1257,7 +1257,7 @@ Alisa's AI personality is defined by her character from *"Alya Sometimes Hides H
 
 | Setting | Value |
 |---|---|
-| Model | `gemini-2.0-flash` |
+| Model | `gemini-2.5-flash` |
 | Max tokens | `1024` |
 | Temperature | `0.9` |
 | Timeout | `8 seconds` |

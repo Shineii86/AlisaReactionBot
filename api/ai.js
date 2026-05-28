@@ -21,7 +21,7 @@ import { log } from './helper.js';
 // CONFIGURATION
 // ══════════════════════════════════════════════════════════════
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const MAX_TOKENS = 1024;
 const TIMEOUT_MS = 8000;
 

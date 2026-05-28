@@ -9,6 +9,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 ### ✨ New Features
 
 - **Hinglish Language Support** — AI Chat now detects and responds in Hinglish (Hindi-English mix) with Russian sprinkled in
+- **Gemini 2.5 Flash** — Upgraded AI model from gemini-2.0-flash to gemini-2.5-flash (newer, smarter, same speed)
 
 ### 📖 Documentation
 
