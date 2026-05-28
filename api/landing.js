@@ -177,37 +177,27 @@ export const htmlContent = `
       pointer-events: none;
     }
 
-    /* Navigation — Dynamic Island */
+    /* Navigation — Dynamic Island (always open) */
     .island-wrap {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
       z-index: 100; display: flex; justify-content: center;
     }
     .island {
-      display: flex; align-items: center; gap: 0;
-      background: rgba(255,255,255,0.85);
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.88);
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
       border: 1px solid rgba(255,255,255,0.6);
       border-radius: 100px;
-      padding: 8px 8px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      max-width: 76px;
-      overflow: hidden;
-    }
-    .island:hover, .island.expanded {
-      max-width: 600px;
       padding: 8px 12px;
-      gap: 8px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
     }
     .island-brand {
       display: flex; align-items: center; gap: 8px;
-      flex-shrink: 0; cursor: pointer;
+      flex-shrink: 0;
       padding: 4px 8px; border-radius: 100px;
-      transition: background 0.2s;
+      text-decoration: none;
     }
-    .island-brand:hover { background: rgba(99,102,241,0.06); }
     .island-logo {
       width: 32px; height: 32px; border-radius: 10px;
       background: var(--gradient-main);
@@ -221,22 +211,16 @@ export const htmlContent = `
     }
     .island-divider {
       width: 1px; height: 24px; background: var(--border);
-      flex-shrink: 0; opacity: 0;
-      transition: opacity 0.3s 0.1s;
+      flex-shrink: 0;
     }
-    .island:hover .island-divider, .island.expanded .island-divider { opacity: 1; }
     .island-links {
       display: flex; align-items: center; gap: 4px;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s 0.05s;
-    }
-    .island:hover .island-links, .island.expanded .island-links {
-      opacity: 1; pointer-events: auto;
     }
     .island-links a {
       padding: 6px 14px; border-radius: 100px;
       font-size: 13px; font-weight: 500; color: var(--text-secondary);
       transition: all 0.2s; white-space: nowrap;
+      text-decoration: none;
     }
     .island-links a:hover {
       color: var(--primary); background: var(--primary-bg);
@@ -247,11 +231,9 @@ export const htmlContent = `
       background: var(--primary); color: #fff;
       font-size: 12px; font-weight: 600;
       box-shadow: 0 2px 8px rgba(99,102,241,0.2);
-      opacity: 0; pointer-events: none; flex-shrink: 0;
-      transition: opacity 0.3s 0.1s, background 0.2s, transform 0.2s, box-shadow 0.2s;
-    }
-    .island:hover .island-cta, .island.expanded .island-cta {
-      opacity: 1; pointer-events: auto;
+      flex-shrink: 0; white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
     }
     .island-cta .lucide { width: 13px; height: 13px; }
     .island-cta:hover {
@@ -263,10 +245,9 @@ export const htmlContent = `
     /* Mobile dynamic island */
     @media (max-width: 640px) {
       .island-wrap { top: 10px; }
-      .island { max-width: 64px; padding: 6px 6px; }
-      .island:hover, .island.expanded { max-width: 340px; padding: 6px 10px; gap: 6px; }
+      .island { padding: 6px 10px; gap: 6px; }
       .island-logo { width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
-      .island-title { font-size: 14px; }
+      .island-title { font-size: 13px; }
       .island-links a { padding: 5px 10px; font-size: 12px; }
       .island-cta { padding: 6px 12px; font-size: 11px; }
     }
@@ -696,11 +677,11 @@ export const htmlContent = `
 
   <!-- Dynamic Island Navigation -->
   <div class="island-wrap">
-    <div class="island" id="island">
-      <div class="island-brand" onclick="document.getElementById('island').classList.toggle('expanded')">
+    <div class="island">
+      <a href="/" class="island-brand">
         <div class="island-logo">A</div>
         <span class="island-title">Alisa</span>
-      </div>
+      </a>
       <div class="island-divider"></div>
       <div class="island-links">
         <a href="#features">Features</a>
