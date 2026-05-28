@@ -12,6 +12,11 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### 📖 Documentation
 
+- **README.md** — Updated Features table:
+  - Added Hinglish to AI Chat multi-language list
+  - Paired Security & Privacy with Welcome & Leave (no more empty cells)
+  - Added `ai.js` and `sticks.js` to Project Structure
+  - Added `GEMINI_API_KEY` to Configuration table
 - **GUIDE.md** — Added complete AI Chat section covering:
   - How AI Chat works (Gemini + mood stickers + typing indicator)
   - `/ai` toggle command usage

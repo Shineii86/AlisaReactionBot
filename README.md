@@ -110,7 +110,7 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 ### 🤖 AI Chat
 - **Google Gemini** — Powered by Gemini 2.0 Flash (free tier: 15 RPM, 1M tokens/day)
 - **Tsundere Personality** — Alisa responds in character with Russian phrases
-- **Multi-Language** — Auto-detects and responds in Russian, Japanese, or English
+- **Multi-Language** — Auto-detects and responds in Russian, Japanese, English, or Hinglish
 - **Conversation Memory** — Last 10 messages per chat for context-aware responses
 - **Sticker Responses** — Sends mood-based stickers alongside text replies
 - **Typing Indicator** — Shows "typing..." before responding
@@ -128,6 +128,16 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **No Message Storage** — Only metadata (chat IDs, counters) is persisted, never message content
 - **Request Size Limit** — Rejects payloads over 1MB
 - **Broadcast Cooldown** — 60-second cooldown between broadcasts
+
+</td>
+<td>
+
+### 👋 Welcome & Leave
+- **Welcome Messages** — Greet new members when they join a group
+- **Leave Messages** — Farewell members when they leave
+- **Admin Toggle** — `/welcome` and `/goodbye` to enable/disable per group
+- **Auto-Delete Notifications** — Removes Telegram's default join/leave messages
+- **Photo Support** — Uses `BOT_PHOTO` when set
 
 </td>
 </tr>
@@ -172,18 +182,6 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Buttons Everywhere** — All commands have inline keyboard buttons
 - **`BOT_PHOTO` Env Var** — Set photo URL or Telegram file_id
 - **Photo Callback Support** — Menu navigation works on both photo and text messages
-
-</td>
-</tr>
-<tr>
-<td>
-
-### 👋 Welcome & Leave
-- **Welcome Messages** — Greet new members when they join a group
-- **Leave Messages** — Farewell members when they leave
-- **Admin Toggle** — `/welcome` and `/goodbye` to enable/disable per group
-- **Auto-Delete Notifications** — Removes Telegram's default join/leave messages
-- **Photo Support** — Uses `BOT_PHOTO` when set
 
 </td>
 </tr>
@@ -376,6 +374,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
+| `GEMINI_API_KEY` | Google Gemini API key for AI Chat | `AIza...` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
@@ -478,7 +477,9 @@ AlisaReactionBot/
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
-│   └── ads.js                # AdLab — centralized ad management library
+│   ├── ads.js                # AdLab — centralized ad management library
+│   ├── ai.js                 # Google Gemini AI client (Alisa personality)
+│   └── stickers.js           # Mood-based sticker file_id mapping
 ├── assets/                   # Logo and banner images
 ├── data/                     # Runtime state (auto-created, gitignored)
 ├── .env.example              # Environment variable template
