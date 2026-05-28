@@ -213,8 +213,8 @@ export async function askAlisa(apiKey, userMessage, history = []) {
     }
 
     // All models exhausted (all 429)
-    log.error('[Alisa] All models quota exhausted');
-    return { text: 'Хмпф… Eᴠᴇʀʏᴏɴᴇ Wᴀɴᴛs Tᴏ Tᴀʟᴋ Tᴏ Mᴇ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Iɴ A Mɪɴᴜᴛᴇ.', mood: 'annoyed' };
+    log.error(`[Alisa] All models quota exhausted (tried: ${MODEL_CHAIN.join(', ')})`);
+    return { text: 'Хмпф… Eᴠᴇʀʏᴏɴᴇ Wᴀɴᴛs Tᴏ Tᴀʟᴋ Tᴏ Mᴇ Rɪɢʜᴛ Nᴏᴡ 😤 Tʀʏ Aɢᴀɪɴ Iɴ A Mɪɴᴜᴛᴇ.', mood: 'annoyed' };
 }
 
 // ══════════════════════════════════════════════════════════════
