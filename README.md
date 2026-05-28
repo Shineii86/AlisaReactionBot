@@ -609,7 +609,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v3.0.0** — AI Chat with Google Gemini, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
+**Latest: v2.15.3** — AI Chat with Google Gemini, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
 
 ---
 

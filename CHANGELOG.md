@@ -4,7 +4,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
-## [v3.0.0] — 2026-05-29
+## [v2.15.3] — 2026-05-29
 
 ### ✨ New Features
 
