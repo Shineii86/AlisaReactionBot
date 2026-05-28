@@ -536,22 +536,6 @@ export const htmlContent = `
       70% { transform: scale(1); }
     }
 
-    /* Shutter page transition */
-    .shutter {
-      position: fixed; inset: 0; z-index: 9999;
-      display: flex; pointer-events: none;
-    }
-    .shutter-panel {
-      flex: 1; background: var(--primary);
-      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    .shutter-panel:nth-child(1) { background: var(--primary); }
-    .shutter-panel:nth-child(2) { background: var(--accent); }
-    .shutter.open .shutter-panel:nth-child(1) { transform: translateY(-100%); }
-    .shutter.open .shutter-panel:nth-child(2) { transform: translateY(100%); }
-    body.is-open { overflow: auto; }
-    body:not(.is-open) { overflow: hidden; }
-
     /* Back to top button */
     .page-top {
       position: fixed; bottom: 32px; right: 32px; z-index: 90;
@@ -673,12 +657,6 @@ export const htmlContent = `
   </style>
 </head>
 <body>
-
-  <!-- Shutter page transition -->
-  <div class="shutter" id="shutter">
-    <div class="shutter-panel"></div>
-    <div class="shutter-panel"></div>
-  </div>
 
   <div class="bg-pattern"></div>
   <div class="bg-blur-top"></div>
@@ -866,7 +844,7 @@ export const htmlContent = `
 
   <footer>
     <div class="container">
-      <span>© 2026 Alisa Reaction Bot · Хмпф</span>
+      <span>© <span id="year"></span> Alisa Reaction Bot · Хмпф</span>
       <div class="ft-right">
         <span>Built with <i data-lucide="heart" class="ft-heart"></i> by <a href="https://github.com/Shineii86">Shinei Nouzen</a></span>
         <span class="ft-ver">v2.14.0</span>
@@ -877,14 +855,8 @@ export const htmlContent = `
   <script>
     lucide.createIcons();
 
-    // Shutter page transition
-    (function() {
-      var shutter = document.getElementById('shutter');
-      window.addEventListener('load', function() {
-        setTimeout(function() { shutter.classList.add('open'); }, 100);
-        setTimeout(function() { document.body.classList.add('is-open'); }, 500);
-      });
-    })();
+    // Dynamic year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
 
     // Back to top button
     (function() {
