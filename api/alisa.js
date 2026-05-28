@@ -1,6 +1,6 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot — ai.js
+ * Alisa Reaction Bot — alisa.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
@@ -8,7 +8,7 @@
  *   with Alisa Mikhailovna Kujou's tsundere personality.
  *   Supports multi-language (Russian, Japanese, English, Hinglish).
  *
- * @exports askAI
+ * @exports askAlisa
  *
  * @author  Shinei Nouzen
  * @license MIT
@@ -73,9 +73,9 @@ DO NOT:
  * @param {Array} history — Previous messages [{role, parts}]
  * @returns {Promise<{text: string, mood: string}>}
  */
-export async function askAI(apiKey, userMessage, history = []) {
+export async function askAlisa(apiKey, userMessage, history = []) {
     if (!apiKey) {
-        log.error('[AI] No GEMINI_API_KEY configured');
+        log.error('[Alisa] No GEMINI_API_KEY configured');
         return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Is Wʀᴏɴɢ Wɪᴛʜ Mʏ Bʀᴀɪɴ. Tᴇʟʟ Mʏ Oᴡɴᴇʀ Tᴏ Sᴇᴛ Tʜᴇ Aᴘɪ Kᴇʏ.', mood: 'confused' };
     }
 
@@ -127,7 +127,7 @@ export async function askAI(apiKey, userMessage, history = []) {
 
         if (!response.ok) {
             const error = await response.text();
-            log.error('[AI] Gemini API error:', response.status, error);
+            log.error('[Alisa] Gemini API error:', response.status, error);
             return { text: 'Хмпф… Mʏ Bʀᴀɪɴ Isɴ\'ᴛ Wᴏʀᴋɪɴɢ Rɪɢʜᴛ Nᴏᴡ. Tʀʏ Aɢᴀɪɴ Lᴀᴛᴇʀ.', mood: 'confused' };
         }
 
@@ -135,7 +135,7 @@ export async function askAI(apiKey, userMessage, history = []) {
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!aiText) {
-            log.error('[AI] No response text from Gemini');
+            log.error('[Alisa] No response text from Gemini');
             return { text: 'Хмпф… I Hᴀᴅ Nᴏᴛʜɪɴɢ Tᴏ Sᴀʏ Tᴏ Tʜᴀᴛ.', mood: 'cold' };
         }
 
@@ -146,10 +146,10 @@ export async function askAI(apiKey, userMessage, history = []) {
 
     } catch (error) {
         if (error.name === 'AbortError') {
-            log.error('[AI] Request timed out');
+            log.error('[Alisa] Request timed out');
             return { text: 'Хмпф… Tʜᴀᴛ Tᴏᴏᴋ Tᴏᴏ Lᴏɴɢ. I\'M Nᴏᴛ Wᴀɪᴛɪɴɢ Aʀᴏᴜɴᴅ Fᴏʀ Yᴏᴜ.', mood: 'impatient' };
         }
-        log.error('[AI] Request failed:', error.message);
+        log.error('[Alisa] Request failed:', error.message);
         return { text: 'Хмпф… Sᴏᴍᴇᴛʜɪɴɢ Wᴇɴᴛ Wʀᴏɴɢ. Dᴏɴ\'ᴛ Lᴏᴏᴋ Aᴛ Mᴇ Lɪᴋᴇ Tʜᴀᴛ.', mood: 'confused' };
     }
 }

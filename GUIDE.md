@@ -23,7 +23,7 @@
 15. [How Broadcast Works](#how-broadcast-work)
 16. [Ad Library (AdLab)](#ad-library-adlab)
 17. [Photo Support](#photo-support)
-18. [AI Chat](#ai-chat)
+18. [Alisa Chat](#ai-chat)
 19. [Close Button](#close-button)
 20. [Welcome & Leave Messages](#welcome--leave-messages)
 21. [Persistent Chat Storage](#persistent-chat-storage)
@@ -1164,7 +1164,7 @@ If `BOT_PHOTO` is not set, all commands send regular text messages without link 
 
 ---
 
-## AI Chat
+## Alisa Chat
 
 Starting from v2.15.3, Alisa can have real conversations using Google Gemini AI. She responds in her signature tsundere personality — proud, sharp-tongued, and secretly warm.
 
@@ -1180,25 +1180,25 @@ Starting from v2.15.3, Alisa can have real conversations using Google Gemini AI.
 
 | Command | Description | Access |
 |---|---|---|
-| `/ai` | Toggle AI chat on/off | Bot Owner |
+| `/alisa` | Toggle Alisa chat on/off | Bot Owner |
 
 ### Enabling / Disabling
 
-The bot owner can toggle AI chat globally:
+The bot owner can toggle Alisa chat globally:
 
 ```
-/ai
+/alisa
 ```
 
 **When enabled:**
 ```
-🤖 Aɪ Cʜᴀᴛ Is Nᴏᴡ Eɴᴀʙʟᴇᴅ.
+🤖 Aʟɪsᴀ Cʜᴀᴛ Is Nᴏᴡ Eɴᴀʙʟᴇᴅ.
 Gᴇᴍɪɴɪ Pᴏᴡᴇʀᴇᴅ. Dᴏɴ'ᴛ Gᴇᴛ Usᴇᴅ Tᴏ Mʏ Kɪɴᴅɴᴇss.
 ```
 
 **When disabled:**
 ```
-🤖 Aɪ Cʜᴀᴛ Is Nᴏᴡ Dɪsᴀʙʟᴇᴅ.
+🤖 Aʟɪsᴀ Cʜᴀᴛ Is Nᴏᴡ Dɪsᴀʙʟᴇᴅ.
 I Was Tɪʀᴇd Of Tᴀʟᴋɪɴɢ Tᴏ Yᴏᴜ Aɴʏᴡᴀʏ.
 ```
 
@@ -1262,7 +1262,7 @@ Alisa's AI personality is defined by her character from *"Alya Sometimes Hides H
 | Temperature | `0.9` |
 | Timeout | `8 seconds` |
 | Memory window | Last 10 messages per chat |
-| Module | `api/ai.js` |
+| Module | `api/alisa.js` |
 | Sticker module | `api/stickers.js` |
 
 ### Without GEMINI_API_KEY

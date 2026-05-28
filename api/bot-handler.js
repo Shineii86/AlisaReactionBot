@@ -23,12 +23,12 @@ import {
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
     onlyAdminMessage, groupOnlyMessage, pingMessage,
-    adminPanelMessage, aiEnabledMessage, aiDisabledMessage
+    adminPanelMessage, alisaEnabledMessage, alisaDisabledMessage
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
-import { askAI } from './ai.js';
+import { askAlisa } from './alisa.js';
 import { getSticker } from './stickers.js';
 
 // ══════════════════════════════════════════════════════════════
@@ -1014,18 +1014,18 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
-            // /ai (owner only — toggle AI chat)
-            if (cmd === '/ai') {
-                trackCommand('ai');
+            // /alisa (owner only — toggle Alisa chat)
+            if (cmd === '/alisa') {
+                trackCommand('alisa');
                 if (!isOwner(userId, ownerId)) {
                     await cleanupMessages(botApi, chatId, message_id);
                     const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
                     trackBotMessage(chatId, sent);
                     return;
                 }
-                const enabled = await Store.toggleAI();
+                const enabled = await Store.toggleAlisa();
                 await cleanupMessages(botApi, chatId, message_id);
-                const msg = enabled ? aiEnabledMessage : aiDisabledMessage;
+                const msg = enabled ? alisaEnabledMessage : alisaDisabledMessage;
                 const sent = await botApi.sendMessage(chatId, withAd(msg), getCloseKeyboard(), linkPreview);
                 trackBotMessage(chatId, sent);
                 return;
@@ -1107,10 +1107,10 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
             }
         }
 
-        // ---- FEATURE: AI Chat ----
+        // ---- FEATURE: Alisa Chat ----
 
-        // ─── AI Chat Response (non-command messages) ───
-        if (text && Store.isAIEnabled()) {
+        // ─── Alisa Chat Response (non-command messages) ───
+        if (text && Store.isAlisaEnabled()) {
             const isPrivate = chatType === 'private';
             const isMentioned = content.entities?.some(e =>
                 e.type === 'mention' && text.substring(e.offset, e.offset + e.length) === `@${botUsername}`
@@ -1135,18 +1135,18 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             // Get conversation history
                             const history = Store.getConversation(chatId);
 
-                            // Get AI response
-                            const { text: aiText, mood } = await askAI(apiKey, cleanText, history);
+                            // Get Alisa response
+                            const { text: alisaText, mood } = await askAlisa(apiKey, cleanText, history);
 
                             // Save to conversation history
                             await Store.addMessage(chatId, 'user', cleanText);
-                            await Store.addMessage(chatId, 'model', aiText);
+                            await Store.addMessage(chatId, 'model', alisaText);
 
                             // Track stats
-                            await Store.trackCommand('ai_chat');
+                            await Store.trackCommand('alisa_chat');
 
                             // Send text response
-                            await botApi.sendMessage(chatId, aiText, null, linkPreview);
+                            await botApi.sendMessage(chatId, alisaText, null, linkPreview);
 
                             // Send sticker based on mood
                             const sticker = getSticker(mood);
@@ -1156,7 +1156,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
 
                             return;
                         } catch (error) {
-                            log.error('[AI Chat]', error.message);
+                            log.error('[Alisa Chat]', error.message);
                             // Fall through to auto-reaction on error
                         }
                     }

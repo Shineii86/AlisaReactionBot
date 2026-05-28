@@ -8,6 +8,23 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ### ✨ New Features
 
+- **Gemini 2.5 Flash** — Upgraded AI model from gemini-2.0-flash to gemini-2.5-flash (newer, smarter, same speed)
+
+### 🔧 Changes
+
+- **Renamed "AI" → "Alisa"** — Feature branding now matches the character:
+  - `/ai` command → `/alisa`
+  - `api/ai.js` → `api/alisa.js`
+  - "AI Chat" → "Alisa Chat" across all docs, landing page, and UI
+  - Export functions: `askAI` → `askAlisa`, `toggleAI` → `toggleAlisa`, `isAIEnabled` → `isAlisaEnabled`
+  - Toggle messages: "Aɪ Cʜᴀᴛ" → "Aʟɪsᴀ Cʜᴀᴛ"
+
+---
+
+## [v2.15.3] — 2026-05-29
+
+### ✨ New Features
+
 - **Hinglish Language Support** — AI Chat now detects and responds in Hinglish (Hindi-English mix) with Russian sprinkled in
 - **Gemini 2.5 Flash** — Upgraded AI model from gemini-2.0-flash to gemini-2.5-flash (newer, smarter, same speed)
 

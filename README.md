@@ -107,14 +107,14 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 </td>
 <td width="50%">
 
-### 🤖 AI Chat
+### 🤖 Alisa Chat
 - **Google Gemini** — Powered by Gemini 2.0 Flash (free tier: 15 RPM, 1M tokens/day)
 - **Tsundere Personality** — Alisa responds in character with Russian phrases
 - **Multi-Language** — Auto-detects and responds in Russian, Japanese, English, or Hinglish
 - **Conversation Memory** — Last 10 messages per chat for context-aware responses
 - **Sticker Responses** — Sends mood-based stickers alongside text replies
 - **Typing Indicator** — Shows "typing..." before responding
-- **Owner Toggle** — Enable/disable via `/ai` command in Admin Panel
+- **Owner Toggle** — Enable/disable via `/alisa` command in Admin Panel
 
 </td>
 </tr>
@@ -374,7 +374,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
-| `GEMINI_API_KEY` | Google Gemini API key for AI Chat | `AIza...` | ❌ |
+| `GEMINI_API_KEY` | Google Gemini API key for Alisa Chat | `AIza...` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
@@ -478,7 +478,7 @@ AlisaReactionBot/
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
 │   ├── ads.js                # AdLab — centralized ad management library
-│   ├── ai.js                 # Google Gemini AI client (Alisa personality)
+│   ├── alisa.js               # Google Gemini client (Alisa personality)
 │   └── stickers.js           # Mood-based sticker file_id mapping
 ├── assets/                   # Logo and banner images
 ├── data/                     # Runtime state (auto-created, gitignored)
@@ -610,7 +610,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.15.3** — AI Chat with Google Gemini, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
+**Latest: v2.15.3** — Alisa Chat with Google Gemini, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
 
 ---
 

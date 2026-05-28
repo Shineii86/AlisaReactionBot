@@ -478,12 +478,12 @@ async function trackCommand(cmd) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// AI CHAT TOGGLE
+// ALISA CHAT TOGGLE
 // ══════════════════════════════════════════════════════════════
 
-function isAIEnabled() { return state.aiEnabled !== false; }
+function isAlisaEnabled() { return state.aiEnabled !== false; }
 
-async function toggleAI() {
+async function toggleAlisa() {
     state.aiEnabled = !state.aiEnabled;
     scheduleSave();
     return state.aiEnabled;
@@ -566,9 +566,9 @@ export const Store = {
     getGoodbyeCount,
     toggleWelcome,
     toggleGoodbye,
-    // AI Chat
-    isAIEnabled,
-    toggleAI,
+    // Alisa Chat
+    isAlisaEnabled,
+    toggleAlisa,
     // Conversations
     getConversation,
     addMessage,
