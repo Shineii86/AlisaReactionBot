@@ -87,13 +87,10 @@ function getDefaultState() {
         restricted: [],             // chat IDs with runtime restrictions
         welcome: [],                // chat IDs with welcome messages enabled
         goodbye: [],                // chat IDs with leave messages enabled
-        aiEnabled: true,            // Global AI chat toggle (owner can disable)
-        conversations: {},          // chatId → [{role, text, timestamp}] sliding window
         stats: {
             messagesProcessed: 0,
             reactionsSent: 0,
             commandUsage: {},       // command name → count
-            aiResponses: 0,         // AI responses sent
         },
     };
 }
@@ -477,49 +474,6 @@ async function trackCommand(cmd) {
     scheduleSave();
 }
 
-// ══════════════════════════════════════════════════════════════
-// ALISA CHAT TOGGLE
-// ══════════════════════════════════════════════════════════════
-
-function isAlisaEnabled() { return state.aiEnabled !== false; }
-
-async function toggleAlisa() {
-    state.aiEnabled = !state.aiEnabled;
-    scheduleSave();
-    return state.aiEnabled;
-}
-
-// ══════════════════════════════════════════════════════════════
-// CONVERSATION HISTORY (sliding window per chat)
-// ══════════════════════════════════════════════════════════════
-
-const MAX_HISTORY = 10;  // Keep last 10 messages per chat
-
-function getConversation(chatId) {
-    return state.conversations[String(chatId)] || [];
-}
-
-async function addMessage(chatId, role, text) {
-    const key = String(chatId);
-    if (!state.conversations[key]) {
-        state.conversations[key] = [];
-    }
-    state.conversations[key].push({
-        role,
-        text,
-        timestamp: Date.now()
-    });
-    // Sliding window — keep only last MAX_HISTORY messages
-    if (state.conversations[key].length > MAX_HISTORY) {
-        state.conversations[key] = state.conversations[key].slice(-MAX_HISTORY);
-    }
-    scheduleSave();
-}
-
-async function clearConversation(chatId) {
-    delete state.conversations[String(chatId)];
-    scheduleSave();
-}
 
 // ══════════════════════════════════════════════════════════════
 // UTILITY
@@ -566,13 +520,6 @@ export const Store = {
     getGoodbyeCount,
     toggleWelcome,
     toggleGoodbye,
-    // Alisa Chat
-    isAlisaEnabled,
-    toggleAlisa,
-    // Conversations
-    getConversation,
-    addMessage,
-    clearConversation,
     // Stats
     getStats,
     trackMessage,

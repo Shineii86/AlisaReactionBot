@@ -6,15 +6,14 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ## [v2.15.3] — 2026-05-29
 
-### ✨ New Features
+### 🔧 Changes
 
-- **Groq as primary AI provider** — Llama 3.3 70B via Groq (fast, generous free tier, 30 RPM)
-- **Multi-provider fallback chain** — Groq → Gemini 2.5-flash → Gemini 2.0-flash → Gemini flash-lite
-- **New env var: `GROQ_API_KEY`** — Set alongside `GEMINI_API_KEY` for maximum uptime
-
-### 🐛 Bug Fixes
-
-- **Gemini API auth fix** — API key now sent via `X-goog-api-key` header instead of query parameter (fixes "Brain isn't working" error)
+- **Removed AI Chat feature** — Removed Alisa Chat (Gemini/Groq) due to persistent quota issues:
+  - Deleted `api/alisa.js` and `api/stickers.js`
+  - Removed `/alisa` command and AI toggle from bot handler
+  - Removed conversation memory and AI toggle from store
+  - Removed AI-related constants and exports
+  - Cleaned README, GUIDE, landing page, .env.example
 
 ### ✨ New Features
 

@@ -105,18 +105,7 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
 
 </td>
-<td width="50%">
-
-### 🤖 Alisa Chat
-- **Groq + Gemini** — Powered by Groq Llama 3.3 70B (primary, 30 RPM) with Gemini fallback chain (2.5-flash → 2.0-flash → flash-lite)
-- **Tsundere Personality** — Alisa responds in character with Russian phrases
-- **Multi-Language** — Auto-detects and responds in Russian, Japanese, English, or Hinglish
-- **Conversation Memory** — Last 10 messages per chat for context-aware responses
-- **Sticker Responses** — Sends mood-based stickers alongside text replies
-- **Typing Indicator** — Shows "typing..." before responding
-- **Owner Toggle** — Enable/disable via `/alisa` command in Admin Panel
-
-</td>
+<td></td>
 </tr>
 <tr>
 <td>
@@ -374,8 +363,6 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
-| `GROQ_API_KEY` | Groq API key for Alisa Chat (primary) | `gsk_...` | ❌ |
-| `GEMINI_API_KEY` | Google Gemini API key for Alisa Chat (fallback) | `AIza...` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
@@ -479,8 +466,6 @@ AlisaReactionBot/
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
 │   ├── ads.js                # AdLab — centralized ad management library
-│   ├── alisa.js               # Multi-provider AI client (Groq + Gemini)
-│   └── stickers.js           # Mood-based sticker file_id mapping
 ├── assets/                   # Logo and banner images
 ├── data/                     # Runtime state (auto-created, gitignored)
 ├── .env.example              # Environment variable template
@@ -611,7 +596,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.15.3** — Alisa Chat with Groq (Llama 3.3) + Gemini fallback, tsundere personality, multi-language support, sticker responses, conversation memory, owner toggle via Admin Panel.
+**Latest: v2.15.3** — Dynamic island navigation, glassmorphism blur, icon.png logo, auto-reactions, per-chat customization.
 
 ---
 

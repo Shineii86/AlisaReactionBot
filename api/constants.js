@@ -85,7 +85,6 @@ export const adminPanelMessage = `👑 <b>Aᴅᴍɪɴ Pᴀɴᴇʟ — Oᴡɴᴇ�
 🔹 <code>/restrict &lt;chat_id&gt;</code> — Rᴇsᴛʀɪᴄᴛ A Cʜᴀᴛ.
 🔹 <code>/unrestrict &lt;chat_id&gt;</code> — Lɪғᴛ Tʜᴇ Rᴇsᴛʀɪᴄᴛɪᴏɴ.
 🔹 <code>/setwebhook &lt;url&gt;</code> — Cᴏɴғɪɢᴜʀᴇ Wᴇʙʜᴏᴏᴋ.
-🔹 <code>/alisa</code> — Tᴏɢɢʟᴇ Aʟɪsᴀ Cʜᴀᴛ Oɴ/Off.
 🔹 <code>/log</code> — Rᴇᴠɪᴇᴡ Rᴇᴀᴄᴛɪᴏɴ Hɪsᴛᴏʀʏ.
 
 ────────────────
@@ -180,11 +179,5 @@ export const groupOnlyMessage = `🏘️ Tʜɪs Cᴏᴍᴍᴀɴᴅ Oɴʟʏ Wᴏ�
 
 // ---- FEATURE: /ping response ----
 export const pingMessage = (ms) => `🏓 <b>Pᴏɴɢ!</b>\n\n⏱️ Rᴇsᴘᴏɴsᴇ: <code>${ms}ms</code>\n<i>Tᴏʟᴅ Yᴏᴜ Iᴛ Wᴏᴜʟᴅ Bᴇ Fᴀsᴛ.</i>`
-
-// ---- FEATURE: /alisa toggle — Alisa chat enabled ----
-export const alisaEnabledMessage = `🤖 <b>Aʟɪsᴀ Cʜᴀᴛ Eɴᴀʙʟᴇᴅ</b>\n\nХорошо. I'ʟʟ Tᴀʟᴋ Tᴏ Tʜᴇᴍ Nᴏᴡ. Dᴏɴ'ᴛ Exᴘᴇᴄᴛ Mᴇ Tᴏ Bᴇ Nɪᴄᴇ.\n\n🔹 Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs — Rᴇᴘʟɪᴇs Tᴏ Aʟʟ Mᴇssᴀɢᴇs\n🔹 Gʀᴏᴜᴘs — Rᴇᴘʟɪᴇs Wʜᴇɴ @Mᴇɴᴛɪᴏɴᴇᴅ`
-
-// ---- FEATURE: /alisa toggle — Alisa chat disabled ----
-export const alisaDisabledMessage = `🚫 <b>Aʟɪsᴀ Cʜᴀᴛ Dɪsᴀʙʟᴇᴅ</b>\n\nХмпф. Fɪɴᴇ. I'ʟʟ Jᴜsᴛ Rᴇᴀᴄᴛ Tᴏ Eᴠᴇʀʏᴛʜɪɴɢ Lɪᴋᴇ Bᴇғᴏʀᴇ.\n\n🔹 Pʀɪᴠᴀᴛᴇ Cʜᴀᴛs — Eᴍᴏᴊɪ Rᴇᴀᴄᴛɪᴏɴs Oɴʟʏ\n🔹 Gʀᴏᴜᴘs — Eᴍᴏᴊɪ Rᴇᴀᴄᴛɪᴏɴs Oɴʟʏ`
 
 // ══════════════════════════════════════════════════════════════ END: constants.js

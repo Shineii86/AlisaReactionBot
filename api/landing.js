@@ -23,7 +23,7 @@ export const htmlContent = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Alisa · Reaction Bot with Alisa Chat</title>
+  <title>Alisa · Neural Reaction Engine</title>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- Favicon Stack — Every size for every platform              -->
@@ -38,7 +38,7 @@ export const htmlContent = `
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- Primary Meta — Search engines + browser tabs               -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <meta name="description" content="Alisa Reaction Bot — fast Telegram auto-reaction bot with Alisa Chat (Groq + Gemini), tsundere personality, multi-language support. Deploy on Cloudflare, Vercel, or Docker.">
+  <meta name="description" content="Alisa Reaction Bot — fast Telegram auto-reaction bot inspired by Alisa Mikhailovna Kujou. Deploy on Cloudflare, Vercel, or Docker. Auto-react to messages with curated emojis.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://alisareactionbot.vercel.app">
 
@@ -54,7 +54,7 @@ export const htmlContent = `
   <meta property="og:image:width" content="1280" />
   <meta property="og:image:height" content="640" />
   <meta property="og:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
-  <meta property="og:description" content="Fast Telegram auto-reaction bot with Alisa Chat (Groq + Gemini), tsundere personality, multi-language support. Deploy on Cloudflare, Vercel, or Docker." />
+  <meta property="og:description" content="Fast Telegram auto-reaction bot inspired by Alisa Mikhailovna Kujou. Deploy on Cloudflare, Vercel, or Docker. Auto-react to messages with curated emojis." />
   <meta property="og:site_name" content="Alisa Reaction Bot" />
   <meta property="og:locale" content="en_US" />
 
@@ -65,7 +65,7 @@ export const htmlContent = `
   <meta name="twitter:site" content="@Shineii86" />
   <meta name="twitter:creator" content="@Shineii86" />
   <meta name="twitter:title" content="Alisa · Reaction Bot" />
-  <meta name="twitter:description" content="Fast Telegram auto-reaction bot with Alisa Chat (Groq + Gemini), tsundere personality, multi-language support. Deploy anywhere." />
+  <meta name="twitter:description" content="Fast Telegram auto-reaction bot inspired by Alisa Mikhailovna Kujou. Deploy anywhere, react to everything." />
   <meta name="twitter:image" content="/assets/banner1.png" />
   <meta name="twitter:image:alt" content="Alisa Reaction Bot — Automated Telegram Reactions" />
   <meta name="twitter:domain" content="alisareactionbot.vercel.app" />
@@ -78,7 +78,7 @@ export const htmlContent = `
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Alisa Reaction Bot",
-    "description": "Fast Telegram auto-reaction bot with Alisa Chat (Groq + Gemini), tsundere personality, multi-language support, conversation memory, and mood-based stickers. Deploy on Cloudflare, Vercel, or Docker.",
+    "description": "Fast Telegram auto-reaction bot inspired by Alisa Mikhailovna Kujou. Deploy on Cloudflare, Vercel, or Docker. Per-chat customization and privacy-first design.",
     "url": "https://alisareactionbot.vercel.app",
     "applicationCategory": "CommunicationApplication",
     "operatingSystem": "Cloudflare Workers, Vercel, Docker",
@@ -712,7 +712,7 @@ export const htmlContent = `
             <span class="hero-name-jp">アリサ・ミハイロヴナ・九条</span>
             <span class="hero-name-en"><span class="hl">Alisa</span> Mikhailovna Kujou</span>
           </h1>
-          <p class="hero-desc">The half-Russian, half-Japanese tsundere whose sharp tongue, elegant pride, and moments when Russian slips through her composed facade define every interaction. This Telegram bot carries her essence — precise, proud, and secretly warm. Now with Alisa Chat powered by Groq + Gemini. Хмпф.</p>
+          <p class="hero-desc">The half-Russian, half-Japanese tsundere whose sharp tongue, elegant pride, and moments when Russian slips through her composed facade define every interaction. This Telegram bot carries her essence — precise, proud, and secretly warm. Хмпф.</p>
           <div class="hero-btns">
             <a href="#deploy" class="btn btn-primary"><i data-lucide="rocket"></i> Deploy Now</a>
             <a href="https://github.com/Shineii86/AlisaReactionBot" target="_blank" class="btn btn-ghost"><i data-lucide="code-2"></i> Source Code</a>
@@ -737,7 +737,7 @@ export const htmlContent = `
       <div class="features-head reveal">
         <div class="section-label">Возможности</div>
         <h2 class="section-title">Key Features</h2>
-        <p class="section-subtitle">A fast, reliable Telegram bot that auto-reacts to messages and talks back with Alisa Chat. Deploy anywhere, react to everything. Хмпф, naturally.</p>
+        <p class="section-subtitle">A fast, reliable Telegram bot that auto-reacts to messages. Deploy anywhere, react to everything. Хмпф, naturally.</p>
       </div>
       <div class="feat-grid">
         <div class="feat-card reveal d1">
@@ -757,12 +757,6 @@ export const htmlContent = `
           <h3>Smart Reactions</h3>
           <p>Configurable emoji list with randomization levels. Reacts naturally to messages, not robotically.</p>
           <span class="feat-tag">customizable</span>
-        </div>
-        <div class="feat-card reveal d4">
-          <div class="feat-icon c4"><i data-lucide="brain"></i></div>
-          <h3>Alisa Chat</h3>
-          <p>Powered by Groq Llama 3.3 + Gemini fallback. Alisa talks back with her tsundere personality — multi-language support for Russian, Japanese, English, and Hinglish. Remembers last 10 messages per chat and sends mood-based stickers alongside responses.</p>
-          <span class="feat-tag">new</span>
         </div>
         <div class="feat-card reveal d5">
           <div class="feat-icon c5"><i data-lucide="server"></i></div>

@@ -23,13 +23,11 @@ import {
     pausedMessage, resumedMessage, notPausedMessage,
     broadcastStarted, broadcastDone, onlyOwnerMessage,
     onlyAdminMessage, groupOnlyMessage, pingMessage,
-    adminPanelMessage, alisaEnabledMessage, alisaDisabledMessage
+    adminPanelMessage
 } from './constants.js';
 import { getRandomPositiveReaction, splitEmojis, log } from './helper.js';
 import { getAdFooter } from './ads.js';
 import { Store } from './store.js';
-import { askAlisa } from './alisa.js';
-import { getSticker } from './stickers.js';
 
 // ══════════════════════════════════════════════════════════════
 // IN-MEMORY STATE (runtime-only, not persisted)
@@ -1014,23 +1012,6 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 return;
             }
 
-            // /alisa (owner only — toggle Alisa chat)
-            if (cmd === '/alisa') {
-                trackCommand('alisa');
-                if (!isOwner(userId, ownerId)) {
-                    await cleanupMessages(botApi, chatId, message_id);
-                    const sent = await botApi.sendMessage(chatId, onlyOwnerMessage, getCloseKeyboard());
-                    trackBotMessage(chatId, sent);
-                    return;
-                }
-                const enabled = await Store.toggleAlisa();
-                await cleanupMessages(botApi, chatId, message_id);
-                const msg = enabled ? alisaEnabledMessage : alisaDisabledMessage;
-                const sent = await botApi.sendMessage(chatId, withAd(msg), getCloseKeyboard(), linkPreview);
-                trackBotMessage(chatId, sent);
-                return;
-            }
-
         }
 
         // ---- FEATURE: Welcome & Leave Messages ----
@@ -1104,75 +1085,6 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 try {
                     await botApi.sendMessage(chatId, leaveText, leaveBtns, linkPreview);
                 } catch {}
-            }
-        }
-
-        // ---- FEATURE: Alisa Chat ----
-
-        // ─── Alisa Chat Response (non-command messages) ───
-        if (text && Store.isAlisaEnabled()) {
-            const isPrivate = chatType === 'private';
-            const isMentioned = content.entities?.some(e =>
-                e.type === 'mention' && text.substring(e.offset, e.offset + e.length) === `@${botUsername}`
-            );
-
-            // Respond in private chats or when mentioned in groups
-            if (isPrivate || isMentioned) {
-                const groqKey = process.env.GROQ_API_KEY;
-                const geminiKey = process.env.GEMINI_API_KEY;
-                if (!groqKey && !geminiKey) {
-                    // No API keys — fall through to reactions
-                } else {
-                    // Clean mention from text for groups
-                    const cleanText = isMentioned
-                        ? text.replace(new RegExp(`@${botUsername}`, 'g'), '').trim()
-                        : text;
-
-                    if (cleanText.length > 0) {
-                        try {
-                            // Show typing indicator
-                            await botApi.sendChatAction(chatId, 'typing');
-
-                            // Get conversation history
-                            const history = Store.getConversation(chatId);
-
-                            // Get Alisa response (Groq primary, Gemini fallback)
-                            const { text: alisaText, mood } = await askAlisa(groqKey, geminiKey, cleanText, history);
-
-                            // Save to conversation history
-                            await Store.addMessage(chatId, 'user', cleanText);
-                            await Store.addMessage(chatId, 'model', alisaText);
-
-                            // Track stats
-                            await Store.trackCommand('alisa_chat');
-
-                            // Send text response (no photo preview, reply to user's message)
-                            await botApi.sendMessage(chatId, alisaText, null, null, message_id);
-
-                            // Send sticker based on mood
-                            const sticker = getSticker(mood);
-                            if (sticker) {
-                                try { await botApi.sendSticker(chatId, sticker); } catch {}
-                            }
-
-                            // Still react to the user's message
-                            try {
-                                const chatReactions = getReactionsForChat(chatId, Reactions);
-                                const reaction = getRandomPositiveReaction(chatReactions);
-                                if (reaction) {
-                                    await botApi.setMessageReaction(chatId, message_id, reaction);
-                                    await Store.trackReaction();
-                                    logReaction(chatId, reaction);
-                                }
-                            } catch {}
-
-                            return;
-                        } catch (error) {
-                            log.error('[Alisa Chat]', error.message);
-                            // Fall through to auto-reaction on error
-                        }
-                    }
-                }
             }
         }
 

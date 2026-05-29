@@ -23,8 +23,7 @@
 15. [How Broadcast Works](#how-broadcast-work)
 16. [Ad Library (AdLab)](#ad-library-adlab)
 17. [Photo Support](#photo-support)
-18. [Alisa Chat](#ai-chat)
-19. [Close Button](#close-button)
+18. [Close Button](#close-button)
 20. [Welcome & Leave Messages](#welcome--leave-messages)
 21. [Persistent Chat Storage](#persistent-chat-storage)
 22. [Security Features](#security-features)
@@ -1161,117 +1160,6 @@ Commands that show the photo preview:
 ### Without BOT_PHOTO
 
 If `BOT_PHOTO` is not set, all commands send regular text messages without link preview. The bot works perfectly fine without it.
-
----
-
-## Alisa Chat
-
-Starting from v2.15.3, Alisa can have real conversations using AI. She responds in her signature tsundere personality — proud, sharp-tongued, and secretly warm. Powered by Groq (Llama 3.3 70B) as primary provider with Google Gemini as fallback.
-
-### How It Works
-
-1. A user sends a message in a private chat (not a command)
-2. The bot forwards it to Groq with Alisa's personality prompt (falls back to Gemini if Groq is unavailable)
-3. Alisa responds in character — short, tsundere, with Russian sprinkled in
-4. A mood-based sticker is sent alongside the response
-5. A typing indicator shows before she replies
-
-### Commands
-
-| Command | Description | Access |
-|---|---|---|
-| `/alisa` | Toggle Alisa chat on/off | Bot Owner |
-
-### Enabling / Disabling
-
-The bot owner can toggle Alisa chat globally:
-
-```
-/alisa
-```
-
-**When enabled:**
-```
-🤖 Aʟɪsᴀ Cʜᴀᴛ Is Nᴏᴡ Eɴᴀʙʟᴇᴅ.
-Gᴇᴍɪɴɪ Pᴏᴡᴇʀᴇᴅ. Dᴏɴ'ᴛ Gᴇᴛ Usᴇᴅ Tᴏ Mʏ Kɪɴᴅɴᴇss.
-```
-
-**When disabled:**
-```
-🤖 Aʟɪsᴀ Cʜᴀᴛ Is Nᴏᴡ Dɪsᴀʙʟᴇᴅ.
-I Was Tɪʀᴇd Of Tᴀʟᴋɪɴɢ Tᴏ Yᴏᴜ Aɴʏᴡᴀʏ.
-```
-
-### Multi-Language Support
-
-Alisa auto-detects the user's language and responds accordingly:
-
-| User writes in | Alisa responds in |
-|---|---|
-| Russian | Russian (with occasional Japanese) |
-| Japanese | Japanese (with occasional Russian) |
-| English | English (with Russian sprinkled in) |
-| Hinglish | Hinglish (with Russian sprinkled in) |
-
-She always keeps the tsundere flavor regardless of language.
-
-### Conversation Memory
-
-Alisa remembers the **last 10 messages** per chat. This means:
-- She can follow a conversation thread
-- She remembers what you just said
-- Context resets after 10 messages (privacy by design)
-
-### Mood Stickers
-
-Every AI response includes a mood-based sticker. Alisa's mood is detected from her response text:
-
-| Mood | Trigger | Sticker |
-|---|---|---|
-| Tsundere | "Хмпф", "hmph", "N-Not" | Default tsundere sticker |
-| Annoyed | "Идиот", "дурак", "baka", "fool" | Angry sticker |
-| Grateful | "Спасибо", "thank", "аригато" | Happy sticker |
-| Reluctant | "Хорошо", "ладно", "fine" | Reluctant sticker |
-| Flustered | Both `!` and `?` in text | Blushing sticker |
-| Thoughtful | `…` or `...` | Thinking sticker |
-| Neutral | Default | Neutral sticker |
-
-### Personality
-
-Alisa's AI personality is defined by her character from *"Alya Sometimes Hides Her Feelings in Russian"*:
-
-- **Tsundere** — outwardly sharp, secretly caring
-- **Concise** — 1-3 sentences max, like a real chat
-- **No emojis** — she's too dignified for that
-- **Small caps** — uses Lɪᴋᴇ Tʜɪs for emphasis
-- **Russian phrases** — naturally mixes in Хмпф, Хорошо, Дурак, etc.
-- **Never breaks character** — won't mention being an AI
-
-### Configuration
-
-| Variable | Required | Description |
-|---|---|---|
-| `GROQ_API_KEY` | Recommended | Groq API key — primary provider ([Get one here](https://console.groq.com)) |
-| `GEMINI_API_KEY` | Optional | Google Gemini API key — fallback provider ([Get one here](https://aistudio.google.com/apikey)) |
-
-At least one key is required. Set both for maximum uptime.
-
-### Technical Details
-
-| Setting | Value |
-|---|---|
-| Primary model | `llama-3.3-70b-versatile` (Groq) |
-| Fallback models | `gemini-2.5-flash` → `gemini-2.0-flash` → `gemini-flash-lite-latest` |
-| Max tokens | `1024` |
-| Temperature | `0.9` |
-| Timeout | `8 seconds` |
-| Memory window | Last 10 messages per chat |
-| Module | `api/alisa.js` |
-| Sticker module | `api/stickers.js` |
-
-### Without API Keys
-
-If neither `GROQ_API_KEY` nor `GEMINI_API_KEY` is set, the Alisa Chat feature is disabled. The bot still works for reactions and all other commands.
 
 ---
 
