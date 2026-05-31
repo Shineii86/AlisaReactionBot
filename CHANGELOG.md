@@ -16,6 +16,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 ### 🔧 Changes
 
 - **Removed deprecated `@vercel/kv` dependency** — Vercel KV is deprecated in favor of Upstash Redis. Removed from `optionalDependencies`, removed all Vercel KV code paths from `store.js`, and cleaned up `.env.example`. Upstash Redis (free tier) remains as the recommended persistent storage for serverless deployments.
+- **Removed unused methods from TelegramBotAPI** — Removed `getMe()`, `deleteWebhook()`, `sendChatAction()`, and `sendSticker()` as they were never called anywhere in the codebase.
 
 ---
 

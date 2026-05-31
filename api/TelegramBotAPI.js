@@ -48,10 +48,6 @@ export default class TelegramBotAPI {
 
     // ─── Core Methods ───
 
-    async getMe() {
-        return this.callApi('getMe', {});
-    }
-
     async getChat(chatId) {
         return this.callApi('getChat', { chat_id: chatId });
     }
@@ -120,31 +116,10 @@ export default class TelegramBotAPI {
         });
     }
 
-    async deleteWebhook() {
-        return this.callApi('deleteWebhook', {});
-    }
-
     async getWebhookInfo() {
         return this.callApi('getWebhookInfo', {});
     }
 
-    // ─── Chat Actions ───
-
-    async sendChatAction(chatId, action = 'typing') {
-        return this.callApi('sendChatAction', {
-            chat_id: chatId,
-            action: action
-        });
-    }
-
-    // ─── Stickers ───
-
-    async sendSticker(chatId, stickerFileId) {
-        return this.callApi('sendSticker', {
-            chat_id: chatId,
-            sticker: stickerFileId
-        });
-    }
 }
 
 // ══════════════════════════════════════════════════════════════ END: TelegramBotAPI.js
