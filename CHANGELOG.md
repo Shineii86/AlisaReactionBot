@@ -4,6 +4,21 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.15.4] — 2026-05-31
+
+### 🐛 Bug Fixes
+
+- **Fixed Cloudflare Workers deployment crash** — `version.js` used `createRequire(import.meta.url)` which fails in Cloudflare Workers because `import.meta.url` is `undefined` in the Workers runtime. This caused `wrangler deploy` to fail with error code 10021. Fixed by:
+  - Made `version.js` runtime-aware: uses `createRequire` only when `import.meta.url` is defined (Node.js)
+  - Falls back to hardcoded version string for Cloudflare Workers and other non-Node.js runtimes
+  - Switched from static `import { createRequire } from 'module'` to dynamic `import('node:module')` to avoid bundler issues
+
+### 🔧 Changes
+
+- **Removed deprecated `@vercel/kv` dependency** — Vercel KV is deprecated in favor of Upstash Redis. Removed from `optionalDependencies`, removed all Vercel KV code paths from `store.js`, and cleaned up `.env.example`. Upstash Redis (free tier) remains as the recommended persistent storage for serverless deployments.
+
+---
+
 ## [v2.15.3] — 2026-05-29
 
 ### 🔧 Changes

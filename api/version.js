@@ -5,7 +5,8 @@
  *
  * @description
  *   Single source of truth for the bot version.
- *   Reads from package.json — change version there only.
+ *   Reads from package.json in Node.js; uses fallback in
+ *   Cloudflare Workers and other non-Node.js runtimes.
  *
  * @exports VERSION
  *
@@ -14,8 +15,17 @@
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const { version } = require('../package.json');
+let VERSION = '2.15.4'; // Fallback for Cloudflare Workers / non-Node.js runtimes
 
-export const VERSION = version;
+try {
+    if (import.meta.url) {
+        const { createRequire } = await import('node:module');
+        const require = createRequire(import.meta.url);
+        const pkg = require('../package.json');
+        VERSION = pkg.version;
+    }
+} catch {
+    // Cloudflare Workers or other non-Node.js runtime — use fallback above
+}
+
+export { VERSION };

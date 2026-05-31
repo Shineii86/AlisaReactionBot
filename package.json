@@ -1,6 +1,6 @@
 {
   "name": "alisareactionbot",
-  "version": "2.15.3",
+  "version": "2.15.4",
   "description": "A Telegram Bot that automatically reacts to posts in Telegram Channels, groups, and private messages, developed as a serverless application.",
   "main": "api/index.js",
   "type": "module",
@@ -14,8 +14,7 @@
     "express": "^5.2.1"
   },
   "optionalDependencies": {
-    "@upstash/redis": "^1.34.3",
-    "@vercel/kv": "^1.0.1"
+    "@upstash/redis": "^1.34.3"
   },
   "engines": {
     "node": ">=18.x"

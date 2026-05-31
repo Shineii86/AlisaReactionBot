@@ -6,7 +6,6 @@
  * @description
  *   Persistent state storage. Environment-aware:
  *   - Upstash Redis (free): when UPSTASH_REDIS_REST_URL is set
- *   - Vercel KV (paid): when KV_REST_API_URL is set
  *   - Local/Docker/Render: uses data/state.json file
  *   - Cloudflare Workers / Fallback: in-memory (non-persistent)
  *
@@ -53,20 +52,14 @@ async function loadNodeModules() {
     }
 }
 
-// Redis detection (Upstash free tier > Vercel KV paid)
+// Redis detection (Upstash free tier)
 let isUpstash = false;
-let isVercelKV = false;
 const KV_KEY = 'alisareactionbot:state';
 
 function detectRedis() {
     isUpstash = isNode
         && typeof process.env !== 'undefined'
         && !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
-
-    isVercelKV = !isUpstash
-        && isNode
-        && typeof process.env !== 'undefined'
-        && !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 
 let storageType = 'memory';  // 'upstash' | 'vercel-kv' | 'file' | 'memory'
@@ -183,54 +176,6 @@ async function upstashSave() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// VERCEL KV STORAGE (Paid — requires Vercel KV database)
-// Optional: set KV_REST_API_URL + KV_REST_API_TOKEN to enable
-// ══════════════════════════════════════════════════════════════
-
-async function vercelKVInit() {
-    if (redis) return;
-    try {
-        const { createClient } = await import('@vercel/kv');
-        redis = createClient({
-            url: process.env.KV_REST_API_URL,
-            token: process.env.KV_REST_API_TOKEN,
-        });
-        log.info('[Store:KV] Vercel KV client initialized');
-    } catch (error) {
-        log.error('[Store:KV] Failed to initialize:', error.message);
-        storageType = 'memory';
-    }
-}
-
-async function vercelKVLoad() {
-    await vercelKVInit();
-    if (!redis) return;
-    try {
-        const data = await redis.get(KV_KEY);
-        if (data) {
-            state = { ...getDefaultState(), ...data, stats: { ...getDefaultState().stats, ...data.stats } };
-            log.info(`[Store:KV] Loaded state: ${Object.keys(state.chats).length} chats`);
-        } else {
-            state = getDefaultState();
-            await vercelKVSave();
-            log.info('[Store:KV] Created fresh state in KV');
-        }
-    } catch (error) {
-        log.error('[Store:KV] Failed to load:', error.message);
-        state = getDefaultState();
-    }
-}
-
-async function vercelKVSave() {
-    if (!redis) return;
-    try {
-        await redis.set(KV_KEY, state);
-    } catch (error) {
-        log.error('[Store:KV] Failed to save:', error.message);
-    }
-}
-
-// ══════════════════════════════════════════════════════════════
 // UNIFIED SAVE — batched to reduce write frequency
 // ══════════════════════════════════════════════════════════════
 
@@ -250,7 +195,6 @@ function scheduleSave() {
         if (!dirty) return;
         dirty = false;
         if (storageType === 'upstash') await upstashSave();
-        else if (storageType === 'vercel-kv') await vercelKVSave();
         else if (storageType === 'file') fileSave();
     }, SAVE_DEBOUNCE_MS);
 }
@@ -266,7 +210,6 @@ async function flush() {
     }
     dirty = false;
     if (storageType === 'upstash') await upstashSave();
-    else if (storageType === 'vercel-kv') await vercelKVSave();
     else if (storageType === 'file') fileSave();
     log.info('[Store] Flushed to disk');
 }
@@ -285,10 +228,6 @@ async function load() {
         // Upstash Redis (free tier — 10,000 req/day, 256MB)
         storageType = 'upstash';
         await upstashLoad();
-    } else if (isVercelKV) {
-        // Vercel KV (paid)
-        storageType = 'vercel-kv';
-        await vercelKVLoad();
     } else {
         // Try file storage (Node.js only)
         const hasFS = await loadNodeModules();
