@@ -62,7 +62,7 @@ function detectRedis() {
         && !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 }
 
-let storageType = 'memory';  // 'upstash' | 'vercel-kv' | 'file' | 'memory'
+let storageType = 'memory';  // 'upstash' | 'file' | 'memory'
 let redis = null;
 let loaded = false;
 
