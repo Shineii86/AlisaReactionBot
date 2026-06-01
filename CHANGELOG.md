@@ -25,7 +25,14 @@ All notable changes to Alisa Reaction Bot are documented here.
 ### 🎨 UI Updates
 
 - **Start menu** — Added optional "Website" button (via `WEB_URL` env var)
-- **Help menu** — Updated reactions button text to "👀 Rᴇᴀᴄᴛɪᴏɴs ✨", added "Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ" button
+- **Help menu** — Updated reactions button text to "👀 Aʟʏᴀ Rᴇᴀᴄᴛɪᴏɴs ✨", added "Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ" button
+- **Landing page** — Added "Multi-Bot" feature card
+
+### 📖 Documentation
+
+- **README.md** — Added multi-bot support docs, deployment limits table (Vercel/Cloudflare/Docker/Render/Railway), updated env vars, project structure, architecture flow, FAQ
+- **GUIDE.md** — Added multi-bot setup guide, `/set-webhooks` endpoint docs, updated env vars, webhook options, FAQ with deployment limits
+- **package.json** — Added `webhooks` npm script for easy webhook registration
 
 ---
 

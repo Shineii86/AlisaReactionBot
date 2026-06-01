@@ -144,11 +144,12 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 <td>
 
 ### 🚀 Deployment
+- **Multi-Bot Support** — Run multiple bots from a single deployment via `BOT_TOKENS`
 - **Multi-Platform** — Cloudflare Workers, Vercel, Docker, Railway, Render
 - **Zero Cold Starts** — Edge-optimized for instant responses
 - **One-Click Deploy** — Deploy buttons for every platform
 - **Free Tier Friendly** — Works on free tiers (Docker for persistent storage)
-- **Webhook Setup** — Set webhook directly from Telegram via `/setwebhook`
+- **Webhook Setup** — Set webhooks via Telegram `/setwebhook` or `/set-webhooks` endpoint
 - **Persistent Storage** — File-based (Docker/Local), Upstash Redis free (Vercel), in-memory (Workers)
 
 </td>
@@ -335,7 +336,15 @@ docker-compose up -d
 /setwebhook https://your-worker.your-subdomain.workers.dev
 ```
 
-**Option B — Via curl:**
+**Option B — Via `/set-webhooks` endpoint (multi-bot):**
+```bash
+curl -X POST "https://your-domain.com/set-webhooks" \
+  -H "Content-Type: application/json" \
+  -d '{"base_url": "https://your-domain.com"}'
+```
+This registers webhooks for ALL configured bots in one request.
+
+**Option C — Via curl (single bot):**
 ```bash
 curl -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" \
   -H "Content-Type: application/json" \
@@ -355,15 +364,19 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 
 | Variable | Description | Example | Required |
 |:---|:---|:---|:---:|
-| `BOT_TOKEN` | Telegram Bot API token from @BotFather | `123456:ABC-DEF...` | ✅ |
-| `BOT_USERNAME` | Bot username (without @) | `AlisaReactionBot` | ✅ |
+| `BOT_TOKEN` | Telegram Bot API token from @BotFather (single bot) | `123456:ABC-DEF...` | ✅* |
+| `BOT_USERNAME` | Bot username without @ (single bot) | `AlisaReactionBot` | ✅* |
+| `BOT_TOKENS` | Multi-bot: comma-separated `token:username` pairs | `token1:BotA,token2:BotB` | ✅* |
 | `EMOJI_LIST` | Reaction emojis (space or comma separated) | `👍 ❤ 🔥 🎉 👏` | ✅ |
 | `RANDOM_LEVEL` | Reaction randomness for groups (0-10) | `5` | ❌ |
 | `RESTRICTED_CHATS` | Chat IDs to exclude (comma separated) | `-100123,456789` | ❌ |
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
+| `WEB_URL` | Website URL for "Website" button on /start | `https://example.com` | ❌ |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
+
+> *Either `BOT_TOKEN` + `BOT_USERNAME` OR `BOT_TOKENS` is required. `BOT_TOKENS` takes precedence.
 
 > **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
 
@@ -460,12 +473,14 @@ AlisaReactionBot/
 │   ├── index.js              # Express server (Docker/Vercel/Local)
 │   ├── worker.js             # Cloudflare Worker entry point
 │   ├── bot-handler.js        # Core logic — commands, reactions, stats
+│   ├── bot-manager.js        # Multi-bot manager (parses BOT_TOKENS)
 │   ├── store.js              # Persistent state storage (file/KV/memory)
 │   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger
 │   ├── ads.js                # AdLab — centralized ad management library
+│   ├── version.js            # Version source of truth
 ├── assets/                   # Logo and banner images
 ├── data/                     # Runtime state (auto-created, gitignored)
 ├── .env.example              # Environment variable template
@@ -488,7 +503,7 @@ AlisaReactionBot/
 
 ## 🧠 Architecture
 
-**Request Flow:**
+**Request Flow (Single-Bot):**
 
 1. User sends a message in Telegram
 2. Telegram forwards it to your webhook (POST `/`)
@@ -497,6 +512,15 @@ AlisaReactionBot/
    - Command? → Execute command, send response
    - Regular message? → Check restrictions, rate limit, pick emoji, react
 5. Stats are updated in-memory
+6. `200 OK` returned to Telegram
+
+**Request Flow (Multi-Bot):**
+
+1. User sends a message to any of your bots
+2. Telegram forwards to the bot's webhook path (POST `/bot/<botId>`)
+3. `BotManager` routes to the correct bot instance by URL path
+4. Each bot validates its own webhook secret
+5. `bot-handler.js` processes the update for that specific bot
 6. `200 OK` returned to Telegram
 
 **Memory Model:**
@@ -577,6 +601,66 @@ npm run cloudflare         # Wrangler dev server
 
 ---
 
+## 📊 Deployment Limits
+
+How many bots can you run? It depends on your platform and plan.
+
+### Vercel
+
+| Plan | Price | Function Timeout | Bandwidth | Bots Supported |
+|:---|:---:|:---:|:---:|:---:|
+| **Hobby (Free)** | $0/mo | 10s | 100 GB/mo | 1-5 bots |
+| **Pro** | $20/mo | 60s | 1 TB/mo | 10-50 bots |
+| **Enterprise** | Custom | Custom | Custom | Unlimited |
+
+> All bots share one serverless function. The limit is traffic-based, not bot-count-based. 1-5 bots on Hobby is typical; high-traffic bots may need Pro.
+
+### Cloudflare Workers
+
+| Plan | Price | Requests | CPU Time | Bots Supported |
+|:---|:---:|:---:|:---:|:---:|
+| **Free** | $0/mo | 100,000/day | 10ms/req | 1-10 bots |
+| **Paid** | $5/mo | 10M/month | 30s/req | 10-100 bots |
+
+> Workers have zero cold starts. Free tier is generous for low-traffic bots. High-traffic multi-bot setups should use the paid plan.
+
+### Docker / Self-Hosted (VPS)
+
+| Plan | Price | Limits | Bots Supported |
+|:---|:---:|:---|:---:|
+| **Any VPS** | $3-10/mo | Depends on server specs | 10-100+ bots |
+
+> No platform limits. Capacity depends on RAM, CPU, and network. A $5/mo VPS can easily handle 20+ bots.
+
+### Render
+
+| Plan | Price | Bots Supported |
+|:---|:---:|:---:|
+| **Free** | $0/mo | 1-3 bots (spins down after 15min) |
+| **Paid** | $7/mo | 5-20 bots (always on) |
+
+### Railway
+
+| Plan | Price | Bots Supported |
+|:---|:---:|:---:|
+| **Trial** | $5 free credit | 1-5 bots |
+| **Hobby** | $5/mo | 5-20 bots |
+| **Pro** | $20/mo | 20-100 bots |
+
+### Quick Reference
+
+| Bots | Recommended Platform | Cost |
+|:---:|:---|:---:|
+| 1-2 | Vercel Hobby or Cloudflare Free | $0 |
+| 3-5 | Cloudflare Workers Free or Docker | $0 |
+| 5-10 | Cloudflare Paid or Docker VPS | $5/mo |
+| 10-50 | Vercel Pro or Docker VPS | $5-20/mo |
+| 50+ | Docker on dedicated server | $10+/mo |
+
+> **Tip:** For multi-bot, Docker/Self-hosted gives the most flexibility and lowest cost per bot. Serverless platforms are great for 1-5 bots but costs scale with traffic.
+
+---
+
 ## 🏆 Credits
 
 **Developer:** [Shinei Nouzen](https://github.com/Shineii86)
@@ -596,7 +680,7 @@ npm run cloudflare         # Wrangler dev server
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.15.3** — Dynamic island navigation, glassmorphism blur, icon.png logo, auto-reactions, per-chat customization.
+**Latest: v2.16.0** — Multi-bot support (run multiple bots from one deployment), `/set-webhooks` endpoint, updated keyboards.
 
 ---
 

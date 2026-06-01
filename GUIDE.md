@@ -312,11 +312,95 @@ These platforms offer one-click deploys with managed infrastructure.
 
 ---
 
+## Multi-Bot Setup (v2.16.0+)
+
+Run multiple Telegram bots from a single deployment. All bots share the same server, storage, and config — only the token and username differ.
+
+### Step 1: Create Your Bots
+
+Create multiple bots via [@BotFather](https://t.me/BotFather):
+
+```
+/newbot → BotAlpha → @AlphaBot → copy token
+/newbot → BotBeta  → @BetaBot  → copy token
+```
+
+### Step 2: Set BOT_TOKENS
+
+Instead of `BOT_TOKEN` + `BOT_USERNAME`, use `BOT_TOKENS`:
+
+```env
+BOT_TOKENS=1234567890:ABCdefGHIjkl:AlphaBot,9876543210:XYZabcDEFghi:BetaBot
+```
+
+Format: `botId:botTokenHash:botUsername` — the token contains a colon, so the **last** colon separates token from username.
+
+### Step 3: Deploy & Set Webhooks
+
+Deploy normally (same as single-bot). Then set all webhooks at once:
+
+```bash
+curl -X POST https://your-domain.com/set-webhooks \
+  -H "Content-Type: application/json" \
+  -d '{"base_url": "https://your-domain.com"}'
+```
+
+Each bot gets its own webhook path:
+- `@AlphaBot` → `https://your-domain.com/bot/alphabot`
+- `@BetaBot` → `https://your-domain.com/bot/betabot`
+
+### Step 4: Test
+
+Send `/start` to each bot. They should all respond independently.
+
+### How It Works
+
+- `api/bot-manager.js` parses `BOT_TOKENS` and creates a `TelegramBotAPI` instance per bot
+- Each bot registers its webhook at `/bot/<username>`
+- Incoming updates are routed by URL path to the correct bot
+- All bots share the same storage (reactions, stats, chat registry)
+- Each bot has its own webhook secret for security
+
+### Deployment Limits
+
+| Bots | Recommended Platform | Cost |
+|:---:|:---|:---:|
+| 1-2 | Vercel Hobby / Cloudflare Free | $0 |
+| 3-5 | Cloudflare Workers Free / Docker | $0 |
+| 5-10 | Cloudflare Paid / Docker VPS | $5/mo |
+| 10-50 | Vercel Pro / Docker VPS | $5-20/mo |
+| 50+ | Docker on dedicated server | $10+/mo |
+
+> **Tip:** Docker/Self-hosted is the most cost-effective for multi-bot. Serverless platforms work great for 1-5 bots.
+
+---
+
 ## Set Up the Webhook
 
-After deploying, you need to tell Telegram where to send updates. There are three ways to do this.
+After deploying, you need to tell Telegram where to send updates. There are four ways to do this.
 
-### Option 1: Via Telegram (Recommended)
+### Option 1: Via `/set-webhooks` Endpoint (Multi-Bot — Recommended)
+
+If running multiple bots, this sets all webhooks in one request:
+
+```bash
+curl -X POST https://your-domain.com/set-webhooks \
+  -H "Content-Type: application/json" \
+  -d '{"base_url": "https://your-domain.com"}'
+```
+
+Response:
+```json
+{
+  "ok": true,
+  "results": [
+    {"bot": "@AlphaBot", "url": "https://your-domain.com/bot/alphabot", "ok": true, "description": "Webhook was set"},
+    {"bot": "@BetaBot", "url": "https://your-domain.com/bot/betabot", "ok": true, "description": "Webhook was set"}
+  ]
+}
+```
+
+### Option 2: Via Telegram
 
 Send this command to your bot (in a private chat):
 
@@ -332,7 +416,7 @@ The bot confirms with the webhook URL. To check the current status without chang
 
 This shows the current URL, pending updates, and any errors.
 
-### Option 2: Via Mobile Browser
+### Option 3: Via Mobile Browser
 
 Paste this URL in your browser — replace the values:
 
@@ -355,7 +439,7 @@ Press Enter. You'll see:
 https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook?url=https://YOUR_WORKER_URL&secret_token=YOUR_SECRET
 ```
 
-### Option 3: Via Terminal
+### Option 4: Via Terminal
 
 ```bash
 curl -X POST "https://api.telegram.org/botYOUR_BOT_TOKEN/setWebhook" \
@@ -410,11 +494,12 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 
 | Variable | What It Does | Example |
 |---|---|---|
-| `BOT_TOKEN` | Your Telegram bot token from @BotFather | `1234567890:ABCdef...` |
-| `BOT_USERNAME` | Your bot's username (without @) | `AlisaReactionBot` |
+| `BOT_TOKEN` | Your Telegram bot token from @BotFather (single bot mode) | `1234567890:ABCdef...` |
+| `BOT_USERNAME` | Your bot's username without @ (single bot mode) | `AlisaReactionBot` |
+| `BOT_TOKENS` | Multi-bot mode: comma-separated `token:username` pairs | `token1:BotA,token2:BotB` |
 | `EMOJI_LIST` | Emojis the bot uses for reactions | `👍❤🔥🥰👏😁🎉🤩🙏` |
 
-> **Note:** If `BOT_TOKEN` or `BOT_USERNAME` is missing, the bot exits with an error. If `EMOJI_LIST` is missing, the bot runs but won't react to any messages.
+> **Note:** Either `BOT_TOKEN` + `BOT_USERNAME` OR `BOT_TOKENS` is required. `BOT_TOKENS` takes precedence if set. If `EMOJI_LIST` is missing, the bot runs but won't react to any messages.
 
 ### Optional Variables
 
@@ -424,6 +509,7 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `RESTRICTED_CHATS` | Chat IDs where the bot never reacts | None | `-100123,456789` |
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
+| `WEB_URL` | Website URL for "Website" button on /start menu | None | `https://your-site.com` |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | None | `https://example.com/photo.jpg` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
 
@@ -1511,7 +1597,33 @@ For free persistent storage on Vercel, use Upstash Redis. For self-hosted, use D
 
 ### Can I use this bot with multiple bot tokens?
 
-No. Each deployment uses one `BOT_TOKEN`. If you want multiple bots, deploy multiple instances.
+**Yes!** Since v2.16.0, use the `BOT_TOKENS` environment variable to run multiple bots from one deployment:
+
+```env
+BOT_TOKENS=token1:BotAlpha,token2:BotBeta,token3:BotGamma
+```
+
+Format: `botToken:botUsername` separated by commas. Each bot gets its own webhook path (`/bot/<username>`) and independent config.
+
+**Set all webhooks at once:**
+```bash
+curl -X POST https://your-domain.com/set-webhooks \
+  -H "Content-Type: application/json" \
+  -d '{"base_url": "https://your-domain.com"}'
+```
+
+All bots share the same deployment, storage, and server resources. The `BOT_TOKEN` + `BOT_USERNAME` single-bot mode still works — `BOT_TOKENS` takes precedence if set.
+
+**Deployment limits by platform:**
+| Bots | Platform | Cost |
+|:---:|:---|:---:|
+| 1-2 | Vercel Hobby / Cloudflare Free | $0 |
+| 3-5 | Cloudflare Workers Free / Docker | $0 |
+| 5-10 | Cloudflare Paid / Docker VPS | $5/mo |
+| 10-50 | Vercel Pro / Docker VPS | $5-20/mo |
+| 50+ | Docker on dedicated server | $10+/mo |
+
+See [README.md](README.md#-deployment-limits) for full platform-by-platform breakdown.
 
 ### How do I update the bot?
 

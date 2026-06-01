@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node api/index.js",
     "vercel": "vercel dev",
-    "cloudflare": "wrangler dev"
+    "cloudflare": "wrangler dev",
+    "webhooks": "node -e \"fetch('http://localhost:3000/set-webhooks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:process.argv[1]||'http://localhost:3000'})}).then(r=>r.json()).then(console.log).catch(console.error)\""
   },
   "dependencies": {
     "dotenv": "^17.2.3",

@@ -764,6 +764,12 @@ export const htmlContent = `
           <p>Deploy on Cloudflare Workers, Vercel, Docker, or Railway. Same codebase, zero cold starts.</p>
           <span class="feat-tag">multi-platform</span>
         </div>
+        <div class="feat-card reveal d6">
+          <div class="feat-icon c1"><i data-lucide="users"></i></div>
+          <h3>Multi-Bot</h3>
+          <p>Run multiple bots from a single deployment. One codebase, one server, unlimited bots.</p>
+          <span class="feat-tag">v2.16</span>
+        </div>
       </div>
     </div>
   </section>
