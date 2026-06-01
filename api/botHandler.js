@@ -347,13 +347,13 @@ function getForceSubMessage(notJoined) {
         const url = clean.match(/^-?\d+$/)
             ? `https://t.me/c/${clean.replace(/^-100/, '')}`
             : `https://t.me/${clean}`;
-        return [{ text: `💖 Jᴏɪɴ Cʜᴀɴɴᴇʟ ✨`, url, style: 'success' }];
+        return [{ text: `✨ Jᴏɪɴ Cʜᴀɴɴᴇʟ 💖`, url, style: 'success' }];
     });
 
-    buttons.push([{ text: '✨ Jᴏɪɴᴇᴅ? Tʀʏ Aɢᴀɪɴ 💫', callback_data: 'cb_forcecheck', style: 'primary' }]);
+    buttons.push([{ text: '🎀 Jᴏɪɴᴇᴅ? Tʀʏ Aɢᴀɪɴ ✨', callback_data: 'cb_forcecheck', style: 'primary' }]);
 
     return {
-        text: `<b>✨ Aʟʏᴀ Sᴀʏs...</b>\n\n🎀 Yᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ(s) ʙᴇғᴏʀᴇ ᴜsɪɴɢ ᴍᴇ!\n\n💖 Jᴏɪɴ ɴᴏᴡ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ~`,
+        text: `🎀 Хмпф… Sᴏ Yᴏᴜ Tʜᴏᴜɢʜᴛ Yᴏᴜ Cᴏᴜʟᴅ Usᴇ Mᴇ Wɪᴛʜᴏᴜᴛ Jᴏɪɴɪɴɢ?\n\n💖 Jᴏɪɴ Tʜᴇ Cʜᴀɴɴᴇʟ(s) Fɪʀsᴛ. Iᴛ's Nᴏᴛ Lɪᴋᴇ I Cᴀʀᴇ Oʀ Aɴʏᴛʜɪɴɢ.\n\n✨ Tʜᴇɴ Cᴏᴍᴇ Bᴀᴄᴋ. Mᴀʏʙᴇ.`,
         keyboard: buttons,
     };
 }
@@ -456,16 +456,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     if (forceSubChannels.length > 0) {
                         const { subscribed, notJoined } = await checkForceSubscribe(botApi, callbackUserId, forceSubChannels);
                         if (subscribed) {
-                            await botApi.answerCallbackQuery(cq.id, '✨ Wᴇʟᴄᴏᴍᴇ! Aʟʏᴀ ɪs ʜᴀᴘᴘʏ ᴛᴏ sᴇᴇ ʏᴏᴜ~ 💖');
+                            await botApi.answerCallbackQuery(cq.id, '🎀 Хорошо~ Yᴏᴜ Jᴏɪɴᴇᴅ. I Gᴜᴇss Yᴏᴜ Cᴀɴ Usᴇ Mᴇ Nᴏᴡ… 💖');
                             const name = cq.from?.first_name || 'User';
                             const caption = withAd(startMessage.replace('UserName', name));
                             const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
                             await editMsg(caption, keyboard);
                         } else {
-                            await botApi.answerCallbackQuery(cq.id, '🎀 Yᴏᴜ ʜᴀᴠᴇɴ\'ᴛ ᴊᴏɪɴᴇᴅ ʏᴇᴛ! Pʟᴇᴀsᴇ ᴊᴏɪɴ ғɪʀsᴛ~ 💖', true);
+                            await botApi.answerCallbackQuery(cq.id, '✨ Хмпф! Yᴏᴜ Sᴛɪʟʟ Hᴀᴠᴇɴ\'ᴛ Jᴏɪɴᴇᴅ. Tʀʏ Hᴀʀᴅᴇʀ~ 💖', true);
                         }
                     } else {
-                        await botApi.answerCallbackQuery(cq.id, '✨ Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ~ 💫');
+                        await botApi.answerCallbackQuery(cq.id, '🎀 Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ. Lᴜᴄᴋʏ Yᴏᴜ~ ✨');
                     }
                     break;
                 }
