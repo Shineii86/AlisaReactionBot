@@ -105,7 +105,18 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 - **Rate Limiting** — Max 30 reactions/min per chat to prevent API abuse
 
 </td>
-<td></td>
+<td width="50%">
+
+### 🤖 Multi-Bot & Force Subscribe
+- **Multi-Bot Support** — Run multiple bots from a single deployment via `BOT_TOKENS`
+- **One-Click Webhooks** — Set webhooks for all bots via `/set-webhooks` endpoint
+- **Force Subscribe** — Require users to join channels before using the bot
+- **Owner Exempt** — Bot owner bypasses force subscribe checks
+- **Re-Check Callback** — "Joined? Try Again" button for membership verification
+- **Shared Storage** — All bots share the same persistent state
+- **Independent Config** — Each bot has its own reactions, restrictions, and settings
+
+</td>
 </tr>
 <tr>
 <td>
