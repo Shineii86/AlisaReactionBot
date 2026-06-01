@@ -37,6 +37,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 - **README.md** — Added Telegram badges (Updates, Support, Sponsored)
 - **Renamed files to Alisa style** — `bot-handler.js` → `botHandler.js`, `bot-manager.js` → `botManager.js`, `TelegramBotAPI.js` → `alisaAPI.js`
 - **GUIDE.md** — Added private channel support documentation for Force Subscribe (how to get channel ID, mixed public/private examples) for easy webhook registration
+- **Removed deprecated Vercel KV references** — Code was removed in v2.15.4, docs now consistent (README.md, GUIDE.md)
 
 ---
 
