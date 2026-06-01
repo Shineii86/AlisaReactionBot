@@ -707,40 +707,10 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## 📢 Stay Connected
 
-### Bot Updates Channel
-
 <p align="center">
-  <a href="https://t.me/MaximXBots">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://telegramcard.vercel.app/?username=MaximXBots&theme=dark&verified=true">
-      <source media="(prefers-color-scheme: light)" srcset="https://telegramcard.vercel.app/?username=MaximXBots&theme=light&verified=true">
-      <img src="https://telegramcard.vercel.app/?username=MaximXBots&bgColor=rgba%28127%2C+29%2C+29%2C+1%29&textColor=%23fef2f2&subtleTextColor=%23fca5a5&extraColor=%23fbbf24&shadowColor=rgba%28251%2C+191%2C+36%2C+0.3%29&fontFamily=Arial%2C+sans-serif&verified=true" alt="Telegram Updates Channel" width="850" />
-    </picture>
-  </a>
-</p>
-
-### Support Group
-
-<p align="center">
-  <a href="https://t.me/MaximXGroup">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://telegramcard.vercel.app/?username=MaximXGroup&theme=dark&verified=true">
-      <source media="(prefers-color-scheme: light)" srcset="https://telegramcard.vercel.app/?username=MaximXGroup&theme=light&verified=true">
-      <img src="https://telegramcard.vercel.app/?username=MaximXGroup&bgColor=rgba%28127%2C+29%2C+29%2C+1%29&textColor=%23fef2f2&subtleTextColor=%23fca5a5&extraColor=%23fbbf24&shadowColor=rgba%28251%2C+191%2C+36%2C+0.3%29&fontFamily=Arial%2C+sans-serif&verified=true" alt="Telegram Support Group" width="850" />
-    </picture>
-  </a>
-</p>
-
-### Sponsored Channel
-
-<p align="center">
-  <a href="https://t.me/CodeFlix_Bots">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://telegramcard.vercel.app/?username=CodeFlix_Bots&theme=dark&verified=true">
-      <source media="(prefers-color-scheme: light)" srcset="https://telegramcard.vercel.app/?username=CodeFlix_Bots&theme=light&verified=true">
-      <img src="https://telegramcard.vercel.app/?username=CodeFlix_Bots&bgColor=rgba%28127%2C+29%2C+29%2C+1%29&textColor=%23fef2f2&subtleTextColor=%23fca5a5&extraColor=%23fbbf24&shadowColor=rgba%28251%2C+191%2C+36%2C+0.3%29&fontFamily=Arial%2C+sans-serif&verified=true" alt="Sponsored Channel" width="850" />
-    </picture>
-  </a>
+  <a href="https://t.me/MaximXBots"><img src="https://img.shields.io/badge/📢_Bot_Updates-@MaximXBots-blue?style=for-the-badge&logo=telegram" alt="Updates Channel"></a>
+  <a href="https://t.me/MaximXGroup"><img src="https://img.shields.io/badge/💬_Support_Group-@MaximXGroup-green?style=for-the-badge&logo=telegram" alt="Support Group"></a>
+  <a href="https://t.me/CodeFlix_Bots"><img src="https://img.shields.io/badge/✨_Sponsored-@CodeFlix_Bots-orange?style=for-the-badge&logo=telegram" alt="Sponsored Channel"></a>
 </p>
 
 ---
