@@ -483,10 +483,10 @@ AlisaReactionBot/
 ├── api/
 │   ├── index.js              # Express server (Docker/Vercel/Local)
 │   ├── worker.js             # Cloudflare Worker entry point
-│   ├── bot-handler.js        # Core logic — commands, reactions, stats
-│   ├── bot-manager.js        # Multi-bot manager (parses BOT_TOKENS)
+│   ├── botHandler.js         # Core logic — commands, reactions, stats
+│   ├── botManager.js         # Multi-bot manager (parses BOT_TOKENS)
 │   ├── store.js              # Persistent state storage (file/KV/memory)
-│   ├── TelegramBotAPI.js     # Telegram API wrapper (all methods)
+│   ├── alisaAPI.js           # Telegram API wrapper (all methods)
 │   ├── constants.js          # Message templates and keyboard layouts
 │   ├── landing.js            # Landing page HTML (separated for clarity)
 │   ├── helper.js             # Emoji parsing, chat ID parsing, logger

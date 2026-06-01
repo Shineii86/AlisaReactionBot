@@ -23,7 +23,7 @@ import dotenv from 'dotenv';
 import { htmlContent } from './landing.js';
 import { log } from './helper.js';
 import { Store } from './store.js';
-import { BotManager } from './bot-manager.js';
+import { BotManager } from './botManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

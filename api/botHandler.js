@@ -1,6 +1,6 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot — bot-handler.js
+ * Alisa Reaction Bot — botHandler.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
@@ -1213,4 +1213,4 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
     }
 }
 
-// ══════════════════════════════════════════════════════════════ END: bot-handler.js
+// ══════════════════════════════════════════════════════════════ END: botHandler.js

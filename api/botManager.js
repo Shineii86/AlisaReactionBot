@@ -1,6 +1,6 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot — bot-manager.js
+ * Alisa Reaction Bot — botManager.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
@@ -16,9 +16,9 @@
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-import TelegramBotAPI from './TelegramBotAPI.js';
+import TelegramBotAPI from './alisaAPI.js';
 import { splitEmojis, getChatIds, log } from './helper.js';
-import { onUpdate } from './bot-handler.js';
+import { onUpdate } from './botHandler.js';
 
 // ══════════════════════════════════════════════════════════════
 // BOT CONFIGURATION PARSER
@@ -202,4 +202,4 @@ export class BotManager {
     }
 }
 
-// ══════════════════════════════════════════════════════════════ END: bot-manager.js
+// ══════════════════════════════════════════════════════════════ END: botManager.js

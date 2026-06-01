@@ -34,7 +34,8 @@ All notable changes to Alisa Reaction Bot are documented here.
 - **README.md** — Added multi-bot support docs, deployment limits table (Vercel/Cloudflare/Docker/Render/Railway), updated env vars, project structure, architecture flow, FAQ
 - **GUIDE.md** — Added multi-bot setup guide, `/set-webhooks` endpoint docs, updated env vars, webhook options, FAQ with deployment limits
 - **package.json** — Added `webhooks` npm script
-- **README.md** — Added Telegram channel cards (Updates, Support, Sponsored) for easy webhook registration
+- **README.md** — Added Telegram badges (Updates, Support, Sponsored)
+- **Renamed files to Alisa style** — `bot-handler.js` → `botHandler.js`, `bot-manager.js` → `botManager.js`, `TelegramBotAPI.js` → `alisaAPI.js` for easy webhook registration
 
 ---
 

@@ -1,6 +1,6 @@
 /*
  * ======= • ======= • ======= • ======= • =======• =======
- * Alisa Reaction Bot — TelegramBotAPI.js
+ * Alisa Reaction Bot — alisaAPI.js
  * Repository: https://github.com/Shineii86/AlisaReactionBot
  *
  * @description
@@ -122,4 +122,4 @@ export default class TelegramBotAPI {
 
 }
 
-// ══════════════════════════════════════════════════════════════ END: TelegramBotAPI.js
+// ══════════════════════════════════════════════════════════════ END: alisaAPI.js

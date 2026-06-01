@@ -15,7 +15,7 @@
 
 import { htmlContent } from './landing.js';
 import { returnHTML, log } from './helper.js';
-import { BotManager } from './bot-manager.js';
+import { BotManager } from './botManager.js';
 
 export default {
     async fetch(request, env) {
