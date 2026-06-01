@@ -402,13 +402,6 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 
 > Sign up free at [console.upstash.com](https://console.upstash.com), create a Redis database, copy the REST URL and token.
 
-**Option 2: Vercel KV (Paid — starts at $8/month)**
-
-| Variable | Description | Required |
-|:---|:---|:---:|
-| `KV_REST_API_URL` | Vercel KV Redis connection URL | ❌ (auto-set) |
-| `KV_REST_API_TOKEN` | Vercel KV authentication token | ❌ (auto-set) |
-
 > Without any Redis vars, Docker/Local uses file storage (`data/state.json`). Vercel and Cloudflare Workers fall back to in-memory (resets on cold starts).
 
 ### 🎚️ Random Level Explained
