@@ -15,7 +15,7 @@
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-let VERSION = '2.15.4'; // Fallback for Cloudflare Workers / non-Node.js runtimes
+let VERSION = '2.16.0'; // Fallback for Cloudflare Workers / non-Node.js runtimes
 
 try {
     if (import.meta.url) {

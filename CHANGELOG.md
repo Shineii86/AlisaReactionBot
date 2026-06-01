@@ -4,6 +4,25 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.16.0] — 2026-06-02
+
+### ✨ New Features
+
+- **Multi-Bot Support** — Run multiple Telegram bots from a single deployment:
+  - New `BOT_TOKENS` env var: comma-separated `token:username` pairs (e.g. `token1:BotA,token2:BotB`)
+  - Each bot gets its own webhook path: `POST /bot/<username>`
+  - Each bot has independent config (reactions, restricted chats, random level)
+  - Single-bot mode (`BOT_TOKEN` + `BOT_USERNAME`) fully backward compatible
+  - New `api/bot-manager.js` module handles bot lifecycle and webhook routing
+  - Updated `/health` endpoint returns status for all configured bots
+
+### 🔧 Changes
+
+- **Refactored entry points** — `index.js` and `worker.js` now use `BotManager` instead of direct `TelegramBotAPI` instantiation
+- **Added `api/bot-manager.js`** — Centralized multi-bot manager with webhook secret routing
+
+---
+
 ## [v2.15.4] — 2026-05-31
 
 ### 🐛 Bug Fixes

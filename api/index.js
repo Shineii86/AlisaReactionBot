@@ -8,6 +8,9 @@
  *   development. Handles webhook routing, env validation,
  *   health checks, and the landing page.
  *
+ *   Supports both single-bot (BOT_TOKEN) and multi-bot
+ *   (BOT_TOKENS) modes with full backward compatibility.
+ *
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
@@ -17,74 +20,88 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import crypto from 'crypto';
-import TelegramBotAPI from './TelegramBotAPI.js';
+import { htmlContent } from './landing.js';
+import { log } from './helper.js';
+import { Store } from './store.js';
+import { BotManager } from './bot-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import { htmlContent } from './landing.js';
-import { splitEmojis, getChatIds, log } from './helper.js';
-import { onUpdate } from './bot-handler.js';
-import { Store } from './store.js';
 
 // dotenv only needed for local/Docker — Vercel/Render inject env vars natively
 if (!process.env.VERCEL) {
     dotenv.config();
 }
 
-const botToken = process.env.BOT_TOKEN;
-const botUsername = process.env.BOT_USERNAME;
+// ══════════════════════════════════════════════════════════════
+// BOT MANAGER INITIALIZATION
+// ══════════════════════════════════════════════════════════════
 
-if (!botToken || !botUsername) {
-    log.error('Missing required environment variables: BOT_TOKEN and/or BOT_USERNAME');
+const manager = new BotManager(process.env);
+
+if (manager.count === 0) {
+    log.error('No bots configured. Set BOT_TOKEN + BOT_USERNAME or BOT_TOKENS.');
     process.exit(1);
 }
 
-const Reactions = splitEmojis(process.env.EMOJI_LIST);
-const RestrictedChats = getChatIds(process.env.RESTRICTED_CHATS);
-const RandomLevel = (() => {
-    const parsed = parseInt(process.env.RANDOM_LEVEL || '0', 10);
-    return (isNaN(parsed) || parsed < 0 || parsed > 10) ? 0 : parsed;
-})();
-const ownerId = process.env.OWNER_ID || '';
-const webhookSecret = process.env.WEBHOOK_SECRET || crypto.randomUUID();
-const botPhoto = process.env.BOT_PHOTO || '';
-
 if (!process.env.EMOJI_LIST) {
-    log.warn('EMOJI_LIST not set — bot will not react to any messages');
+    log.warn('EMOJI_LIST not set — bots will not react to any messages');
 }
 
 if (!process.env.WEBHOOK_SECRET) {
-    log.warn('WEBHOOK_SECRET not set — auto-generated a random secret for this session');
+    log.warn('WEBHOOK_SECRET not set — auto-generated random secrets for this session');
 }
 
 if (!process.env.OWNER_ID) {
     log.warn('OWNER_ID not set — /broadcast, /log, /leave, /chats, /restrict commands disabled');
 }
 
-const botApi = new TelegramBotAPI(botToken);
+// ══════════════════════════════════════════════════════════════
+// EXPRESS APP
+// ══════════════════════════════════════════════════════════════
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 
-// ─── Webhook Endpoint ───
-app.post('/', async (req, res) => {
+// ─── Multi-bot Webhook Endpoint ───
+// Each bot registers: POST /bot/<botId>
+app.post('/bot/:botId', async (req, res) => {
+    const { botId } = req.params;
+    const bot = manager.getBot(botId);
+
+    if (!bot) {
+        return res.status(404).send('Unknown bot');
+    }
+
     // Validate webhook secret
     const token = req.headers['x-telegram-bot-api-secret-token'];
-    if (token !== webhookSecret) {
-        log.warn('Webhook secret mismatch — rejecting request');
+    if (token !== bot.webhookSecret) {
+        log.warn(`Webhook secret mismatch for @${bot.username} — rejecting`);
         return res.status(403).send('Forbidden');
     }
 
-    const data = req.body;
     try {
-        await onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto);
+        await manager.handleUpdate(botId, req.body);
         res.status(200).send('Ok');
     } catch (error) {
-        log.error('Webhook handler error:', error.message);
+        log.error(`Webhook error for @${bot.username}:`, error.message);
         res.status(200).send('Ok'); // Always return 200 to Telegram
     }
+});
+
+// ─── Single-bot Webhook (backward compatible) ───
+// POST / — routes via webhook secret (only works with single bot)
+app.post('/', async (req, res) => {
+    const token = req.headers['x-telegram-bot-api-secret-token'];
+    const handled = await manager.handleBySecret(token, req.body);
+
+    if (!handled) {
+        log.warn('Webhook secret mismatch on / — rejecting');
+        return res.status(403).send('Forbidden');
+    }
+
+    res.status(200).send('Ok');
 });
 
 // ─── Landing Page ───
@@ -94,15 +111,19 @@ app.get('/', (req, res) => {
 
 // ─── Health Check ───
 app.get('/health', (req, res) => {
+    const bots = manager.getAllBots();
     res.status(200).json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: process.env.NODE_ENV || 'development',
-        botConfigured: !!botToken && !!botUsername,
-        webhookSecured: !!process.env.WEBHOOK_SECRET,
-        reactionsConfigured: Reactions.length > 0,
-        restrictedChats: RestrictedChats.length
+        bots: bots.map(b => ({
+            username: b.username,
+            webhookSecured: !!b.webhookSecret,
+            reactionsConfigured: b.reactions.length > 0,
+            restrictedChats: b.restrictedChats.length,
+        })),
+        botCount: manager.count,
     });
 });
 
@@ -142,10 +163,14 @@ if (!process.env.VERCEL) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         log.info(`Server running on port ${PORT}`);
-        log.info(`Owner ID: ${ownerId || 'NOT SET'}`);
-        log.info(`Reactions: ${Reactions.length} emoji(s) loaded`);
-        log.info(`Restricted chats: ${RestrictedChats.length}`);
-        log.info(`Random level: ${RandomLevel}`);
+        log.info(`Bots: ${manager.count} configured`);
+        for (const bot of manager.getAllBots()) {
+            log.info(`  @${bot.username} → /bot/${bot.botId}`);
+            log.info(`    Owner ID: ${bot.ownerId || 'NOT SET'}`);
+            log.info(`    Reactions: ${bot.reactions.length} emoji(s)`);
+            log.info(`    Restricted: ${bot.restrictedChats.length} chat(s)`);
+            log.info(`    Random level: ${bot.randomLevel}`);
+        }
     });
 }
 

@@ -6,94 +6,92 @@
  * @description
  *   Cloudflare Workers entry point. Handles webhook routing,
  *   env validation, health checks, and the landing page.
- *   Parallel implementation of index.js for the Workers runtime.
+ *   Supports both single-bot and multi-bot modes.
  *
  * @author  Shinei Nouzen
  * @license MIT
  * ======= • ======= • ======= • ======= • =======• =======
  */
 
-import TelegramBotAPI from "./TelegramBotAPI.js";
 import { htmlContent } from './landing.js';
-import { splitEmojis, returnHTML, getChatIds, log } from "./helper.js";
-import { onUpdate } from './bot-handler.js';
-
-// Cache for parsed environment variables to avoid repeated parsing
-let configCache = null;
-
-function getConfig(env) {
-    if (!configCache || configCache.env !== env) {
-        const webhookSecret = env.WEBHOOK_SECRET || crypto.randomUUID();
-
-        if (!env.EMOJI_LIST) log.warn('EMOJI_LIST not set — bot will not react');
-        if (!env.WEBHOOK_SECRET) log.warn('WEBHOOK_SECRET not set — auto-generated for this session');
-        if (!env.OWNER_ID) log.warn('OWNER_ID not set — owner commands disabled');
-
-        configCache = {
-            env: env,
-            botToken: env.BOT_TOKEN,
-            botUsername: env.BOT_USERNAME,
-            reactions: splitEmojis(env.EMOJI_LIST),
-            restrictedChats: getChatIds(env.RESTRICTED_CHATS),
-            randomLevel: (() => {
-                const parsed = parseInt(env.RANDOM_LEVEL || '0', 10);
-                return (isNaN(parsed) || parsed < 0 || parsed > 10) ? 0 : parsed;
-            })(),
-            ownerId: env.OWNER_ID || '',
-            webhookSecret: webhookSecret,
-            botPhoto: env.BOT_PHOTO || '',
-            botApi: new TelegramBotAPI(env.BOT_TOKEN)
-        };
-    }
-    return configCache;
-}
+import { returnHTML, log } from './helper.js';
+import { BotManager } from './bot-manager.js';
 
 export default {
     async fetch(request, env) {
-        const config = getConfig(env);
         const url = new URL(request.url);
+
+        // Lazy-init BotManager (cached per isolate)
+        if (!this._manager || this._managerEnv !== env) {
+            this._manager = new BotManager(env);
+            this._managerEnv = env;
+        }
+        const manager = this._manager;
 
         // Health check endpoint
         if (url.pathname === '/health' && request.method === 'GET') {
+            const bots = manager.getAllBots();
             return new Response(JSON.stringify({
                 status: 'ok',
                 timestamp: new Date().toISOString(),
                 environment: env.NODE_ENV || 'production',
-                botConfigured: !!config.botToken && !!config.botUsername,
-                webhookSecured: !!env.WEBHOOK_SECRET,
-                reactionsConfigured: config.reactions.length > 0,
-                restrictedChats: config.restrictedChats.length
+                bots: bots.map(b => ({
+                    username: b.username,
+                    webhookSecured: !!b.webhookSecret,
+                    reactionsConfigured: b.reactions.length > 0,
+                    restrictedChats: b.restrictedChats.length,
+                })),
+                botCount: manager.count,
             }), {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // Webhook endpoint (POST only)
-        if (request.method === 'POST') {
-            // Validate webhook secret
+        // Multi-bot webhook: POST /bot/<botId>
+        if (url.pathname.startsWith('/bot/') && request.method === 'POST') {
+            const botId = url.pathname.split('/')[2];
+            const bot = manager.getBot(botId);
+
+            if (!bot) {
+                return new Response('Unknown bot', { status: 404 });
+            }
+
             const token = request.headers.get('x-telegram-bot-api-secret-token');
-            if (token !== config.webhookSecret) {
-                log.warn('Webhook secret mismatch — rejecting');
+            if (token !== bot.webhookSecret) {
+                log.warn(`Webhook secret mismatch for @${bot.username}`);
                 return new Response('Forbidden', { status: 403 });
             }
 
-            // Reject oversized payloads
             const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
-            if (contentLength > 1048576) { // 1MB
+            if (contentLength > 1048576) {
                 return new Response('Payload too large', { status: 413 });
             }
 
             const data = await request.json();
             try {
-                await onUpdate(
-                    data, config.botApi, config.reactions,
-                    config.restrictedChats, config.botUsername,
-                    config.randomLevel, config.ownerId, config.webhookSecret,
-                    config.botPhoto
-                );
+                await manager.handleUpdate(botId, data);
             } catch (error) {
-                log.error('Webhook handler error:', error.message);
+                log.error(`Webhook error for @${bot.username}:`, error.message);
+            }
+
+            return new Response('Ok', { status: 200 });
+        }
+
+        // Single-bot webhook (backward compatible): POST /
+        if (request.method === 'POST' && url.pathname === '/') {
+            const token = request.headers.get('x-telegram-bot-api-secret-token');
+            const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+            if (contentLength > 1048576) {
+                return new Response('Payload too large', { status: 413 });
+            }
+
+            const data = await request.json();
+            const handled = await manager.handleBySecret(token, data);
+
+            if (!handled) {
+                log.warn('Webhook secret mismatch on /');
+                return new Response('Forbidden', { status: 403 });
             }
 
             return new Response('Ok', { status: 200 });
