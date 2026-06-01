@@ -228,7 +228,14 @@ ${cmdLines}${topChatsText}
 // ─── Keyboards ───
 
 function getStartKeyboard(botUsername, userId, ownerId) {
-    const keyboard = [
+    const keyboard = [];
+
+    // Website button (only if WEB_URL is set)
+    if (process.env.WEB_URL) {
+        keyboard.push([{ text: '🌐 Wᴇʙsɪᴛᴇ 🖥️', url: process.env.WEB_URL, style: 'success' }]);
+    }
+
+    keyboard.push(
         [
             { text: '✚ Aᴅᴅ Tᴏ Cʜᴀɴɴᴇʟ', url: `https://t.me/${botUsername}?startchannel=botstart`, style: 'success' },
             { text: 'Aᴅᴅ Tᴏ Gʀᴏᴜᴘ ✚', url: `https://t.me/${botUsername}?startgroup=botstart`, style: 'success' },
@@ -241,7 +248,7 @@ function getStartKeyboard(botUsername, userId, ownerId) {
             { text: '🎁 Dᴏɴᴀᴛᴇ', callback_data: 'cb_donate', style: 'primary' },
             { text: 'Sᴛᴀᴛs 📊', callback_data: 'cb_stats', style: 'primary' },
         ],
-    ];
+    );
 
     // Show admin panel button only to the owner
     if (ownerId && userId && String(userId) === String(ownerId)) {
@@ -259,7 +266,10 @@ function getHelpKeyboard(userId, ownerId) {
             { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
         ],
         [
-            { text: '💫 Rᴇᴀᴄᴛɪᴏɴs', callback_data: 'cb_reactions', style: 'success' },
+            { text: '👀 Rᴇᴀᴄᴛɪᴏɴs ✨', callback_data: 'cb_reactions', style: 'success' },
+        ],
+        [
+            { text: '🔔 Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ 💥', url: 'https://t.me/CodeFlix_Bots', style: 'primary' },
         ],
     ];
 

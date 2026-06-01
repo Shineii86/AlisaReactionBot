@@ -22,6 +22,11 @@ All notable changes to Alisa Reaction Bot are documented here.
 - **Added `api/bot-manager.js`** — Centralized multi-bot manager with webhook secret routing
 - **Added `/set-webhooks` endpoint** — Set webhooks for ALL bots in one POST request with `base_url`
 
+### 🎨 UI Updates
+
+- **Start menu** — Added optional "Website" button (via `WEB_URL` env var)
+- **Help menu** — Updated reactions button text to "👀 Rᴇᴀᴄᴛɪᴏɴs ✨", added "Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ" button
+
 ---
 
 ## [v2.15.4] — 2026-05-31
