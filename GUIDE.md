@@ -548,7 +548,6 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `RESTRICTED_CHATS` | Chat IDs where the bot never reacts | None | `-100123,456789` |
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
-| `WEB_URL` | Website URL for "Website" button on /start menu | None | `https://your-site.com` |
 | `FORCE_SUBSCRIBE_CHANNELS` | Channels users must join to use the bot | None | `@Channel1,@Channel2` |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | None | `https://example.com/photo.jpg` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |

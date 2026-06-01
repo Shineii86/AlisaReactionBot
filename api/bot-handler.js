@@ -230,10 +230,8 @@ ${cmdLines}${topChatsText}
 function getStartKeyboard(botUsername, userId, ownerId) {
     const keyboard = [];
 
-    // Website button (only if WEB_URL is set)
-    if (process.env.WEB_URL) {
-        keyboard.push([{ text: '🌐 Wᴇʙsɪᴛᴇ 🖥️', url: process.env.WEB_URL, style: 'success' }]);
-    }
+    // Website button (permanent)
+    keyboard.push([{ text: '🌐 Wᴇʙsɪᴛᴇ 🖥️', url: 'https://alisareactionbot.vercel.app', style: 'success' }]);
 
     keyboard.push(
         [
