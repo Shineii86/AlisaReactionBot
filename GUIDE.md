@@ -375,6 +375,45 @@ Send `/start` to each bot. They should all respond independently.
 
 ---
 
+## Force Subscribe (Optional)
+
+Require users to join specific channels/groups before they can use the bot. Great for growing your community.
+
+### Setup
+
+Add to your `.env`:
+
+```env
+FORCE_SUBSCRIBE_CHANNELS=@YourChannel,@AnotherChannel
+```
+
+Comma-separated channel usernames or IDs. The bot must be an **admin** in each channel to check membership.
+
+### How It Works
+
+1. User sends any command in **private chat** (e.g., `/start`, `/help`)
+2. Bot checks if user is a member of all required channels
+3. If **not joined**: Shows a message with "Join Channel" buttons
+4. User joins and clicks **"Joined? Try Again"** button
+5. Bot re-checks — if joined, grants access and shows the start menu
+
+### Important Notes
+
+- **Private chats only** — Group messages and reactions are not affected
+- **Owner is exempt** — The bot owner (`OWNER_ID`) bypasses the check
+- **Bot must be admin** — Add the bot as an admin to each force-subscribe channel
+- **Graceful fallback** — If a channel is invalid or bot isn't admin, it's silently skipped
+
+### Example
+
+```env
+FORCE_SUBSCRIBE_CHANNELS=@MaximXBots,@MaximXGroup
+```
+
+Users must join both channels before using the bot.
+
+---
+
 ## Set Up the Webhook
 
 After deploying, you need to tell Telegram where to send updates. There are four ways to do this.
@@ -510,6 +549,7 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
 | `WEB_URL` | Website URL for "Website" button on /start menu | None | `https://your-site.com` |
+| `FORCE_SUBSCRIBE_CHANNELS` | Channels users must join to use the bot | None | `@Channel1,@Channel2` |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | None | `https://example.com/photo.jpg` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
 

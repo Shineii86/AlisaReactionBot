@@ -40,13 +40,13 @@ function parseBotConfigs(env) {
         const configs = [];
 
         for (const entry of entries) {
-            const parts = entry.split(':');
-            if (parts.length < 2) {
+            const lastColon = entry.lastIndexOf(':');
+            if (lastColon === -1) {
                 log.warn(`[BotManager] Invalid BOT_TOKENS entry (need token:username): ${entry.substring(0, 20)}...`);
                 continue;
             }
-            const token = parts[0].trim();
-            const username = parts[1].trim();
+            const token = entry.substring(0, lastColon).trim();
+            const username = entry.substring(lastColon + 1).trim();
             if (!token || !username) {
                 log.warn(`[BotManager] Skipping empty token or username`);
                 continue;
@@ -103,6 +103,7 @@ export class BotManager {
                 api: new TelegramBotAPI(cfg.token),
                 reactions: splitEmojis(env.EMOJI_LIST),
                 restrictedChats: getChatIds(env.RESTRICTED_CHATS),
+                forceSubChannels: (env.FORCE_SUBSCRIBE_CHANNELS || '').split(',').map(s => s.trim()).filter(Boolean),
                 randomLevel,
                 ownerId: env.OWNER_ID || '',
                 webhookSecret: env.WEBHOOK_SECRET || globalThis.crypto.randomUUID(),
@@ -162,7 +163,8 @@ export class BotManager {
             data, bot.api, bot.reactions,
             bot.restrictedChats, bot.username,
             bot.randomLevel, bot.ownerId,
-            bot.webhookSecret, bot.botPhoto
+            bot.webhookSecret, bot.botPhoto,
+            bot.forceSubChannels
         );
     }
 

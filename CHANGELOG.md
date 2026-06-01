@@ -27,6 +27,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 - **Start menu** — Added optional "Website" button (via `WEB_URL` env var)
 - **Help menu** — Updated reactions button text to "👀 Aʟʏᴀ Rᴇᴀᴄᴛɪᴏɴs ✨", added "Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ" button
 - **Landing page** — Added "Multi-Bot" feature card
+- **Force Subscribe (optional)** — Users must join specified channels before using the bot (`FORCE_SUBSCRIBE_CHANNELS` env var). Private chats only, owner exempt. Includes "Joined? Try Again" callback button.
 
 ### 📖 Documentation
 

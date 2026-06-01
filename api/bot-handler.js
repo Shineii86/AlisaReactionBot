@@ -308,6 +308,59 @@ function getCloseKeyboard() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// FORCE SUBSCRIBE
+// ══════════════════════════════════════════════════════════════
+
+/**
+ * Check if a user is a member of all required force-subscribe channels.
+ *
+ * @param {Object} botApi - TelegramBotAPI instance
+ * @param {number|string} userId - Telegram user ID to check
+ * @param {Array<string>} channels - Channel usernames or IDs
+ * @returns {Promise<Object>} { subscribed: boolean, notJoined: Array }
+ */
+async function checkForceSubscribe(botApi, userId, channels) {
+    if (!channels || channels.length === 0) return { subscribed: true, notJoined: [] };
+
+    const notJoined = [];
+
+    for (const channel of channels) {
+        try {
+            const member = await botApi.getChatMember(channel, userId);
+            const status = member?.result?.status;
+            if (!status || ['left', 'kicked', 'banned'].includes(status)) {
+                notJoined.push(channel);
+            }
+        } catch {
+            // Channel might be invalid or bot not admin — skip silently
+            log.warn(`[ForceSub] Cannot check membership for ${channel}`);
+        }
+    }
+
+    return { subscribed: notJoined.length === 0, notJoined };
+}
+
+/**
+ * Build the "join required channels" message with buttons.
+ */
+function getForceSubMessage(notJoined) {
+    const buttons = notJoined.map((ch, i) => {
+        const clean = ch.replace(/^@/, '');
+        const url = clean.match(/^-?\d+$/)
+            ? `https://t.me/c/${clean.replace(/^-100/, '')}`
+            : `https://t.me/${clean}`;
+        return [{ text: `📢 Join Channel ${i + 1}`, url, style: 'success' }];
+    });
+
+    buttons.push([{ text: '✅ Jᴏɪɴᴇᴅ? Tʀʏ Aɢᴀɪɴ ↻', callback_data: 'cb_forcecheck', style: 'primary' }]);
+
+    return {
+        text: `<b>⚠️ Access Denied!</b>\n\nYou must join the required channel(s) to use this bot.\n\nPlease join and try again.`,
+        keyboard: buttons,
+    };
+}
+
+// ══════════════════════════════════════════════════════════════
 // MAIN HANDLER
 // ══════════════════════════════════════════════════════════════
 
@@ -325,8 +378,9 @@ function getCloseKeyboard() {
  * @param {string} ownerId - Bot owner's Telegram user ID
  * @param {string} webhookSecret - Webhook secret token
  * @param {string} botPhoto - Bot photo URL from env
+ * @param {Array} forceSubChannels - Channel usernames/IDs for force subscribe (optional)
  */
-export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto) {
+export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUsername, RandomLevel, ownerId, webhookSecret, botPhoto, forceSubChannels = []) {
 
     // Load persistent chat store (idempotent — only loads once)
     await Store.load();
@@ -399,6 +453,24 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     await editMsg(caption, keyboard);
                     break;
                 }
+                case 'cb_forcecheck': {
+                    // Re-check force subscribe status
+                    if (forceSubChannels.length > 0) {
+                        const { subscribed, notJoined } = await checkForceSubscribe(botApi, callbackUserId, forceSubChannels);
+                        if (subscribed) {
+                            await botApi.answerCallbackQuery(cq.id, '✅ Tʜᴀɴᴋ ʏᴏᴜ! Yᴏᴜ ᴄᴀɴ ɴᴏᴡ ᴜsᴇ ᴛʜᴇ ʙᴏᴛ.');
+                            const name = cq.from?.first_name || 'User';
+                            const caption = withAd(startMessage.replace('UserName', name));
+                            const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
+                            await editMsg(caption, keyboard);
+                        } else {
+                            await botApi.answerCallbackQuery(cq.id, '❌ Yᴏᴜ ʜᴀᴠᴇɴ\'ᴛ ᴊᴏɪɴᴇᴅ ᴀʟʟ ᴄʜᴀɴɴᴇʟs ʏᴇᴛ!', true);
+                        }
+                    } else {
+                        await botApi.answerCallbackQuery(cq.id, '✅ Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ.');
+                    }
+                    break;
+                }
                 case 'cb_close':
                     await botApi.deleteMessage(chatId, messageId);
                     break;
@@ -447,6 +519,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
         if (data.message && text) {
             const cmd = text.split(' ')[0].replace(/@\S+/, '');
             const args = text.split(' ').slice(1).join(' ');
+
+            // ─── Force Subscribe Check (private chats only, skip owner) ───
+            if (chatType === 'private' && forceSubChannels.length > 0 && String(userId) !== String(ownerId)) {
+                const { subscribed, notJoined } = await checkForceSubscribe(botApi, userId, forceSubChannels);
+                if (!subscribed) {
+                    const fsMsg = getForceSubMessage(notJoined);
+                    await botApi.sendMessage(chatId, fsMsg.text, fsMsg.keyboard);
+                    return;
+                }
+            }
 
             // /start
             if (cmd === '/start') {
