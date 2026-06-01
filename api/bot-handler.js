@@ -262,11 +262,11 @@ function getStartKeyboard(botUsername, userId, ownerId) {
 function getHelpKeyboard(userId, ownerId) {
     const keyboard = [
         [
-            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
-            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
+            { text: '👀 Aʟʏᴀ Rᴇᴀᴄᴛɪᴏɴs ✨', callback_data: 'cb_reactions', style: 'success' },
         ],
         [
-            { text: '👀 Rᴇᴀᴄᴛɪᴏɴs ✨', callback_data: 'cb_reactions', style: 'success' },
+            { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
+            { text: 'Sᴜᴘᴘᴏʀᴛ 💬', url: 'https://t.me/MaximXGroup', style: 'primary' },
         ],
         [
             { text: '🔔 Sᴘᴏɴsᴏʀᴇᴅ Cʜᴀɴɴᴇʟ 💥', url: 'https://t.me/CodeFlix_Bots', style: 'primary' },
