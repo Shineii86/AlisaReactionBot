@@ -347,13 +347,13 @@ function getForceSubMessage(notJoined) {
         const url = clean.match(/^-?\d+$/)
             ? `https://t.me/c/${clean.replace(/^-100/, '')}`
             : `https://t.me/${clean}`;
-        return [{ text: `📢 Join Channel ${i + 1}`, url, style: 'success' }];
+        return [{ text: `💖 Jᴏɪɴ Cʜᴀɴɴᴇʟ ✨`, url, style: 'success' }];
     });
 
-    buttons.push([{ text: '✅ Jᴏɪɴᴇᴅ? Tʀʏ Aɢᴀɪɴ ↻', callback_data: 'cb_forcecheck', style: 'primary' }]);
+    buttons.push([{ text: '✨ Jᴏɪɴᴇᴅ? Tʀʏ Aɢᴀɪɴ 💫', callback_data: 'cb_forcecheck', style: 'primary' }]);
 
     return {
-        text: `<b>⚠️ Access Denied!</b>\n\nYou must join the required channel(s) to use this bot.\n\nPlease join and try again.`,
+        text: `<b>✨ Aʟʏᴀ Sᴀʏs...</b>\n\n🎀 Yᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ(s) ʙᴇғᴏʀᴇ ᴜsɪɴɢ ᴍᴇ!\n\n💖 Jᴏɪɴ ɴᴏᴡ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ~`,
         keyboard: buttons,
     };
 }
@@ -456,16 +456,16 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     if (forceSubChannels.length > 0) {
                         const { subscribed, notJoined } = await checkForceSubscribe(botApi, callbackUserId, forceSubChannels);
                         if (subscribed) {
-                            await botApi.answerCallbackQuery(cq.id, '✅ Tʜᴀɴᴋ ʏᴏᴜ! Yᴏᴜ ᴄᴀɴ ɴᴏᴡ ᴜsᴇ ᴛʜᴇ ʙᴏᴛ.');
+                            await botApi.answerCallbackQuery(cq.id, '✨ Wᴇʟᴄᴏᴍᴇ! Aʟʏᴀ ɪs ʜᴀᴘᴘʏ ᴛᴏ sᴇᴇ ʏᴏᴜ~ 💖');
                             const name = cq.from?.first_name || 'User';
                             const caption = withAd(startMessage.replace('UserName', name));
                             const keyboard = getStartKeyboard(botUsername, callbackUserId, ownerId);
                             await editMsg(caption, keyboard);
                         } else {
-                            await botApi.answerCallbackQuery(cq.id, '❌ Yᴏᴜ ʜᴀᴠᴇɴ\'ᴛ ᴊᴏɪɴᴇᴅ ᴀʟʟ ᴄʜᴀɴɴᴇʟs ʏᴇᴛ!', true);
+                            await botApi.answerCallbackQuery(cq.id, '🎀 Yᴏᴜ ʜᴀᴠᴇɴ\'ᴛ ᴊᴏɪɴᴇᴅ ʏᴇᴛ! Pʟᴇᴀsᴇ ᴊᴏɪɴ ғɪʀsᴛ~ 💖', true);
                         }
                     } else {
-                        await botApi.answerCallbackQuery(cq.id, '✅ Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ.');
+                        await botApi.answerCallbackQuery(cq.id, '✨ Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ~ 💫');
                     }
                     break;
                 }
