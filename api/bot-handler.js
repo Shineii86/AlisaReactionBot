@@ -231,7 +231,7 @@ function getStartKeyboard(botUsername, userId, ownerId) {
     const keyboard = [];
 
     // Website button (permanent)
-    keyboard.push([{ text: '🌐 Wᴇʙsɪᴛᴇ 🖥️', url: 'https://alisareactionbot.vercel.app', style: 'success' }]);
+    keyboard.push([{ text: '✨ Aʟʏᴀ Wᴇʙsɪᴛᴇ 🔮', url: 'https://alisareactionbot.vercel.app', style: 'success' }]);
 
     keyboard.push(
         [
