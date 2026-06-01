@@ -383,7 +383,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 | `RESTRICTED_CHATS` | Chat IDs to exclude (comma separated) | `-100123,456789` | ❌ |
 | `OWNER_ID` | Telegram user ID for owner-only commands | `123456789` | ❌ |
 | `WEBHOOK_SECRET` | Secret token for webhook validation | `a1b2c3d4...` | ❌ |
-| `FORCE_SUBSCRIBE_CHANNELS` | Channels users must join (comma-separated) | `@Channel1,@Channel2` | ❌ |
+| `FORCE_SUBSCRIBE_CHANNELS` | Channels users must join (comma-separated). Public (`@username`) or private (`-100xxx` ID) | `@Channel1,-100123456` | ❌ |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | `https://example.com/photo.jpg` | ❌ |
 | `PORT` | Server port for Docker/VPS | `3000` | ❌ |
 

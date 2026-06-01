@@ -389,6 +389,52 @@ FORCE_SUBSCRIBE_CHANNELS=@YourChannel,@AnotherChannel
 
 Comma-separated channel usernames or IDs. The bot must be an **admin** in each channel to check membership.
 
+### Public vs Private Channels
+
+#### Public Channels (have @username)
+
+Simply use the `@username`:
+
+```env
+FORCE_SUBSCRIBE_CHANNELS=@MaximXBots,@MaximXGroup
+```
+
+The "Join Channel" button will link to `https://t.me/MaximXBots`.
+
+#### Private Channels (no @username)
+
+Private channels don't have a public username. You need the **channel ID** (a negative number like `-1001234567890`).
+
+**How to get the channel ID:**
+
+1. **Method 1 — Forward a message:**
+   - Forward any message from the private channel to [@userinfobot](https://t.me/userinfobot) or [@getidsbot](https://t.me/getidsbot)
+   - It will reply with the channel ID (e.g., `-1001234567890`)
+
+2. **Method 2 — Use the bot itself:**
+   - Add your bot to the private channel as admin
+   - Send any message in the channel
+   - Check the bot logs — the `chatId` will appear
+
+3. **Method 3 — Telegram API:**
+   ```bash
+   curl "https://api.telegram.org/botYOUR_TOKEN/getUpdates" | grep -o '"chat":{[^}]*}' | head -5
+   ```
+
+**Using private channel ID in .env:**
+
+```env
+FORCE_SUBSCRIBE_CHANNELS=@PublicChannel,-1001234567890
+```
+
+You can mix public (`@username`) and private (`-100xxx`) channels.
+
+**Important for private channels:**
+- The bot **must be added as admin** to the private channel
+- The "Join Channel" button will link to `https://t.me/c/1234567890` (private invite link)
+- Users must be **manually invited** or have an **invite link** to join private channels
+- If the channel has a public invite link (e.g., `https://t.me/+ABCDEF`), users can join via the button
+
 ### How It Works
 
 1. User sends any command in **private chat** (e.g., `/start`, `/help`)
@@ -404,13 +450,24 @@ Comma-separated channel usernames or IDs. The bot must be an **admin** in each c
 - **Bot must be admin** — Add the bot as an admin to each force-subscribe channel
 - **Graceful fallback** — If a channel is invalid or bot isn't admin, it's silently skipped
 
-### Example
+### Examples
 
+**Public channels only:**
 ```env
 FORCE_SUBSCRIBE_CHANNELS=@MaximXBots,@MaximXGroup
 ```
 
-Users must join both channels before using the bot.
+**Private channel only:**
+```env
+FORCE_SUBSCRIBE_CHANNELS=-1001234567890
+```
+
+**Mixed public + private:**
+```env
+FORCE_SUBSCRIBE_CHANNELS=@MaximXBots,-1001234567890,@CodeFlix_Bots
+```
+
+Users must join all listed channels before using the bot.
 
 ---
 
