@@ -109,6 +109,53 @@ app.get('/', (req, res) => {
     res.send(htmlContent);
 });
 
+// ─── Set Webhooks for All Bots ───
+// POST /set-webhooks  { "base_url": "https://your-domain.com" }
+// Registers webhook for every bot in one request: <base_url>/bot/<botId>
+app.post('/set-webhooks', async (req, res) => {
+    const { base_url } = req.body;
+    if (!base_url) {
+        return res.status(400).json({ error: 'base_url is required' });
+    }
+
+    const cleanUrl = base_url.replace(/\/+$/, '');
+    const results = [];
+
+    for (const bot of manager.getAllBots()) {
+        const webhookUrl = `${cleanUrl}/bot/${bot.botId}`;
+        try {
+            const resp = await fetch(
+                `https://api.telegram.org/bot${bot.token}/setWebhook`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: webhookUrl,
+                        secret_token: bot.webhookSecret,
+                    }),
+                }
+            );
+            const data = await resp.json();
+            results.push({
+                bot: `@${bot.username}`,
+                url: webhookUrl,
+                ok: data.ok,
+                description: data.description || null,
+            });
+            log.info(`[Webhook] @${bot.username} → ${webhookUrl} (${data.description})`);
+        } catch (error) {
+            results.push({
+                bot: `@${bot.username}`,
+                url: webhookUrl,
+                ok: false,
+                error: error.message,
+            });
+        }
+    }
+
+    res.json({ ok: true, results });
+});
+
 // ─── Health Check ───
 app.get('/health', (req, res) => {
     const bots = manager.getAllBots();

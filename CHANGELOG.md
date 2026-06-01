@@ -20,6 +20,7 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 - **Refactored entry points** — `index.js` and `worker.js` now use `BotManager` instead of direct `TelegramBotAPI` instantiation
 - **Added `api/bot-manager.js`** — Centralized multi-bot manager with webhook secret routing
+- **Added `/set-webhooks` endpoint** — Set webhooks for ALL bots in one POST request with `base_url`
 
 ---
 
