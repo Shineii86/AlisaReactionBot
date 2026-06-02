@@ -222,8 +222,6 @@ ${cmdLines}${topChatsText}
 // ══════════════════════════════════════════════════════════════
 // INLINE KEYBOARDS
 // ══════════════════════════════════════════════════════════════
-// INLINE KEYBOARDS
-// ══════════════════════════════════════════════════════════════
 
 // ─── Keyboards ───
 
@@ -231,7 +229,7 @@ function getStartKeyboard(botUsername, userId, ownerId) {
     const keyboard = [];
 
     // Website button (permanent)
-    keyboard.push([{ text: '✨ Aʟʏᴀ Wᴇʙsɪᴛᴇ 🔮', url: 'https://alisareactionbot.vercel.app', style: 'success' }]);
+    keyboard.push([{ text: '✨ Aʟɪsᴀ Wᴇʙsɪᴛᴇ 🔮', url: 'https://alisareactionbot.vercel.app', style: 'success' }]);
 
     keyboard.push(
         [
@@ -260,7 +258,7 @@ function getStartKeyboard(botUsername, userId, ownerId) {
 function getHelpKeyboard(userId, ownerId) {
     const keyboard = [
         [
-            { text: '👀 Aʟʏᴀ Rᴇᴀᴄᴛɪᴏɴs ✨', callback_data: 'cb_reactions', style: 'success' },
+            { text: '👀 Aʟɪsᴀ Rᴇᴀᴄᴛɪᴏɴs ✨', callback_data: 'cb_reactions', style: 'success' },
         ],
         [
             { text: '🔔 Uᴘᴅᴀᴛᴇs', url: 'https://t.me/MaximXBots', style: 'primary' },
@@ -465,7 +463,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                             await botApi.answerCallbackQuery(cq.id, '✨ Хмпф! Yᴏᴜ Sᴛɪʟʟ Hᴀᴠᴇɴ\'ᴛ Jᴏɪɴᴇᴅ. Tʀʏ Hᴀʀᴅᴇʀ~ 💖', true);
                         }
                     } else {
-                        await botApi.answerCallbackQuery(cq.id, '🎀 Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ ɪs ᴅɪsᴀʙʟᴇᴅ. Lᴜᴄᴋʏ Yᴏᴜ~ ✨');
+                        await botApi.answerCallbackQuery(cq.id, '🎀 Fᴏʀᴄᴇ Sᴜʙsᴄʀɪʙᴇ Is Dɪsᴀʙʟᴇᴅ. Lᴜᴄᴋʏ Yᴏᴜ~ ✨');
                     }
                     break;
                 }
@@ -581,7 +579,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                     }
                 } catch {
                     const latency = Date.now() - start;
-                    const pingText = withAd(pingMessage(latency) + `\n🕐 ${formatIST(Date.now())}`);
+                    const pingText = withAd(pingMessage(latency) + `\n\n🕐 ${formatIST(Date.now())}`);
                     const sent2 = await botApi.sendMessage(chatId, pingText, getCloseKeyboard(), linkPreview);
                     trackBotMessage(chatId, sent2);
                 }
@@ -925,7 +923,7 @@ export async function onUpdate(data, botApi, Reactions, RestrictedChats, botUser
                 const summary = `📊 ${groups} ɢʀᴏᴜᴘs · ${channels} ᴄʜᴀɴɴᴇʟs · ${privates} ᴘʀɪᴠᴀᴛᴇ`;
                 await cleanupMessages(botApi, chatId, message_id);
                 const sent = await botApi.sendMessage(chatId,
-                    withAd(`💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | ᴍsɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`),
+                    withAd(`💬 <b>Aʟʟ Cʜᴀᴛs (${allChats.length}):</b>\n\n${chatLines}\n\n${summary}\n\n⏸️ = Pᴀᴜsᴇᴅ | 🚫 = Rᴇsᴛʀɪᴄᴛᴇᴅ | Msɢs = Tᴏᴛᴀʟ Mᴇssᴀɢᴇs`),
                     getCloseKeyboard(), linkPreview
                 );
                 trackBotMessage(chatId, sent);
