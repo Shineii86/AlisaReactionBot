@@ -29,7 +29,7 @@
         "required": false
       },
       "WEBHOOK_SECRET": {
-        "description": "Secret token for webhook validation. Auto-generated if not set.",
+        "description": "Secret token for webhook validation (optional). Validation disabled when not set.",
         "required": false
       },
       "BOT_PHOTO": {

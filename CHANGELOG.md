@@ -4,6 +4,33 @@ All notable changes to Alisa Reaction Bot are documented here.
 
 ---
 
+## [v2.16.1] — 2026-06-29
+
+### 🐛 Bug Fixes
+
+- **Made `WEBHOOK_SECRET` fully optional** — Previously, the bot auto-generated a random UUID secret when `WEBHOOK_SECRET` was not set, which caused webhook validation failures for users who set up webhooks via BotFather without a secret token. Now:
+  - If `WEBHOOK_SECRET` is **not set**: webhook secret validation is completely disabled, all incoming requests are accepted without header checking
+  - If `WEBHOOK_SECRET` **is set**: validation works as before, rejecting requests with mismatched secrets
+  - `/set-webhooks` endpoint only sends `secret_token` to Telegram when configured
+  - `/health` endpoint now shows `webhookValidation: "enabled" | "disabled"` per bot
+  - Updated log warning to clarify that validation is disabled (not auto-generated)
+
+- **Fixed version fallback mismatch** — `version.js` Cloudflare Workers fallback was still `2.16.0`, now matches `2.16.1`
+
+### 🔧 Changes
+
+- `api/botManager.js` — Removed auto-generation of random UUID fallback; `webhookSecret` is now empty string when `WEBHOOK_SECRET` is not set
+- `api/index.js` — Webhook secret validation in both multi-bot (`POST /bot/:botId`) and single-bot (`POST /`) endpoints is now conditional on whether a secret is configured
+- `api/alisaAPI.js` — `setWebhook()` only includes `secret_token` parameter when non-empty
+- `api/version.js` — Updated fallback version to `2.16.1`
+- `api/landing.js` — Updated feature card version tag to `v2.16.1`
+- `.env.example` — Updated `WEBHOOK_SECRET` comment to clarify it is optional and that validation is disabled when not set
+- `app.json` — Updated `WEBHOOK_SECRET` description
+- `README.md` — Updated all `WEBHOOK_SECRET` references to reflect optional/disabled behavior, fixed `botHandler.js` filename references, removed already-implemented "per-group random level override" from contribution ideas, updated latest version to v2.16.1
+- `GUIDE.md` — Updated all `WEBHOOK_SECRET` references, fixed `botManager.js` filename reference, corrected `/restrict` persistence to "Yes" (was incorrectly marked as "No")
+
+---
+
 ## [v2.16.0] — 2026-06-02
 
 ### ✨ New Features

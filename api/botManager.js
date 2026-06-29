@@ -106,7 +106,7 @@ export class BotManager {
                 forceSubChannels: (env.FORCE_SUBSCRIBE_CHANNELS || '').split(',').map(s => s.trim()).filter(Boolean),
                 randomLevel,
                 ownerId: env.OWNER_ID || '',
-                webhookSecret: env.WEBHOOK_SECRET || globalThis.crypto.randomUUID(),
+                webhookSecret: env.WEBHOOK_SECRET || '',
                 botPhoto: env.BOT_PHOTO || '',
             };
 

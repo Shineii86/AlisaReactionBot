@@ -163,7 +163,7 @@ wrangler secret put BOT_TOKEN
 # Paste your bot token when prompted
 
 wrangler secret put WEBHOOK_SECRET
-# Paste your webhook secret when prompted (optional — auto-generated if not set)
+# Paste your webhook secret when prompted (optional — validation disabled when not set)
 ```
 
 For non-secret variables, add them in the Cloudflare Dashboard:
@@ -349,7 +349,7 @@ Send `/start` to each bot. They should all respond independently.
 
 ### How It Works
 
-- `api/bot-manager.js` parses `BOT_TOKENS` and creates a `TelegramBotAPI` instance per bot
+- `api/botManager.js` parses `BOT_TOKENS` and creates a `TelegramBotAPI` instance per bot
 - Each bot registers its webhook at `/bot/<username>`
 - Incoming updates are routed by URL path to the correct bot
 - All bots share the same storage (reactions, stats, chat registry)
@@ -598,12 +598,12 @@ https://api.telegram.org/botYOUR_BOT_TOKEN/deleteWebhook
 | `RANDOM_LEVEL` | How often the bot reacts in groups (0-10) | `0` (always) | `5` |
 | `RESTRICTED_CHATS` | Chat IDs where the bot never reacts | None | `-100123,456789` |
 | `OWNER_ID` | Telegram user ID for owner-only commands | None | `123456789` |
-| `WEBHOOK_SECRET` | Secret token for webhook validation | Auto-generated | `a1b2c3d4...` |
+| `WEBHOOK_SECRET` | Secret token for webhook validation | None (validation disabled) | `a1b2c3d4...` |
 | `FORCE_SUBSCRIBE_CHANNELS` | Channels users must join to use the bot | None | `@Channel1,@Channel2` |
 | `BOT_PHOTO` | Photo URL or Telegram file_id for bot messages | None | `https://example.com/photo.jpg` |
 | `PORT` | Server port for Docker/VPS | `3000` | `8080` |
 
-> **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
+> **Note:** If `WEBHOOK_SECRET` is not set, webhook secret validation is disabled. If `OWNER_ID` is not set, owner-only commands (`/broadcast`, `/log`, `/leave`, `/chats`, `/restrict`, `/setwebhook`) are disabled.
 
 ### Upstash Redis Variables (Free — Recommended for Vercel)
 
@@ -1083,7 +1083,7 @@ If there's an error:
 
 **Requirements:**
 - URL must start with `https://`
-- The bot must have the `WEBHOOK_SECRET` set (or one is auto-generated)
+- The bot should have `WEBHOOK_SECRET` set (optional — validation disabled when not set)
 
 ### /log — View Reaction History
 
@@ -1492,11 +1492,11 @@ The `/stats` command shows which storage backend is active:
 
 ### Webhook Secret
 
-When `WEBHOOK_SECRET` is set (or auto-generated), the bot validates every incoming request. Telegram includes the secret in the `x-telegram-bot-api-secret-token` header. If the secret doesn't match, the request is rejected with a 403 error.
+When `WEBHOOK_SECRET` is set, the bot validates every incoming request. Telegram includes the secret in the `x-telegram-bot-api-secret-token` header. If the secret doesn't match, the request is rejected with a 403 error.
 
 This prevents someone from sending fake updates to your bot.
 
-**Auto-generation:** If you don't set `WEBHOOK_SECRET`, a random UUID is generated at startup. The webhook still works, but you must include this generated secret when setting the webhook via API.
+**When not set:** If you don't set `WEBHOOK_SECRET`, webhook secret validation is completely disabled and all incoming requests are accepted. This is fine for development or if your bot is behind other security measures.
 
 **How to set it manually:**
 
@@ -1719,7 +1719,7 @@ Yes! Use `/leave <chat_id>` or `/remove <chat_id>`. The bot leaves the chat on i
 |---|---|---|
 | Set via | Environment variable | Telegram command |
 | Who can set it | Server admin | Bot owner |
-| Persists across restarts | ✅ Yes | ❌ No |
+| Persists across restarts | ✅ Yes | ✅ Yes |
 | Can be changed at runtime | ❌ No | ✅ Yes |
 
 You can use both — the bot checks both sources.

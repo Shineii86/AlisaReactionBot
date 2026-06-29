@@ -122,7 +122,7 @@ Her tsundere personality — cold on the outside, warm on the inside — gives t
 <td>
 
 ### 🛡️ Security & Privacy
-- **Webhook Secret Validation** — Rejects spoofed requests (auto-generated if not set)
+- **Webhook Secret Validation** — Rejects spoofed requests (disabled when not set)
 - **Owner-Only Commands** — Broadcast, log, leave, chats, restrict, webhook restricted to owner
 - **Admin Permission Checks** — `/setreactions`, `/pause`, `/resume` require group admin rights
 - **No Message Storage** — Only metadata (chat IDs, counters) is persisted, never message content
@@ -389,7 +389,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 
 > *Either `BOT_TOKEN` + `BOT_USERNAME` OR `BOT_TOKENS` is required. `BOT_TOKENS` takes precedence.
 
-> **Note:** If `WEBHOOK_SECRET` is not set, a random secret is auto-generated at startup. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
+> **Note:** If `WEBHOOK_SECRET` is not set, webhook secret validation is disabled. If `OWNER_ID` is not set, owner-only commands are disabled. If `EMOJI_LIST` is not set, the bot will not react to any messages.
 
 ### Redis Variables (Optional — for persistent storage on serverless)
 
@@ -423,7 +423,7 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"
 
 ### Webhook Validation
 
-When `WEBHOOK_SECRET` is set (or auto-generated), the bot validates every incoming request against the `x-telegram-bot-api-secret-token` header. Requests with an invalid or missing secret are rejected with `403 Forbidden`.
+When `WEBHOOK_SECRET` is set, the bot validates every incoming request against the `x-telegram-bot-api-secret-token` header. Requests with an invalid or missing secret are rejected with `403 Forbidden`. If `WEBHOOK_SECRET` is not set, validation is disabled and all requests are accepted.
 
 Set the secret via `/setwebhook` or BotFather:
 ```json
@@ -511,8 +511,8 @@ AlisaReactionBot/
 
 1. User sends a message in Telegram
 2. Telegram forwards it to your webhook (POST `/`)
-3. Bot validates the webhook secret
-4. `bot-handler.js` processes the update:
+3. Bot validates the webhook secret (if configured)
+4. `botHandler.js` processes the update:
    - Command? → Execute command, send response
    - Regular message? → Check restrictions, rate limit, pick emoji, react
 5. Stats are updated in-memory
@@ -523,8 +523,8 @@ AlisaReactionBot/
 1. User sends a message to any of your bots
 2. Telegram forwards to the bot's webhook path (POST `/bot/<botId>`)
 3. `BotManager` routes to the correct bot instance by URL path
-4. Each bot validates its own webhook secret
-5. `bot-handler.js` processes the update for that specific bot
+4. Each bot validates its own webhook secret (if configured)
+5. `botHandler.js` processes the update for that specific bot
 6. `200 OK` returned to Telegram
 
 **Memory Model:**
@@ -584,7 +584,6 @@ npm run cloudflare         # Wrangler dev server
 - [ ] Language/locale support (`/language`)
 - [ ] Inline mode for searching reactions
 - [ ] Reaction charts (visual stats images)
-- [ ] Per-group random level override
 - [ ] Scheduled quiet hours (no reactions at night)
 - [ ] Reaction streak tracking
 - [ ] Welcome message customization
@@ -684,7 +683,7 @@ How many bots can you run? It depends on your platform and plan.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
-**Latest: v2.16.0** — Multi-bot support (run multiple bots from one deployment), `/set-webhooks` endpoint, updated keyboards.
+**Latest: v2.16.1** — Made WEBHOOK_SECRET fully optional — validation disabled when not set, multi-bot support, `/set-webhooks` endpoint.
 
 ---
 

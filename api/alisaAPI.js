@@ -109,11 +109,14 @@ export default class TelegramBotAPI {
     }
 
     async setWebhook(url, secretToken = '') {
-        return this.callApi('setWebhook', {
+        const body = {
             url: url,
-            secret_token: secretToken,
             allowed_updates: ['message', 'channel_post', 'callback_query']
-        });
+        };
+        if (secretToken) {
+            body.secret_token = secretToken;
+        }
+        return this.callApi('setWebhook', body);
     }
 
     async getWebhookInfo() {

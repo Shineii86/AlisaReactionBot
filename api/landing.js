@@ -768,7 +768,7 @@ export const htmlContent = `
           <div class="feat-icon c1"><i data-lucide="users"></i></div>
           <h3>Multi-Bot</h3>
           <p>Run multiple bots from a single deployment. One codebase, one server, unlimited bots.</p>
-          <span class="feat-tag">v2.16</span>
+          <span class="feat-tag">v2.16.1</span>
         </div>
       </div>
     </div>

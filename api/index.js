@@ -49,7 +49,7 @@ if (!process.env.EMOJI_LIST) {
 }
 
 if (!process.env.WEBHOOK_SECRET) {
-    log.warn('WEBHOOK_SECRET not set — auto-generated random secrets for this session');
+    log.warn('WEBHOOK_SECRET not set — webhook secret validation disabled (set WEBHOOK_SECRET for extra security)');
 }
 
 if (!process.env.OWNER_ID) {
@@ -74,11 +74,13 @@ app.post('/bot/:botId', async (req, res) => {
         return res.status(404).send('Unknown bot');
     }
 
-    // Validate webhook secret
-    const token = req.headers['x-telegram-bot-api-secret-token'];
-    if (token !== bot.webhookSecret) {
-        log.warn(`Webhook secret mismatch for @${bot.username} — rejecting`);
-        return res.status(403).send('Forbidden');
+    // Validate webhook secret (only if configured)
+    if (bot.webhookSecret) {
+        const token = req.headers['x-telegram-bot-api-secret-token'];
+        if (token !== bot.webhookSecret) {
+            log.warn(`Webhook secret mismatch for @${bot.username} — rejecting`);
+            return res.status(403).send('Forbidden');
+        }
     }
 
     try {
@@ -97,8 +99,14 @@ app.post('/', async (req, res) => {
     const handled = await manager.handleBySecret(token, req.body);
 
     if (!handled) {
-        log.warn('Webhook secret mismatch on / — rejecting');
-        return res.status(403).send('Forbidden');
+        // If no secrets are configured (all empty), accept all requests
+        const anySecret = manager.getAllBots().some(b => b.webhookSecret);
+        if (anySecret) {
+            log.warn('Webhook secret mismatch on / — rejecting');
+            return res.status(403).send('Forbidden');
+        }
+        // No secrets configured — accept without validation
+        await manager.handleUpdate(manager.getAllBots()[0]?.botId, req.body);
     }
 
     res.status(200).send('Ok');
@@ -124,15 +132,16 @@ app.post('/set-webhooks', async (req, res) => {
     for (const bot of manager.getAllBots()) {
         const webhookUrl = `${cleanUrl}/bot/${bot.botId}`;
         try {
+            const payload = { url: webhookUrl };
+            if (bot.webhookSecret) {
+                payload.secret_token = bot.webhookSecret;
+            }
             const resp = await fetch(
                 `https://api.telegram.org/bot${bot.token}/setWebhook`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url: webhookUrl,
-                        secret_token: bot.webhookSecret,
-                    }),
+                    body: JSON.stringify(payload),
                 }
             );
             const data = await resp.json();
@@ -167,6 +176,7 @@ app.get('/health', (req, res) => {
         bots: bots.map(b => ({
             username: b.username,
             webhookSecured: !!b.webhookSecret,
+            webhookValidation: b.webhookSecret ? 'enabled' : 'disabled',
             reactionsConfigured: b.reactions.length > 0,
             restrictedChats: b.restrictedChats.length,
         })),
